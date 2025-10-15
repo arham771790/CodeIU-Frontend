@@ -149,11 +149,10 @@ const ProblemsPage = () => {
           ) : (
             <div>
               {problems.map((problem, index) => (
-               <Link href= {`/per-problem/${problem.id}`} key={index}>
+               <Link href= {`/Each-problem/${problem.id}`} key={problem.id}>
                  <div
-                  key={index}
                   className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
-                >
+                 >
                   <div className="col-span-6">
                     <p className="text-white font-medium">{problem.title}</p>
                   </div>
