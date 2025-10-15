@@ -21,6 +21,8 @@ export const useProblemStore = create((set) => ({
         set({ isCreatingProblem : true })
 
         const result = await axiosInstanceProblemService.post("/problem/createProblem", data)
+        console.log("....................responce from create problem function .............................");
+        console.log(result);
         toast.success("problem created successfully")
         
     } catch (error) {
