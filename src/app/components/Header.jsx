@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '../store/useAuthStore';
+import { Loader2 } from 'lucide-react';
 
 
 export default function Header() {
 
- const { isLoggingIn,authUser}=useAuthStore()
+const { isLoggingIn,authUser , logout , isLoggingOut}=useAuthStore()
  
 console.log(authUser);
 
@@ -95,6 +96,18 @@ console.log(authUser);
               </li>
             </ul>:
             <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
+              <li className='mr-2'>
+                <button className="p-1 hover:text-white  hover:bg-red-800 gap-2 rounded bg-white/80 text-black transition-colors relative group"
+                onClick={logout}>
+                 {
+                  isLoggingOut ? (
+                    <> <Loader2 className="h-5 w-5 animate-spin" /></>
+                  ) : (
+                   "Logout"
+                  )
+                 }
+                </button>
+              </li>
               <li className=''>
                 <button className="p-1 hover:text-blue-400 gap-2 rounded bg-white/80 text-black transition-colors relative group">
                User:  {authUser?.username}

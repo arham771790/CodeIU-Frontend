@@ -1,9 +1,20 @@
 "use client";
 
-import { useState , useEffect } from "react";
-import { Search, ArrowUpDown, Filter, Shuffle, Moon, Loader2, Loader , Ellipsis} from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  ArrowUpDown,
+  Filter,
+  Shuffle,
+  Moon,
+  Loader2,
+  Loader,
+  Ellipsis,
+  Plus,
+} from "lucide-react";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import Link from "next/link";
 
 const problemSets = [
   {
@@ -23,7 +34,6 @@ const problemSets = [
   },
 ];
 
-
 const DifficultyChip = ({ difficulty }) => {
   const color =
     difficulty === "EASY"
@@ -35,13 +45,12 @@ const DifficultyChip = ({ difficulty }) => {
 };
 
 const ProblemsPage = () => {
-
-  const {authUser} = useAuthStore();
+  const { authUser } = useAuthStore();
 
   console.log("authuser..........................");
   console.log(authUser);
 
-  const { isProblemsLoading , problems , getAllProblems} = useProblemStore();
+  const { isProblemsLoading, problems, getAllProblems } = useProblemStore();
 
   useEffect(() => {
     getAllProblems();
@@ -87,9 +96,7 @@ const ProblemsPage = () => {
                   </div>
                 </div>
                 <div className="flex justify-between items-end mt-15">
-                  <span>
-                    {set.author}
-                  </span>
+                  <span>{set.author}</span>
                   <span className="text-2xl filter opacity-60">🌊</span>
                 </div>
               </div>
@@ -108,13 +115,21 @@ const ProblemsPage = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 transition-colors">
+            {authUser.role === "ADMIN" && (
+              <Link href="/CreateProblem">
+                <button className="p-2.5 bg-gray-800 border border-gray-700/50 font-bold rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
+                  <Plus className="w-5 h-5 text-gray-400 font-bold" />
+                </button>
+              </Link>
+            )}
+
+            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
               <ArrowUpDown className="w-5 h-5 text-gray-400" />
             </button>
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 transition-colors">
+            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
               <Filter className="w-5 h-5 text-gray-400" />
             </button>
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 transition-colors">
+            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
               <Shuffle className="w-5 h-5 text-gray-400" />
             </button>
           </div>
@@ -133,25 +148,26 @@ const ProblemsPage = () => {
             </div>
           ) : (
             <div>
-            {problems.map((problem, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
-              >
-                <div className="col-span-6">
-                  <p className="text-white font-medium">{problem.title}</p>
+              {problems.map((problem, index) => (
+               <Link href= {`/per-problem/${problem.id}`} key={index}>
+                 <div
+                  key={index}
+                  className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
+                >
+                  <div className="col-span-6">
+                    <p className="text-white font-medium">{problem.title}</p>
+                  </div>
+                  <div className="col-span-3 text-center">
+                    <DifficultyChip difficulty={problem.difficulty} />
+                  </div>
+                  <div className="col-span-3 text-right">
+                    <p className="text-gray-400">{problem.acceptance}</p>
+                  </div>
                 </div>
-                <div className="col-span-3 text-center">
-                  <DifficultyChip difficulty={problem.difficulty} />
-                </div>
-                <div className="col-span-3 text-right">
-                  <p className="text-gray-400">{problem.acceptance}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+               </Link>
+              ))}
+            </div>
           )}
-          
         </div>
       </div>
     </div>
