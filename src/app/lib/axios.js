@@ -25,3 +25,12 @@ export const axiosInstanceSubmissionService = axios.create({
       : "/api/v1",
   withCredentials: true,
 });
+
+export const axiosInstanceContestService = axios.create({
+  baseURL:
+    process.env.NEXT_PUBLIC_MODE === "development"
+      ? "http://localhost:8090/api/v1"
+      : "/api/v1",
+  withCredentials: true,
+});
+
