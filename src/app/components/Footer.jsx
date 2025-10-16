@@ -11,7 +11,7 @@ export default function Footer() {
             Your gateway to the future of web development.<br />
             Building tomorrow's applications with cutting-edge technology.
           </p>
-          <div className="flex space-x-3 mt-6 space-x-5">
+          <div className="flex  mt-6 space-x-5">
               <a href="#" className="hover:text-cyan-400">
                 <Instagram className="w-5 h-5" />
               </a>
