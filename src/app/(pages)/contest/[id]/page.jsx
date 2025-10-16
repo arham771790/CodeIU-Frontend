@@ -40,7 +40,7 @@ export default function ContestDetailPage() {
     <div className="min-h-screen bg-black text-gray-200">
       <ContestHeader contest={contest} />
 
-      <div className="px-4 md:px-8 mt-6">
+      <div className=" md:px-8 mt-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h2 className="text-lg md:text-xl font-semibold text-white">Contest Overview</h2>
           {isAdmin && <AdminAttachProblemsDialog contestId={contest.id} />}
