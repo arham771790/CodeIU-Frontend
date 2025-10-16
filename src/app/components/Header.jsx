@@ -4,11 +4,28 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '../store/useAuthStore';
 import { Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import Profile from './smallcomponents/Profile';
+import Image from 'next/image';
 
 
 export default function Header() {
 
 const { isLoggingIn,authUser , logout , isLoggingOut}=useAuthStore()
+const [image,setImage]=useState('https://randomuser.me/api/portraits/med/men/31.jpg');
+const [isProfileOpen,setIsProfileOpen]=useState(false);
+
+useEffect(()=>{
+ (async function fetchimage()
+ {
+  const res = await axios.get('https://randomuser.me/api?gender=male')
+  console.log(res.data.results[0].picture?.medium);
+  setImage(res.data.results[0].picture?.medium);
+ })()
+  
+
+},[])
  
 console.log(authUser);
 
@@ -88,32 +105,24 @@ console.log(authUser);
         <div className=" flex  px-4 py-2 rounded-full">
        
           <nav className="hidden md:block">
-          { !authUser?.username? <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
-              <li className=''>
-                <Link href="/login"  className="text-white hover:text-blue-400 gap-2  transition-colors relative group">
-                  Sign in
-                </Link>
-              </li>
-            </ul>:
-            <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
+          { authUser &&
+          ( <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
               <li className='mr-2'>
-                <button className="p-1 hover:text-white  hover:bg-red-800 gap-2 rounded bg-white/80 text-black transition-colors relative group"
-                onClick={logout}>
-                 {
-                  isLoggingOut ? (
-                    <> <Loader2 className="h-5 w-5 animate-spin" /></>
-                  ) : (
-                   "Logout"
-                  )
-                 }
-                </button>
+             {(<div onClick={()=>setIsProfileOpen((p)=>!p)} className="cursor-pointer bg-white/30 rounded-full p-1 relative">
+             <Image src={image} alt="Profile" width={40} height={40} className="rounded-full" />
+          {isProfileOpen  &&(
+            <div className="absolute right-0  mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-20">
+              <Profile logout={logout} isLoggingOut={isLoggingOut} authUser={authUser} setIsProfileOpen={setIsProfileOpen}/>
+            </div>
+          )}
+             </div>)}
               </li>
               <li className=''>
                 <button className="p-1 hover:text-blue-400 gap-2 rounded bg-white/80 text-black transition-colors relative group">
                User:  {authUser?.username}
                 </button>
               </li>
-            </ul>
+            </ul>)
             }
           </nav>
         </div>  

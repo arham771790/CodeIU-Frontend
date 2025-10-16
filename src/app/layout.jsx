@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
 import "./bg.css";
+import IsClient from "./components/IsClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen max-w-screen flex flex-col`}
       >
-        <Header />
+     <IsClient>
+       <div>
+          <Header />
         <main className="flex-1 max-w-screen">
           {children}
         
@@ -45,6 +48,8 @@ export default function RootLayout({ children }) {
         pauseOnHover
         theme="colored"
       />
+      </div>
+     </IsClient>
       </body>
     </html>
   );
