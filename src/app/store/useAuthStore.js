@@ -14,6 +14,7 @@ export const useAuthStore = create((set) => ({
     set({ isSigninUp: true });
     try {
       const res = await axiosInstanceAuthService.post("/auth/register", payload, { withCredentials: true });
+     console.log("signup response:", res);
       if (res?.status === 200 && res?.data?.status === true && res?.data?.user) {
         set({ authUser: res.data.user, isAuthenticated: true });
         toast.success(res?.data?.message || "Signup successful");
@@ -51,6 +52,7 @@ export const useAuthStore = create((set) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstanceAuthService.post("/auth/login", payload, { withCredentials: true });
+      console.log("login response:", res);
       const userPayload = res?.data?.data;
       if (res?.status === 200 && userPayload) {
         set({ authUser: userPayload, isAuthenticated: true });
