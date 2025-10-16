@@ -105,7 +105,7 @@ console.log(authUser);
         <div className=" flex  px-4 py-2 rounded-full">
        
           <nav className="hidden md:block">
-          { authUser &&
+          { authUser ?
           ( <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
               <li className='mr-2'>
              {(<div onClick={()=>setIsProfileOpen((p)=>!p)} className="cursor-pointer bg-white/30 rounded-full p-1 relative">
@@ -117,12 +117,15 @@ console.log(authUser);
           )}
              </div>)}
               </li>
-              <li className=''>
-                <button className="p-1 hover:text-blue-400 gap-2 rounded bg-white/80 text-black transition-colors relative group">
+              <li className='bg-black text-white px-2 py-1 border-1 rounded-full hover:bg-gray-800 transition-all duration-300 cursor-pointer'>
                User:  {authUser?.username}
-                </button>
+               
               </li>
-            </ul>)
+            </ul>):(
+            <Link href="/login" className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
+              {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+            </Link>
+          )
             }
           </nav>
         </div>  
