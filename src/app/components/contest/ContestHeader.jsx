@@ -43,9 +43,13 @@ export default function ContestHeader({ contest }) {
   };
 
   return (
-    <div className="px-4 md:px-8 py-8 md:py-12 bg-[#0e0e0e]">
-      <div className="max-w-6xl mx-auto flex items-start md:items-center justify-between gap-4">
-        <div>
+    <div className="px-4 md:px-8 py-8 md:py-12 bg-gradient-to-b from-[#020d2e]  to-black">
+      
+      <div className="max-w-6xl mx-auto flex items-start md:items-center justify-between  border-b border-white/10 pb-4  ">
+        
+        <div >
+          {/* fix invalid sizes: use arbitrary values */}
+
           <h1 className="text-2xl md:text-4xl font-semibold text-white">
             {contest?.title || "Contest"}
           </h1>
@@ -64,7 +68,7 @@ export default function ContestHeader({ contest }) {
           <button
             onClick={onRegister}
             disabled={isRegistering}
-            className="rounded-full px-4 py-2 text-sm font-medium transition bg-white text-black hover:bg-gray-200"
+            className="rounded-full px-4 py-2 text-sm font-medium transition bg-white text-black hover:bg-gray-200 cursor-pointer"
           >
             {isRegistering ? "Registering…" : "Register"}
           </button>

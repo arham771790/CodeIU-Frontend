@@ -12,12 +12,14 @@ const items = [
 
 export default function ContestPrizes() {
   return (
-    <section className="px-4 md:px-8 py-8">
+    <section className=" md:px-8 py-8">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-xl md:text-2xl font-semibold text-white mb-4">🏆 Prizes</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+           
           {items.map((it) => (
-            <div key={it.place} className="bg-[#121212] border border-gray-800 rounded-xl p-4">
+            <div key={it.place} className="bg-gradient-to-b from-[#020d2e] via-black to-black border border-gray-800 rounded-xl p-4">
+         
               <p className="text-gray-300">{it.place}</p>
               <p className="text-2xl font-bold text-white mt-1">{it.amount}</p>
             </div>

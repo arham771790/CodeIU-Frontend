@@ -3,8 +3,8 @@
 
 export default function ContestRules() {
   return (
-    <section className="px-4 md:px-8 py-8">
-      <div className="max-w-4xl mx-auto">
+    <section className=" md:px-8 py-8">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-xl md:text-2xl font-semibold text-white mb-4">Important Notes</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
