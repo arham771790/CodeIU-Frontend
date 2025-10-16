@@ -24,6 +24,8 @@ const TopNav = ({problem}) => {
 
     const problemId = problem?.id;
 
+    console.log("problemId from topnav component : " , problemId);
+
 
     const {userCode ,  RunReslts ,  runCode , isexecuting , languageId , submitCode , isSubmittingCode} = useSubmissionStore();
 
