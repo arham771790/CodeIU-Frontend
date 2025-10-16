@@ -27,13 +27,7 @@ const TopNav = ({problem}) => {
 
     const {userCode ,  RunReslts ,  runCode , isexecuting , languageId , submitCode , isSubmittingCode} = useSubmissionStore();
 
-    console.log("langiage Id of the selected language......................")
-    console.log(languageId)
-
-    console.log(userCode)
-
     const visibleTestCase = problem?.testcases?.slice(0, 2);
-    console.log("visibleTestCase from topnav component:" , visibleTestCase)
     const handleRunCode = async(e) => {
         e.preventDefault();
         try {

@@ -81,6 +81,10 @@ export const useSubmissionStore = create((set , get) => ({
             const result = await axiosInstanceSubmissionService.post("/execute/run-problem" , {sourceCode , stdin , languageId , expected_output})
             set({RunReslts : result.data.testCases});
 
+            console.log("result from run  function from use-submission store........................");
+            console.log(result.data.testCases);
+
+
         } catch (error) {
 
             console.log("error occured while running the code" , error);

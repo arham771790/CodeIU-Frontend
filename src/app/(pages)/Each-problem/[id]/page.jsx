@@ -10,6 +10,8 @@ import { useParams } from 'next/navigation';
 import TopNav from '@/app/components/perProblem_comp/TopNav';
 import ProblemDescription from '@/app/components/perProblem_comp/ProblemDescription';
 import CodeEditor from '@/app/components/perProblem_comp/CodeEditor';
+import Layout from './layout'
+
 
 
 const EachProblemPage = () => {
@@ -24,7 +26,9 @@ const EachProblemPage = () => {
   
     
   return (
-    <div className="bg-[#1a1a1a] flex flex-col  min-h-screen font-sans text-white">
+  
+    <Layout>
+        <div className="bg-[#1a1a1a] flex flex-col  min-h-screen font-sans text-white">
      
           <TopNav problem={problem} />
           <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -42,6 +46,7 @@ const EachProblemPage = () => {
           </main>
         
     </div>
+    </Layout>
   )
 }
 

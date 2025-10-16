@@ -12,9 +12,12 @@ import {
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 
+
+
 import { useState, useEffect, useRef } from "react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import SubmissionResult from "./SubmissionResult";
 
 const CodeEditor = ({ description, codeSnippets, testcases }) => {
   const [activeTab, setActiveTab] = useState("testcase");
@@ -41,8 +44,6 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
   const { authUser } = useAuthStore();
 
   const userId = authUser?.id;
-
-  console.log("run code result : ", RunReslts);
 
   // This gets the most recent submission from the array
   const latestSubmission = submissions?.[0];
@@ -124,20 +125,6 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
 
-
-  let finalStatus = "Wrong Answer";
-
-  if (RunReslts.every((r) => r.passed === true)) {
-    finalStatus = "Accepted";
-  } else if (RunReslts.some((r) => r.compileOutput)) {
-    finalStatus = "Compile Error";
-  } else if (
-    RunReslts.some((r) => r.status && r.status.includes("Runtime Error"))
-  ) {
-    finalStatus = "Runtime Error";
-  } else {
-    finalStatus = "Wrong Answer";
-  }
 
   return (
     <div ref={containerRef} className="flex flex-col h-full">
@@ -276,15 +263,7 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
                 <div> Run your code to see the results.</div>
               ) : (
                 <div>
-                  <h2
-                    className={`text-2xl font-semibold mb-3 ${
-                      RunReslts.every((r) => r.passed === true)
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {finalStatus}
-                  </h2>
+                  <SubmissionResult runResults={RunReslts} />
                   <div className="flex items-center space-x-3 mb-2">
                     {RunReslts.map((result, index) => (
                       <button
