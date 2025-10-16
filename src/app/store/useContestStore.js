@@ -70,4 +70,69 @@ export const useContestStore = create((set, get) => ({
       set({ isLoading: false });
     }
   },
+
+  /* ---------- Update Contest ---------- */
+  updateContest: async (id, data) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axiosInstanceContestService.patch(
+        `/contest/contests/${id}`,
+        data,
+        { withCredentials: true }
+      );
+      if (res?.data?.ok) {
+        toast.success("Contest updated successfully");
+        // Update in list
+        set({
+          contests: get().contests.map((c) =>
+            c.id === id ? res.data.contest : c
+          ),
+        });
+        // Update single contest if it's loaded
+        if (get().contest?.id === id) {
+          set({ contest: res.data.contest });
+        }
+        return true;
+      }
+      toast.error(res?.data?.error || "Failed to update contest");
+      return false;
+    } catch (err) {
+      console.error("[updateContest error]", err);
+      toast.error("Error updating contest");
+      set({ error: err.message });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  /* ---------- Delete Contest ---------- */
+  deleteContest: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axiosInstanceContestService.delete(
+        `/contest/contests/${id}`,
+        { withCredentials: true }
+      );
+      if (res?.data?.ok) {
+        toast.success("Contest deleted successfully");
+        // Remove from list
+        set({ contests: get().contests.filter((c) => c.id !== id) });
+        // Clear single contest if it was the deleted one
+        if (get().contest?.id === id) {
+          set({ contest: null });
+        }
+        return true;
+      }
+      toast.error(res?.data?.error || "Failed to delete contest");
+      return false;
+    } catch (err) {
+      console.error("[deleteContest error]", err);
+      toast.error("Error deleting contest");
+      set({ error: err.message });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

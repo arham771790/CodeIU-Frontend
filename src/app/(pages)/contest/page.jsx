@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import CreateContestDialog from "@/app/components/contest/CreateContestDialog";
+import ManageContestsButton from "@/app/components/contest/ManageContestButton";
 import ContestGrid from "@/app/components/contest/ContestGrid";
 
 const tabs = [
@@ -70,9 +71,11 @@ export default function ContestPage() {
             </button>
           ))}
         </div>
+              <div className="flex gap-2">
+                {isAdmin && <CreateContestDialog />}
+                {isAdmin && <ManageContestsButton />}   {/* NEW */}
+              </div>
 
-        {/* Admin only */}
-        {isAdmin && <CreateContestDialog />}
       </div>
 
       {/* Grid */}

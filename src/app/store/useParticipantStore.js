@@ -1,38 +1,85 @@
-// src/app/store/useParticipantStore.js
 "use client";
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/app/lib/axios";
 import { toast } from "react-toastify";
 
-export const useParticipantStore = create((set) => ({
-  isRegistering: false,
+export const useParticipantStore = create((set, get) => ({
   isRegistered: false,
+  isRegistering: false,
+  isUnregistering: false,
+  participantCount: 0,
+  error: null,
 
-  register: async ({ contestId, userId }) => {
-    if (!contestId || !userId) return false;
-    set({ isRegistering: true });
+  // 🔍 Check if user is already registered
+  async checkRegistration({ contestId, userId }) {
     try {
-      // POST /api/v1/contest/participants/:id/register  OR  /contest/:id/register
-      // Your controller comment says: POST /contests/:id/register (plural),
-      // but routes are mounted at /api/v1/contest. Use this endpoint:
-      const res = await axiosInstanceContestService.post(
-        `contest/contests/${contestId}/register`,
-        { userId },
-        { withCredentials: true }
-      );
-      if (res?.data?.ok) {
-        set({ isRegistered: true });
-        toast.success("Registered for contest");
-        return true;
+      const res = await axiosInstanceContestService.get(`contest/contests/${contestId}/check`, {
+        params: { userId },
+      });
+      set({ isRegistered: res.data.isRegistered || false });
+    } catch (err) {
+      console.error("Error checking registration:", err);
+      set({ error: "Failed to check registration" });
+    }
+  },
+
+  // ✅ Register for contest
+  async register({ contestId, userId }) {
+    try {
+      set({ isRegistering: true, error: null });
+      const res = await axiosInstanceContestService.post(`contest/contests/${contestId}/register`, {
+        userId,
+      });
+      if (res.data.ok) {
+        toast.success("Registered successfully!");
+        set((state) => ({
+          isRegistered: true,
+          isRegistering: false,
+          participantCount: state.participantCount + 1,
+        }));
+      } else {
+        toast.error("Failed to register.");
+        set({ isRegistering: false });
       }
-      toast.error(res?.data?.error || "Register failed");
-      return false;
-    } catch (e) {
-      console.error("[registerParticipant]", e);
-      toast.error(e?.response?.data?.error || "Register failed");
-      return false;
-    } finally {
-      set({ isRegistering: false });
+    } catch (err) {
+      console.error("Error registering:", err);
+      toast.error(err.response?.data?.error || "Failed to register");
+      set({ isRegistering: false, error: "Registration failed" });
+    }
+  },
+
+  // 🚪 Unregister from contest
+  async unregister({ contestId, userId }) {
+    try {
+      set({ isUnregistering: true, error: null });
+      const res = await axiosInstanceContestService.delete(`contest/contests/${contestId}/unregister`, {
+        data: { userId },
+      });
+      if (res.data.ok) {
+        toast.info("You have unregistered from this contest.");
+        set((state) => ({
+          isRegistered: false,
+          isUnregistering: false,
+          participantCount: Math.max(0, state.participantCount - 1),
+        }));
+      } else {
+        toast.error("Failed to unregister.");
+        set({ isUnregistering: false });
+      }
+    } catch (err) {
+      console.error("Error unregistering:", err);
+      toast.error(err.response?.data?.error || "Failed to unregister");
+      set({ isUnregistering: false, error: "Unregistration failed" });
+    }
+  },
+
+  // 👥 (Optional) Fetch participant count
+  async fetchParticipantCount(contestId) {
+    try {
+      const res = await axiosInstanceContestService.get(`/contests/${contestId}/participants/count`);
+      set({ participantCount: res.data.count || 0 });
+    } catch (err) {
+      console.error("Error fetching participant count:", err);
     }
   },
 }));
