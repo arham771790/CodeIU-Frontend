@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {axiosInstanceSubbmissionService} from '../lib/axios';
+import {axiosInstanceSubmissionService} from '../lib/axios';
 import {toast} from 'react-hot-toast';
 import {io} from 'socket.io-client';
 
@@ -78,7 +78,7 @@ export const useSubmissionStore = create((set , get) => ({
 
             set({isexecuting : true});
 
-            const result = await axiosInstanceSubbmissionService.post("/execute/run-problem" , {sourceCode , stdin , languageId , expected_output})
+            const result = await axiosInstanceSubmissionService.post("/execute/run-problem" , {sourceCode , stdin , languageId , expected_output})
             set({RunReslts : result.data.testCases});
 
         } catch (error) {
@@ -97,7 +97,7 @@ export const useSubmissionStore = create((set , get) => ({
             
             set({isSubmittingCode : true})
 
-            const result = await axiosInstanceSubbmissionService.post("/execute/submit-code" , {sourceCode , stdin , languageId , expected_output , problemId} ) ;
+            const result = await axiosInstanceSubmissionService.post("/execute/submit-code" , {sourceCode , stdin , languageId , expected_output , problemId} ) ;
 
             set(state => ({
                 submissions : [...state.submissions , result.data.submission]
