@@ -14,7 +14,7 @@ export default function ContestAchievements() {
         <h2 className="text-xl md:text-2xl font-semibold text-white mb-4">🏅 Achievements</h2>
         <div className="divide-y divide-gray-800 border border-gray-800 rounded-xl overflow-hidden">
           {rows.map((r, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-gradient-to-b from-[#020d2e] via-black to-black">
+            <div key={i} className="flex items-center justify-between p-4 bg-black">
               <p className="text-gray-200">{r.title}</p>
               <p className="text-emerald-400 font-semibold">{r.points}</p>
             </div>

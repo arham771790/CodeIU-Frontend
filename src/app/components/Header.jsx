@@ -102,7 +102,7 @@ console.log(authUser);
             </ul>
         </div>
 
-        <div className=" flex  px-4 py-2 rounded-full">
+        <div className=" flex  px-2 py-2 rounded-full">
        
           <nav className="hidden md:block">
           { authUser ?
@@ -111,16 +111,13 @@ console.log(authUser);
              {(<div onClick={()=>setIsProfileOpen((p)=>!p)} className="cursor-pointer bg-white/30 rounded-full p-1 relative">
              <Image src={image} alt="Profile" width={40} height={40} className="rounded-full" />
           {isProfileOpen  &&(
-            <div className="absolute right-0  mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-20">
+            <div className="absolute right-0  mt-2 w-30  rounded-md shadow-lg overflow-hidden z-20">
               <Profile logout={logout} isLoggingOut={isLoggingOut} authUser={authUser} setIsProfileOpen={setIsProfileOpen}/>
             </div>
           )}
              </div>)}
               </li>
-              <li className='bg-black text-white px-2 py-1 border-1 rounded-full hover:bg-gray-800 transition-all duration-300 cursor-pointer'>
-               User:  {authUser?.username}
-               
-              </li>
+              
             </ul>):(
             <Link href="/login" className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
               {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}

@@ -43,7 +43,7 @@ export default function ManageContestsPage() {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-black  px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-white">Manage Contests</h1>
@@ -51,13 +51,13 @@ export default function ManageContestsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by title or slug"
-            className="bg-[#0f0f0f] border border-gray-800 rounded-md px-3 py-2 text-sm w-64"
+            className="bg-gradient-to-b from-[#020d2e] via-black to-black text-white border border-gray-800 rounded-md px-3 py-2 text-sm w-64"
           />
         </div>
 
-        <div className="overflow-x-auto border border-gray-800 rounded-xl">
-          <table className="min-w-full text-sm">
-            <thead className="bg-[#101010] text-gray-300">
+        <div className="overflow-x-auto border border-gray-800 rounded-xl ">
+          <table className="min-w-full text-sm ">
+            <thead className="bg-gradient-to-b from-[#020d2e] via-black to-black text-gray-300">
               <tr>
                 <th className="text-left px-4 py-3">Title</th>
                 <th className="text-left px-4 py-3">Slug</th>
@@ -76,7 +76,7 @@ export default function ManageContestsPage() {
                 </tr>
               ) : filtered.length ? (
                 filtered.map((c) => (
-                  <tr key={c.id} className="border-t border-gray-800">
+                  <tr key={c.id} className="border-t border-gray-800 bg-gradient-to-b from-[#020d2e] via-black to-black">
                     <td className="px-4 py-3 text-gray-100">{c.title}</td>
                     <td className="px-4 py-3 text-gray-400">{c.slug}</td>
                     <td className="px-4 py-3">
