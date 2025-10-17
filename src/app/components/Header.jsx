@@ -120,7 +120,7 @@ console.log(authUser);
               
             </ul>):(
             <Link href="/login" className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
-              {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+              <button>Sign In</button>
             </Link>
           )
             }
