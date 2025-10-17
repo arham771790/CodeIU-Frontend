@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useAuthStore } from "./store/useAuthStore";
-import Landingpage from "./components/Landingpage";
-import LetterGlitch from "./components/LetterGlitch";
+import Pattern from "./components/smallcomponents/Pattern";
+import  Scroll  from "./components/scrollcomponent/Scroll";
+import Aurora from "@/components/Aurora";
+
 
 
 
@@ -15,10 +17,13 @@ export default function Home() {
   checkAuth();
  },[])
   return (
-  <div className="relative bg-black/40">
+  <div className="relative  overflow-hidden flex justify-center items-center max-w-screen ">
+  <Scroll/>
+  <Aurora/>
 
-      <LetterGlitch/>
 
-  </div>
+</div>
+
+
   );
 }

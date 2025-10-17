@@ -54,21 +54,21 @@ console.log(authUser);
   
 
   return (
-    <header className=" backdrop-blur-md shadow-lg p-2   flex justify-between items-center sticky top-0 z-50 border-b border-white/10  ">
+    <header className=" backdrop-blur-md shadow-lg p-2   flex justify-between items-center sticky top-0 z-50 border-b text-black border-white/10 ">
        
       <div className=" flex justify-between w-full px-2  items-center">
         <div>
-            <Link href="/" className="text-2xl font-sans font-bold text-gray-200 bg-gradient-to-r rounded-2xl  hover:text-purple-400 bg-transparent transition-all  duration-300 ">
+            <Link href="/" className="text-xl font-sans font-bold text-gray-200 bg-gradient-to-r rounded-2xl  hover:text-purple-400 bg-transparent transition-all  duration-300 ">
             🌊odeIU
           </Link>
         </div>
         
         {isLoggingIn && (
           <div>
-          <ul className="flex justify-center items-center gap-6 font-semibold cursor-pointer">
+          <ul className="flex justify-center items-center gap-3 text-6xl  font-semibold cursor-pointer">
           {isLoggingIn&&pages.map((page,i)=>(
-            <Link href={page.link} key={i} className={`${pathname==page.link?'text-purple-500':"text-gray-300"
-            } font-semibold transition-colors relative group`}>
+            <Link href={page.link} key={i} className={`${pathname==page.link?'text-purple-500':""
+            } font-semibold transition-colors text-sm relative group`}>
               {page.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r  from-white to-gray-200 group-hover:w-full transition-all duration-300"></span>
             </Link>
