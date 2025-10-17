@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation';
 import TopNav from '@/app/components/perProblem_comp/TopNav';
 import ProblemDescription from '@/app/components/perProblem_comp/ProblemDescription';
 import CodeEditor from '@/app/components/perProblem_comp/CodeEditor';
-import Layout from './layout'
+
 
 
 
@@ -27,7 +27,7 @@ const EachProblemPage = () => {
     
   return (
   
-    <Layout>
+
         <div className="bg-[#1a1a1a] flex flex-col  min-h-screen font-sans text-white">
      
           <TopNav problem={problem} />
@@ -46,7 +46,7 @@ const EachProblemPage = () => {
           </main>
         
     </div>
-    </Layout>
+   
   )
 }
 
