@@ -3,6 +3,7 @@ const nextConfig = {
     images:{
         domains:[
             'randomuser.me',
+            'cdn.prod.website-files.com'
         ]
     }
 };
