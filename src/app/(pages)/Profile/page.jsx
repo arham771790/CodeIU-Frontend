@@ -1,4 +1,3 @@
-"use client";
 
 import React from 'react';
 import { User, Edit, Eye, CheckSquare, MessageSquare, Star, ChevronRight, BarChart, List, FileCheck, BrainCircuit, Calendar, ChevronDown } from 'lucide-react';
@@ -76,12 +75,12 @@ const ActivityCalendar = () => {
 
 const ProfilePage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900via-black to-black text-gray-300 font-sans p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-t from-gray-900 via-black to-black text-gray-300 font-sans p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Left Sidebar */}
         <aside className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 text-center">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 text-center bg-gradient-to-t from-gray-900 via-black to-black">
             <div className="w-24 h-24 rounded-full bg-gray-700 mx-auto mb-4 flex items-center justify-center">
                 <User className="w-12 h-12 text-gray-500"/>
             </div>
@@ -92,7 +91,7 @@ const ProfilePage = () => {
             </button>
           </div>
 
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
+          <div className=" bg-gradient-to-b from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6">
             <h2 className="text-lg font-bold text-white mb-4">Community Stats</h2>
             <ul className="space-y-3 text-sm">
               <li className="flex justify-between items-center"><span className="flex items-center gap-2"><Eye className="w-4 h-4 text-gray-500"/> Views</span> <span className="font-semibold">0</span></li>
@@ -106,7 +105,7 @@ const ProfilePage = () => {
             </ul>
           </div>
 
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
+          <div className=" bg-gradient-to-t from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6">
             <h2 className="text-lg font-bold text-white mb-4">Languages</h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
@@ -124,7 +123,7 @@ const ProfilePage = () => {
             </div>
           </div>
           
-           <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
+           <div className=" bg-gradient-to-b from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6">
             <h2 className="text-lg font-bold text-white mb-4">Skills</h2>
             <div className="space-y-3">
                 <p className="font-semibold text-sm text-red-400">Advanced</p>
@@ -140,8 +139,8 @@ const ProfilePage = () => {
 
         {/* Main Content */}
         <main className="lg:col-span-3 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 flex items-center justify-around">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+            <div className="bg-gradient-to-t from-gray-900 via-black to-black md:col-span-2 bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 flex items-center justify-around">
                 <CircularProgress percentage={2.9} solved={10} total={3716}/>
                 <div className="text-center">
                     <p className="text-2xl font-bold text-white">5</p>
@@ -149,13 +148,13 @@ const ProfilePage = () => {
                 </div>
             </div>
              <div className="space-y-2">
-                <div className="bg-green-600/20 border border-green-600/30 p-3 rounded-lg flex justify-between items-center"><span>Easy</span> <span className="font-semibold">41/907</span></div>
-                <div className="bg-yellow-600/20 border border-yellow-600/30 p-3 rounded-lg flex justify-between items-center"><span>Med.</span> <span className="font-semibold">62/1933</span></div>
-                <div className="bg-red-600/20 border border-red-600/30 p-3 rounded-lg flex justify-between items-center"><span>Hard</span> <span className="font-semibold">5/876</span></div>
+                <div className="bg-teal-800 border border-green-600/30 p-3 rounded-lg flex justify-between items-center"><span>Easy</span> <span className="font-semibold">41/907</span></div>
+                <div className="bg-yellow-600 border border-yellow-600/30 p-3 rounded-lg flex justify-between items-center"><span>Med.</span> <span className="font-semibold">62/1933</span></div>
+                <div className="bg-red-900 border border-red-600/30 p-3 rounded-lg flex justify-between items-center"><span>Hard</span> <span className="font-semibold">5/876</span></div>
              </div>
           </div>
           
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 bg-gradient-to-b from-gray-900 via-black to-black">
             <h2 className="text-lg font-bold text-white mb-4">Badges</h2>
             <div className="flex items-center gap-8">
                 <span className="text-5xl font-bold">0</span>
@@ -167,7 +166,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 overflow-x-auto">
+          <div className=" bg-gradient-to-t from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6 overflow-x-auto">
              <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold text-white">207 submissions in the past one year</h2>
                 <div className="flex items-center gap-4 text-sm">
@@ -182,7 +181,7 @@ const ProfilePage = () => {
              </div>
           </div>
 
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
+          <div className=" bg-gradient-to-b from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2 border border-gray-700 rounded-lg p-1">
                 <button className="px-3 py-1.5 bg-gray-700 rounded-md flex items-center gap-2 text-white text-sm"><BarChart className="w-4 h-4"/>Recent AC</button>
@@ -192,7 +191,7 @@ const ProfilePage = () => {
               </div>
               <a href="#" className="text-sm text-blue-400 hover:underline flex items-center">View all submissions <ChevronRight className="w-4 h-4"/></a>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 ">
                 {[
                     {title: 'Check if Array is Sorted and Rotated', time: '4 days ago'},
                     {title: 'Unique Number of Occurrences', time: '8 days ago'},

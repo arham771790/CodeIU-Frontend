@@ -1,4 +1,3 @@
-"use client";
 
 import React from 'react';
 import { Github, Linkedin, Twitter, Play, Pause } from 'lucide-react';
@@ -40,18 +39,18 @@ const developers = [
 ];
 
 const DeveloperProfile = ({ developer, reverse = false }) => (
-  <section className="container mx-auto px-4 py-12">
-    <div className={`flex flex-col md:flex-row items-center justify-center gap-10 lg:gap-20 ${reverse ? 'md:flex-row-reverse' : ''}`}>
+  <section className="container mx-auto  px-4 py-12">
+    <div className={`flex flex-col md:flex-row  items-center justify-center gap-10 lg:gap-20 ${reverse ? 'md:flex-row-reverse' : ''}`}>
       {/* Text Content */}
       <div className="md:w-1/2 text-center md:text-left">
         <p className="font-semibold tracking-widest text-gray-500 uppercase">{developer.role}</p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mt-4 leading-tight">
           {developer.name.split(' ')[0]}
           <br />
           {developer.name.split(' ').slice(1).join(' ')}
         </h1>
         <div className="w-24 h-1.5 bg-lime-300 mt-6 mx-auto md:mx-0"></div>
-        <p className="mt-6 text-gray-600 text-lg">
+        <p className="mt-6 text-gray-100 text-lg">
           {developer.description}
         </p>
         <button className="mt-8 bg-gray-900 text-white font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors duration-300">
@@ -60,9 +59,9 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
       </div>
 
       {/* Image Content */}
-      <div className="md:w-1/2 w-full mt-10 md:mt-0 flex justify-center">
-        <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[450px] lg:h-[450px]">
-          <div className="absolute w-full h-full bg-lime-200/80 rounded-3xl transform rotate-12"></div>
+      <div className="md:w-1/2 w-full mt-10 md:mt-0 flex justify-center ">
+        <div className="relative w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] lg:w-[400px] lg:h-[400px]">
+          <div className="absolute w-full h-full bg-[#2AB065] rounded-3xl transform rotate-12"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-[85%] h-[85%] rounded-full overflow-hidden shadow-2xl">
               <img 
@@ -91,7 +90,7 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
 
 const DeveloperPage = () => {
   return (
-    <div className="min-h-screen bg-white text-gray-800 font-sans">
+    <div className="min-h-screen bg-black text-white font-sans">
       <div className="max-w-7xl mx-auto py-12 lg:py-24 space-y-24">
         {developers.map((dev, index) => (
           <DeveloperProfile key={dev.name} developer={dev} reverse={index % 2 !== 0} />

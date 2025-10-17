@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { Loader2, LogOut, User, Settings } from "lucide-react";
+import { Loader2, LogOut, User, Settings , UserStar } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 
@@ -41,6 +41,12 @@ const Profile = () => {
           <li className="flex items-center justify-center font-medium cursor-pointer mb-1 mt-1 p-1 border-b-white/10  hover:text-black hover:bg-white rounded-lg transition-colors gap-1">
             <Settings className="h-4 w-4" />
             Settings
+          </li>
+        <li className=" font-medium cursor-pointer mb-1 mt-1  border-b-white/10  hover:text-black hover:bg-white rounded-lg transition-colors gap-1">
+            <Link href="/Admin" className="flex items-center justify-center font-medium gap-1 p-1">
+              <UserStar className="h-4 w-4 text-green-500"/>
+              Admin
+            </Link>
           </li>
         </ul>
 
