@@ -13,7 +13,7 @@ const Structure = ({children}) => {
           console.log(pathname);
           
       
-          const hideLayout =['/login','/register','/Each-problem/']
+          const hideLayout =['/login','/register','/Each-problem/' , '/Admin']
     
            const shouldHide = hideLayout.includes(pathname.startsWith('/Each-problem/') ? '/Each-problem/' : pathname);
 
