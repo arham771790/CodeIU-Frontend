@@ -50,9 +50,8 @@ console.log(authUser);
 
   ]
   const pathname=usePathname();
-  console.log(pathname);
-  
 
+  
   return (
     <header className=" backdrop-blur-md shadow-lg p-2   flex justify-between items-center sticky top-0 z-50 border-b text-black border-white/10 ">
        
