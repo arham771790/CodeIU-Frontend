@@ -9,6 +9,7 @@ import Aurora from "@/components/Aurora";
 
 
 
+
 export default function Home() {
  const {checkAuth}= useAuthStore();
  const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function Home() {
   return (
   <div className="relative  overflow-hidden flex justify-center items-center max-w-screen ">
   <Scroll/>
-  <Aurora/>
+<Aurora/>
 
 
 </div>
