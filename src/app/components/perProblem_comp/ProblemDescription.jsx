@@ -1,4 +1,3 @@
-"use client";
 
 import React from "react";
 import { Code2, Expand, ThumbsUp, ThumbsDown, Book } from "lucide-react";
