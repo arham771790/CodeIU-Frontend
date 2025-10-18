@@ -48,10 +48,10 @@ export default function AdminAttachProblemsDialog({ contestId }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 text-sm"
+        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white p-2"
       >
-        <Plus className="w-4 h-4" />
-        Attach 4 Problems
+        <Plus className="w-5 h-5 font-semibold" />
+        Add-Problems
       </button>
 
       {open && (
