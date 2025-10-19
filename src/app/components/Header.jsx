@@ -57,8 +57,12 @@ console.log(authUser);
        
       <div className=" flex justify-between w-full px-2  items-center">
         <div>
-            <Link href="/" className="text-xl font-sans font-bold text-gray-200 bg-gradient-to-r rounded-2xl  hover:text-purple-400 bg-transparent transition-all  duration-300 ">
-            🌊odeIU
+            <Link href="/" >
+           
+              <span  className=" flex items-center justify-center text-2xl font-sans font-bold text-blue-400 cursor-pointer rounded-2xl  hover:text-white bg-transparent transition-all  duration-300 ">
+              🌊ode<p className='text-white text-2xl  font-bold hover:text-blue-400 transition-colors duration-300'>IU</p>
+              </span>
+            
           </Link>
         </div>
         

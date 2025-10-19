@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, BarChart2, Table, FileText, Calendar, Map, Puzzle, Settings, Search, Bell, Mail, User, Plus, Users, ShoppingCart, CalendarDays, DollarSign, ArrowUp, ArrowDown, Trophy, Pencil, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { useAuthStore } from '@/app/store/useAuthStore';
 
 // --- Mock Data ---
 const overviewData = [
@@ -129,6 +130,17 @@ const GenericView = ({ title }) => (<div><h2 className="text-2xl font-bold text-
 // --- Admin Panel Component ---
 const AdminPage = () => {
     const [activeView, setActiveView] = useState('Dashboard');
+    const {authUser} = useAuthStore();
+
+    if(authUser?.role !== "ADMIN"){
+        return(
+            <div>
+                <div className="flex items-center justify-center h-screen  font-bold text-4xl " >
+                    <p>404 Page Not Found 😔</p>
+                </div>
+            </div>
+        )
+    }
     const renderContent = () => {
         switch (activeView) {
             case 'Dashboard': return <DashboardView />;
