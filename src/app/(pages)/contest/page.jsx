@@ -75,8 +75,8 @@ export default function ContestPage() {
               onClick={() => setType(t.key)}
               className={`px-3 py-1.5 rounded-full border transition
                 ${type === t.key
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800"}`}
+                  ? "font-semibold bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white border-blue-500"
+                  : "font-semibold bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800"}`}
             >
               {t.label}
             </button>
