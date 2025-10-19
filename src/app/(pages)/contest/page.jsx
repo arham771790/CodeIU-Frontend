@@ -43,8 +43,8 @@ export default function ContestPage() {
     <div className="min-h-screen bg-black text-gray-200 font-sans">
       {/* Hero */}
       <div className="pb-6 mb-15 border-b border-white/10">
-        <header className="relative text-center py-20 md:py-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#020d2e] via-black to-black" />
+        <header className="relative text-center py-10 md:py-28 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_50%_50%,_rgba(37,99,235,0.5),transparent)] p-6 text-white shadow-xl" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_2px,transparent_2px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_2px,transparent_4px)] bg-[size:1.5rem_1.5rem] opacity-50" />
           {/* fix invalid sizes: use arbitrary values */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[120px] bg-[radial-gradient(circle,rgba(96,165,250,0.15)_0%,transparent_60%)]" />

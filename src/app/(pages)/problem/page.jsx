@@ -60,7 +60,7 @@ const ProblemsPage = () => {
   console.log(problems);
 
   return (
-    <div className="bg-black text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+    <div className="bg-black  text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="flex justify-between items-center mb-8">
@@ -77,7 +77,7 @@ const ProblemsPage = () => {
           {problemSets.map((set, index) => (
             <div
               key={index}
-              className="relative overflow-hidden bg-black border border-gray-700/50 rounded-xl p-6 flex flex-col justify-between hover:border-gray-600 hover:-translate-y-1 transition-all cursor-pointer"
+              className="relative overflow-hidden bg-gradient-to-tl from-blue-900 to-black border border-gray-700/50 rounded-xl p-6 flex flex-col justify-between hover:border-gray-600 hover:-translate-y-1 transition-all cursor-pointer"
             >
               {/* Background Effects */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_2px,transparent_2px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_2px,transparent_4px)] bg-[size:1.5rem_1.5rem] opacity-50"></div>
