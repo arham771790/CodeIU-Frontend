@@ -1,4 +1,3 @@
-"use client";
 
 import React from 'react'
 import{
@@ -23,6 +22,8 @@ const TopNav = ({problem}) => {
   console.log("problem from topnav component : " , problem);
 
     const problemId = problem?.id;
+
+    console.log("problemId from topnav component : " , problemId);
 
 
     const {userCode ,  RunReslts ,  runCode , isexecuting , languageId , submitCode , isSubmittingCode} = useSubmissionStore();

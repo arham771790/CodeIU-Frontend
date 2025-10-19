@@ -1,14 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getSocket } from "@/app/lib/socket"; // your singleton socket instance
 
 export default function ContestCard({ contest }) {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(null);
+  const [status, setStatus] = useState(contest.status); // SCHEDULED / RUNNING / ENDED
 
+  // Countdown timer
   useEffect(() => {
     const calc = () => {
-      const diff = +new Date(contest.startsAt || contest.date) - +new Date();
+      const diff = +new Date(contest.startsAt) - +new Date();
       if (diff <= 0) return null;
       return {
         days: Math.floor(diff / 86400000),
@@ -21,10 +24,28 @@ export default function ContestCard({ contest }) {
     setTimeLeft(calc());
     const t = setInterval(() => setTimeLeft(calc()), 1000);
     return () => clearInterval(t);
-  }, [contest.startsAt, contest.date]);
+  }, [contest.startsAt]);
+
+  // Socket listener for status updates
+  useEffect(() => {
+    const socket = getSocket();
+    socket.emit("join:contest", { contestId: contest.id });
+
+    const handler = ({ contestId, newStatus }) => {
+      if (contestId === contest.id) {
+        setStatus(newStatus);
+      }
+    };
+
+    socket.on("contestStatusUpdated", handler);
+    return () => socket.off("contestStatusUpdated", handler);
+  }, [contest.id]);
 
   const formatTime = () => {
-    if (!timeLeft) return "Contest Started!";
+    if (status === "RUNNING") return "Contest Running!";
+    if (status === "ENDED") return "Contest Ended!";
+    if (!timeLeft) return "Starting soon…";
+
     const parts = [];
     if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`);
     if (timeLeft.hours > 0) parts.push(`${timeLeft.hours}h`);
@@ -33,7 +54,6 @@ export default function ContestCard({ contest }) {
     return `Starts in ${parts.slice(0, 3).join(" ")}`;
   };
 
-  // ✅ navigate on card click
   const handleClick = () => {
     router.push(`/contest/${contest.id}`);
   };
@@ -42,8 +62,8 @@ export default function ContestCard({ contest }) {
     <div
       onClick={handleClick}
       className="bg-[#1e1e1e] border border-gray-700/50 rounded-lg shadow-lg overflow-hidden 
-                 transition-all duration-300 ease-in-out transform hover:-translate-y-1 
-                 hover:shadow-blue-500/20 group cursor-pointer"
+                  transition-all duration-300 ease-in-out transform hover:-translate-y-1 
+                  hover:shadow-blue-500/20 group cursor-pointer"
     >
       <div className="relative h-40 bg-gradient-to-b from-[#020d2e] to-black">
         <div className="absolute inset-0 bg-black/40" />
@@ -73,8 +93,7 @@ export default function ContestCard({ contest }) {
           {contest.title}
         </h3>
         <p className="text-sm text-gray-400 mt-1">
-          {contest.displayDate ??
-            new Date(contest.startsAt || contest.date).toLocaleString()}
+          {new Date(contest.startsAt).toLocaleString()} - {status}
         </p>
       </div>
     </div>

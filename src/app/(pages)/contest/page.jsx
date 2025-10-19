@@ -6,7 +6,7 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import CreateContestDialog from "@/app/components/contest/CreateContestDialog";
 import ManageContestsButton from "@/app/components/contest/ManageContestButton";
 import ContestGrid from "@/app/components/contest/ContestGrid";
-
+import { getSocket } from "@/app/lib/socket";
 const tabs = [
   { key: "", label: "All" },
   { key: "running", label: "Running" },
@@ -27,13 +27,24 @@ export default function ContestPage() {
     // Zustand actions are stable, so no need to add fetchContests to deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
+   useEffect(() => {
+    const socket = getSocket();
+    socket.on("connect", () => console.log("[socket] connected:", socket.id));
+
+    socket.on("contestStatusUpdated", ({ contestId, newStatus }) => {
+      console.log("[socket] contestStatusUpdated:", contestId, newStatus);
+      fetchContests(type); // refresh current tab
+    });
+
+    return () => socket.off("contestStatusUpdated");
+  }, [type, fetchContests]);
 
   return (
     <div className="min-h-screen bg-black text-gray-200 font-sans">
       {/* Hero */}
       <div className="pb-6 mb-15 border-b border-white/10">
-        <header className="relative text-center py-20 md:py-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#020d2e] via-black to-black" />
+        <header className="relative text-center py-10 md:py-28 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_50%_50%,_rgba(37,99,235,0.5),transparent)] p-6 text-white shadow-xl" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_2px,transparent_2px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_2px,transparent_4px)] bg-[size:1.5rem_1.5rem] opacity-50" />
           {/* fix invalid sizes: use arbitrary values */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[120px] bg-[radial-gradient(circle,rgba(96,165,250,0.15)_0%,transparent_60%)]" />
@@ -64,8 +75,8 @@ export default function ContestPage() {
               onClick={() => setType(t.key)}
               className={`px-3 py-1.5 rounded-full border transition
                 ${type === t.key
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800"}`}
+                  ? "font-semibold bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white border-blue-500"
+                  : "font-semibold bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800"}`}
             >
               {t.label}
             </button>

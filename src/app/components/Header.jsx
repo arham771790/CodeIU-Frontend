@@ -50,25 +50,29 @@ console.log(authUser);
 
   ]
   const pathname=usePathname();
-  console.log(pathname);
-  
 
+  
   return (
-    <header className=" backdrop-blur-md shadow-lg p-2   flex justify-between items-center sticky top-0 z-50 border-b border-white/10  ">
+    <header className=" backdrop-blur-md shadow-lg p-2   flex justify-between items-center sticky top-0 z-50 border-b text-black border-white/10 ">
        
       <div className=" flex justify-between w-full px-2  items-center">
         <div>
-            <Link href="/" className="text-2xl font-sans font-bold text-gray-200 bg-gradient-to-r rounded-2xl  hover:text-purple-400 bg-transparent transition-all  duration-300 ">
-            🌊odeIU
+            <Link href="/" className='flex items-center justify-center' >
+           
+             
+                    <div className="w-10 h-10 bg-teal-800 rounded-full flex items-center justify-center text-white text-2xl font-bold">🌊</div>
+                    <h1 className="text-2xl font-bold text-blue-400 ml-3">Code<span className="font-bold text-white">IU</span></h1>
+            
+            
           </Link>
         </div>
         
         {isLoggingIn && (
           <div>
-          <ul className="flex justify-center items-center gap-6 font-semibold cursor-pointer">
+          <ul className="flex justify-center items-center gap-3 text-6xl  font-semibold cursor-pointer">
           {isLoggingIn&&pages.map((page,i)=>(
-            <Link href={page.link} key={i} className={`${pathname==page.link?'text-purple-500':"text-gray-300"
-            } font-semibold transition-colors relative group`}>
+            <Link href={page.link} key={i} className={`${pathname==page.link?'text-purple-500':""
+            } font-semibold transition-colors text-sm relative group`}>
               {page.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r  from-white to-gray-200 group-hover:w-full transition-all duration-300"></span>
             </Link>
@@ -95,14 +99,14 @@ console.log(authUser);
                 </Link>
               </li>
                <li className=''>
-                <Link href="/login"  className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
+                <Link href="/Devloper"  className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
                   Devloper
                 </Link>
               </li>
             </ul>
         </div>
 
-        <div className=" flex  px-4 py-2 rounded-full">
+        <div className=" flex  px-2 py-2 rounded-full">
        
           <nav className="hidden md:block">
           { authUser ?
@@ -111,19 +115,16 @@ console.log(authUser);
              {(<div onClick={()=>setIsProfileOpen((p)=>!p)} className="cursor-pointer bg-white/30 rounded-full p-1 relative">
              <Image src={image} alt="Profile" width={40} height={40} className="rounded-full" />
           {isProfileOpen  &&(
-            <div className="absolute right-0  mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-20">
+            <div className="absolute right-0  mt-2 w-30  rounded-md shadow-lg overflow-hidden z-20">
               <Profile logout={logout} isLoggingOut={isLoggingOut} authUser={authUser} setIsProfileOpen={setIsProfileOpen}/>
             </div>
           )}
              </div>)}
               </li>
-              <li className='bg-black text-white px-2 py-1 border-1 rounded-full hover:bg-gray-800 transition-all duration-300 cursor-pointer'>
-               User:  {authUser?.username}
-               
-              </li>
+              
             </ul>):(
             <Link href="/login" className="text-white hover:text-gray-300 gap-2  transition-colors relative group">
-              {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+              <button>Sign In</button>
             </Link>
           )
             }

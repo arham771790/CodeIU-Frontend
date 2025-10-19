@@ -135,4 +135,14 @@ export const useContestStore = create((set, get) => ({
       set({ isLoading: false });
     }
   },
+  updateContestStatus: (contestId, newStatus) => {
+  set({
+    contests: get().contests.map((c) =>
+      c.id === contestId ? { ...c, status: newStatus } : c
+    ),
+    contest: get().contest?.id === contestId
+      ? { ...get().contest, status: newStatus }
+      : get().contest,
+  });
+},
 }));
