@@ -69,7 +69,7 @@ export const useBundleStore = create((set) => ({
       const code = err?.response?.data?.error;
 
       if (status === 404 && code === "bundle_not_ready") {
-        toast.info("⚠️ Problems not yet attached to this contest.");
+        toast.error("⚠️ Problems not yet attached to this contest.");
       } else if (status === 403 && code === "not_registered") {
         toast.error("🚫 You must register to view this contest’s problems.");
       } else if (status === 401) {

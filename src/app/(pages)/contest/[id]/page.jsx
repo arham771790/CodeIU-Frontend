@@ -2,6 +2,7 @@
 "use client";
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
+import { getSocket } from "@/app/lib/socket";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
@@ -30,6 +31,20 @@ export default function ContestDetailPage() {
       fetchBundle({ contestId, userId: authUser.id });
     }
   }, [contestId, authUser?.id, fetchBundle]);
+  useEffect(() => {
+  const socket = getSocket();
+  socket.emit("join:contest", { contestId }); // optional: room-based listening
+
+  socket.on("contestStatusUpdated", ({ contestId: changedId, newStatus }) => {
+    if (changedId === contestId) {
+      console.log(`[socket] contest ${contestId} updated → ${newStatus}`);
+      fetchContest(contestId);
+    }
+  });
+
+  return () => socket.off("contestStatusUpdated");
+}, [contestId, fetchContest]);
+
 
   if (isLoading || !contest) {
     return (

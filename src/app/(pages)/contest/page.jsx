@@ -6,7 +6,7 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import CreateContestDialog from "@/app/components/contest/CreateContestDialog";
 import ManageContestsButton from "@/app/components/contest/ManageContestButton";
 import ContestGrid from "@/app/components/contest/ContestGrid";
-
+import { getSocket } from "@/app/lib/socket";
 const tabs = [
   { key: "", label: "All" },
   { key: "running", label: "Running" },
@@ -27,6 +27,17 @@ export default function ContestPage() {
     // Zustand actions are stable, so no need to add fetchContests to deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
+   useEffect(() => {
+    const socket = getSocket();
+    socket.on("connect", () => console.log("[socket] connected:", socket.id));
+
+    socket.on("contestStatusUpdated", ({ contestId, newStatus }) => {
+      console.log("[socket] contestStatusUpdated:", contestId, newStatus);
+      fetchContests(type); // refresh current tab
+    });
+
+    return () => socket.off("contestStatusUpdated");
+  }, [type, fetchContests]);
 
   return (
     <div className="min-h-screen bg-black text-gray-200 font-sans">
