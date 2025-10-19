@@ -75,7 +75,7 @@ export default function ContestDetailPage() {
           <div className="flex items-center justify-center gap-2">
             {isAdmin && <AdminAttachProblemsDialog contestId={contest.id} />}
             <Link href={`/Leaderboard/${contestId}`}>
-              <button className="bg-blue-600 p-2 hover:bg-blue-500 border border-white/10 rounded-lg">
+              <button className=" font-semibold text-white p-2 hover:text-blue-400 border border-white rounded-full hover:border-blue-400 cursor-pointer">
                 🏆 Leaderboard
               </button>
             </Link>
@@ -87,7 +87,7 @@ export default function ContestDetailPage() {
             <div className="flex-col mt-6 ">
               <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
               <Link href="/contestPage">
-              <button className="p-2 text-blue-600  cursor-pointer hover:text-blue-400 border border-blue-600 hover:border-blue-400 rounded-lg ">
+              <button className="p-2 bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white  cursor-pointer hover:text-white border border-white hover:border-blue-400 rounded-full font-semibold ">
                 Enter Contest 
               </button>
                </Link>
