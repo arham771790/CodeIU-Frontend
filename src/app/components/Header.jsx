@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '../store/useAuthStore';
-import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Profile from './smallcomponents/Profile';
 import Image from 'next/image';
+import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
 
 
 export default function Header() {
@@ -60,7 +60,7 @@ console.log(authUser);
             <Link href="/" >
            
               <span  className=" flex items-center justify-center text-2xl font-sans font-bold text-blue-400 cursor-pointer rounded-2xl  hover:text-white bg-transparent transition-all  duration-300 ">
-              🌊ode<p className='text-white text-2xl  font-bold hover:text-blue-400 transition-colors duration-300'>IU</p>
+                           <TextGenerateEffect words={"🌊ode"}/> <p className='text-white text-2xl  font-bold hover:text-blue-400 transition-colors duration-300'>IU</p>
               </span>
             
           </Link>
@@ -72,7 +72,7 @@ console.log(authUser);
           {isLoggingIn&&pages.map((page,i)=>(
             <Link href={page.link} key={i} className={`${pathname==page.link?'text-purple-500':""
             } font-semibold transition-colors text-sm relative group`}>
-              {page.name}
+
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r  from-white to-gray-200 group-hover:w-full transition-all duration-300"></span>
             </Link>
           ))  }

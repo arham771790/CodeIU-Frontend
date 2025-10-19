@@ -23,8 +23,8 @@ export default function Scroll() {
         src="https://cdn.prod.website-files.com/66b6d7fd4d3e9cef94717176%2F6741fee19917cc8400fe361d_HackerRank%20Community%20Video-transcode.mp4"
         loop
         autoPlay
-        height={920}
-        width={1000}
+        height={1020}
+        width={1200}
         muted
         playsInline
        

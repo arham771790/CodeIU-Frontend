@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuthStore } from "./store/useAuthStore";
-import Pattern from "./components/smallcomponents/Pattern";
-import  Scroll  from "./components/scrollcomponent/Scroll";
-import Aurora from "@/components/Aurora";
-
+import { useAuthStore } from "./store/useAuthStore";    
+import Home2 from "./(pages)/Home/Home2";
 
 
 
@@ -19,8 +16,7 @@ export default function Home() {
  },[])
   return (
   <div className="relative  overflow-hidden flex justify-center items-center max-w-screen ">
-  <Scroll/>
-<Aurora/>
+    <Home2/>
 
 
 </div>
