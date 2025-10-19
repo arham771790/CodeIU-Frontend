@@ -214,9 +214,9 @@ export default function AdminAttachProblemsDialog({ contestId }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white p-2"
+        className="font-semibold inline-flex items-center gap-2 rounded-full text-white hover:text-blue-400 p-2 border border-white hover:border-blue-400 cursor-pointer transition-colors"
       >
-        <Plus className="w-5 h-5 font-semibold" />
+        <Plus className="w-5 h-5" />
         Attach Problems
       </button>
 
