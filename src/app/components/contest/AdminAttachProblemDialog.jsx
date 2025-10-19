@@ -121,28 +121,50 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   const alreadySelected = new Set(selected.map((s) => s.id));
 
+//   const addProblem = async (p) => {
+//   if (alreadySelected.has(p.id)) return;
+
+//   try {
+//     // Fetch full problem details
+//     const result = await getProblemById(p.id); 
+//     const fullProblem = result.problem;
+
+//     if (!fullProblem) {
+//       toast.error("Failed to fetch problem details.");
+//       return;
+//     }
+
+//     setSelected((prev) => [
+//       ...prev,
+//       { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
+//     ]);
+//   } catch (error) {
+//     console.error("Error fetching problem details:", error);
+//     toast.error("Error fetching problem details.");
+//   }
+// };
   const addProblem = async (p) => {
-  if (alreadySelected.has(p.id)) return;
+    if (alreadySelected.has(p.id)) return;
 
-  try {
-    // Fetch full problem details
-    const result = await getProblemById(p.id); 
-    const fullProblem = result.problem;
+    try {
+// -     const result = await getProblemById(p.id); 
+// -     const fullProblem = result.problem;
+     const fullProblem = await getProblemById(p.id); // <-- now we get the real object
 
-    if (!fullProblem) {
-      toast.error("Failed to fetch problem details.");
-      return;
+      if (!fullProblem) {
+        toast.error("Failed to fetch problem details.");
+        return;
+      }
+
+      setSelected((prev) => [
+        ...prev,
+        { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
+      ]);
+    } catch (error) {
+      console.error("Error fetching problem details:", error);
+      toast.error("Error fetching problem details.");
     }
-
-    setSelected((prev) => [
-      ...prev,
-      { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
-    ]);
-  } catch (error) {
-    console.error("Error fetching problem details:", error);
-    toast.error("Error fetching problem details.");
-  }
-};
+  };
 
 
   const removeProblem = (id) => {

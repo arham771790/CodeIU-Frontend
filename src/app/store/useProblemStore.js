@@ -58,11 +58,16 @@ export const useProblemStore = create((set) => ({
   getProblemById : async(ProblemID) => {
     try {
 
-        set({ isProblemLoading : true })        
-        const result = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`)
-        set({problem : result.data.problem })
+        // set({ isProblemLoading : true })        
+        // const result = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`)
+        // set({problem : result.data.problem })
         
-        toast.success(result.data.message)
+        // toast.success(result.data.message)
+         set({ isProblemLoading : true })
+       const res = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`);
+       const prob = res?.data?.problem;
+       set({ problem: prob });
+       return prob; // returned the problem initially problem was not returned just zustand state was set 
 
     } catch (error) {
 
