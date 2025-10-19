@@ -57,6 +57,9 @@ export default function ContestDetailPage() {
   const isAdmin = authUser?.role === "ADMIN";
   const problems = bundle?.problems || [];
 
+  console.log("........................Problems of the contest ...........................:");
+  console.log(problems);
+
   return (
     <div className="min-h-screen bg-black text-gray-200">
       <ContestHeader contest={contest} />
@@ -64,7 +67,7 @@ export default function ContestDetailPage() {
       <div className="md:px-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start">
-            <h2 className="text-lg md:text-xl font-semibold text-white">
+            <h2 className="text-2xl md:text-2xl font-semibold text-white">
               Contest Overview
             </h2>
           </div>
@@ -79,47 +82,28 @@ export default function ContestDetailPage() {
           </div>
         </div>
 
-        {/* Problems grid */}
-        {problems.length > 0 ? (
-          <div className="max-w-6xl mx-auto mt-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {problems
-                .slice() // avoid mutating original
-                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                .map((p) => {
-                  const idx = p.order ?? 0;
-                  const label = String.fromCharCode(65 + idx); // A, B, C, ...
-                  const title = p.snapshot?.title ?? "Untitled";
-                  const slug = p.snapshot?.slug;
-                  const pts = p.points ?? 0;
-                  const key = p.contentHash || `${contest.id}-${idx}-${pts}`;
-
-                  return (
-                    <div
-                      key={key} // ✅ stable unique key
-                      className="bg-[#121212] border border-gray-800 rounded-xl p-4"
-                    >
-                      <div className="text-sm text-gray-400">Problem {label}</div>
-                      <div className="text-white font-semibold mt-1 truncate">
-                        {title}
-                      </div>
-                      <div className="text-gray-400 text-sm mt-1">{pts} pts</div>
-                      {slug && (
-                        <div className="text-xs text-gray-500 mt-2 truncate">/{slug}</div>
-                      )}
-                    </div>
-                  );
-                })}
+        {
+          problems?.length > 0 ? (
+            <div className="flex-col mt-6 ">
+              <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
+              <Link href="/contestPage">
+              <button className="p-2 text-blue-600  cursor-pointer hover:text-blue-400 border border-blue-600 hover:border-blue-400 rounded-lg ">
+                Enter Contest 
+              </button>
+               </Link>
             </div>
-          </div>
-        ) : (
-          <div className="max-w-6xl mx-auto mt-4 text-gray-400">
+          ) : (
+             <div className="max-w-6xl mx-auto mt-4 text-gray-400">
             {isAdmin
               ? "No problems attached yet."
               : "Register to see problems when the contest starts."}
           </div>
-        )}
+          )
+        }
+      
       </div>
+
+         
 
       <ContestRules />
       <ContestPrizes />
