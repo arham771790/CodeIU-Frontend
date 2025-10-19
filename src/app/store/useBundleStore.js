@@ -5,7 +5,9 @@ import { toast } from "react-hot-toast";
 
 export const useBundleStore = create((set) => ({
   bundle: null,
+  problem: null,
   isLoading: false,
+  error: null,
 
   /* ----------------------------- Attach Problems ----------------------------- */
   attachInlineProblems: async ({ contestId, problems }) => {
@@ -56,9 +58,27 @@ export const useBundleStore = create((set) => ({
       );
 
       if (res?.data?.ok) {
-        set({ bundle: res.data.data });
+        // normalize each problem
+        const bundle = res.data.data;
+        bundle.problems = bundle.problems.map(p => ({
+          ...p,
+          snapshot: {
+            ...p.snapshot,
+            testcases: Array.isArray(p.snapshot.testcases) && p.snapshot.testcases.length
+              ? p.snapshot.testcases
+              : [{ input: "1", output: "1" }],
+            examples: {
+              JAVASCRIPT: p.snapshot.examples?.JAVASCRIPT || { input: "1", output: "1", explanation: "" },
+              PYTHON: p.snapshot.examples?.PYTHON || { input: "1", output: "1", explanation: "" },
+              JAVA: p.snapshot.examples?.JAVA || { input: "1", output: "1", explanation: "" },
+              ...(p.snapshot.examples?.CPP ? { CPP: p.snapshot.examples.CPP } : {}),
+            },
+          },
+        }));
+
+        set({ bundle });
         toast.success("Contest problems loaded successfully.");
-        return res.data.data;
+        return bundle;
       }
 
       set({ bundle: null });
@@ -86,5 +106,39 @@ export const useBundleStore = create((set) => ({
     }
   },
 
+  /* ------------------------- Fetch Single Problem --------------------------- */
+  getContestProblem: async (contestId, problemId, userId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axiosInstanceContestService.get(
+        `/contest/contests/${contestId}/problems/${problemId}`,
+        { params: { userId }, withCredentials: true }
+      );
+
+      if (res.data.ok) {
+        const p = res.data.data;
+        const normalized = {
+          ...p,
+          testcases: Array.isArray(p.testcases) && p.testcases.length ? p.testcases : [{ input: "1", output: "1" }],
+          examples: {
+            JAVASCRIPT: p.examples?.JAVASCRIPT || { input: "1", output: "1", explanation: "" },
+            PYTHON: p.examples?.PYTHON || { input: "1", output: "1", explanation: "" },
+            JAVA: p.examples?.JAVA || { input: "1", output: "1", explanation: "" },
+            ...(p.examples?.CPP ? { CPP: p.examples.CPP } : {}),
+          },
+        };
+        set({ problem: normalized });
+      } else {
+        set({ error: res.data.error, problem: null });
+      }
+    } catch (err) {
+      set({ error: err?.response?.data?.error || err.message || "failed_to_fetch_problem", problem: null });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  /* ------------------------- Reset States --------------------------- */
   clearBundle: () => set({ bundle: null }),
+  resetProblem: () => set({ problem: null, isLoading: false, error: null }),
 }));

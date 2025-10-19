@@ -79,6 +79,7 @@ export default function ContestDetailPage() {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Problems grid */}
         {problems.length > 0 ? (
           <div className="max-w-6xl mx-auto mt-4">
@@ -110,6 +111,17 @@ export default function ContestDetailPage() {
                     </div>
                   );
                 })}
+=======
+        {
+          problems?.length > 0 ? (
+            <div className="flex-col mt-6 ">
+              <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
+              <Link href="/contestPage">
+              <button className="p-2 text-blue-600  cursor-pointer hover:text-blue-400 border border-blue-600 hover:border-blue-400 rounded-lg ">
+                Enter Contest 
+              </button>
+               </Link>
+>>>>>>> parent of 9ed9f59 (updated ui)
             </div>
           </div>
         ) : (
