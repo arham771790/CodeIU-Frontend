@@ -60,8 +60,8 @@ console.log(authUser);
             <Link href="/" className='flex items-center justify-center' >
            
              
-                    <div className="w-10 h-10 bg-teal-800 rounded-full flex items-center justify-center text-white text-2xl font-bold">🌊</div>
-                    <h1 className="text-2xl font-bold text-blue-400 ml-3">Code<span className="font-bold text-white">IU</span></h1>
+                   
+                    <h1 className="text-2xl font-bold text-blue-400 ml-3">🌊ode<span className="font-bold text-white">IU</span></h1>
             
             
           </Link>
