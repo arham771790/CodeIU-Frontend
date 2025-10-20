@@ -47,17 +47,12 @@ const DifficultyChip = ({ difficulty }) => {
 const ProblemsPage = () => {
   const { authUser } = useAuthStore();
 
-  console.log("authuser..........................");
-  console.log(authUser);
-
   const { isProblemsLoading, problems, getAllProblems } = useProblemStore();
 
   useEffect(() => {
     getAllProblems();
   }, []);
 
-  console.log("....................PROBLEMS...........................");
-  console.log(problems);
 
   return (
     <div className="bg-black  text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
