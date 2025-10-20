@@ -5,10 +5,11 @@ import { toast } from "react-hot-toast";
 
 export const useBundleStore = create((set) => ({
   bundle: null,
+  contestId:null,
   problem: null,
   isLoading: false,
   error: null,
-
+  
   /* ----------------------------- Attach Problems ----------------------------- */
   attachInlineProblems: async ({ contestId, problems }) => {
     try {
@@ -76,12 +77,12 @@ export const useBundleStore = create((set) => ({
           },
         }));
 
-        set({ bundle });
+        set({ bundle , contestId});
         toast.success("Contest problems loaded successfully.");
         return bundle;
       }
 
-      set({ bundle: null });
+      set({ bundle: null , contestId:null });
       toast.error(res?.data?.error || "Failed to load contest problems.");
       return null;
     } catch (err) {
@@ -99,7 +100,7 @@ export const useBundleStore = create((set) => ({
         toast.error("Failed to fetch contest problems. Please try again.");
       }
 
-      set({ bundle: null });
+      set({ bundle: null , contestId:null });
       return null;
     } finally {
       set({ isLoading: false });

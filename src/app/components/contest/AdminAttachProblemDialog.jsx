@@ -298,7 +298,11 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                             onClick={() => addProblem(p)}
                             className="px-2 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
                           >
-                            {alreadySelected.has(p.id) ? "Added" : "Add"}
+                            {alreadySelected.has(p.id) ? "Added" : (
+                              <div>
+                                {isLoading ? "Adding..." : "Add"}
+                              </div>
+                            )}
                           </button>
                         </li>
                       ))}
