@@ -7,7 +7,7 @@ export default function ManageContestsButton() {
   return (
     <button
       onClick={() => router.push("/contest/manage")}
-      className="px-3 py-1.5 rounded-full border border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-sm"
+      className="font-semibold px-3 py-1.5 rounded-full border border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-sm"
     >
       Manage Contests
     </button>

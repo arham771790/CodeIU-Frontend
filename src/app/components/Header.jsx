@@ -9,8 +9,8 @@ import Profile from './smallcomponents/Profile';
 import Image from 'next/image';
 import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
 
-
 export default function Header() {
+  
 
 const { isLoggingIn,authUser , logout , isLoggingOut}=useAuthStore()
 const [image,setImage]=useState('https://randomuser.me/api/portraits/med/men/31.jpg');
@@ -57,10 +57,10 @@ console.log(authUser);
        
       <div className=" flex justify-between w-full px-2  items-center">
         <div>
-            <Link href="/" >
+            <Link href="/" className='flex items-center justify-center' >
            
               <span  className=" flex items-center justify-center text-2xl font-sans font-bold text-blue-400 cursor-pointer rounded-2xl  hover:text-white bg-transparent transition-all  duration-300 ">
-                           <TextGenerateEffect words={"🌊ode"}/> <p className='text-white text-2xl  font-bold hover:text-blue-400 transition-colors duration-300'>IU</p>
+              🌊ode<p className='text-white text-2xl  font-bold hover:text-blue-400 transition-colors duration-300'>IU</p>
               </span>
             
           </Link>

@@ -51,7 +51,7 @@ const SidebarLink = ({ icon: Icon, text, active, onClick }) => (
 
 // --- Main Views ---
 const DashboardView = () => (
-    <div className="space-y-8">
+    <div className="space-y-8 ">
         <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-white">Overview</h2>
             <button className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
@@ -157,10 +157,10 @@ const AdminPage = () => {
 
     return (
         <div className="min-h-screen bg-black text-gray-300 font-sans flex">
-            <aside className="w-64 bg-gray-900 p-6 flex-shrink-0">
+            <aside className="w-64 bg-black p-6 flex-shrink-0">
                 <div className="flex items-center mb-10">
                     <div className="w-10 h-10 bg-teal-800 rounded-full flex items-center justify-center text-white text-2xl font-bold">🌊</div>
-                    <h1 className="text-2xl font-bold text-white ml-3">Code<span className="font-bold text-blue-400">IU</span></h1>
+                    <h1 className="text-2xl font-bold text-blue-400 ml-3">Code<span className="font-bold text-white">IU</span></h1>
                 </div>
                 <nav><ul>{navLinks.map(link => (<SidebarLink key={link} icon={navIcons[link]} text={link} active={activeView === link} onClick={() => setActiveView(link)}/>))}</ul></nav>
             </aside>

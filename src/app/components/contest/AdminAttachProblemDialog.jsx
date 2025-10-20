@@ -7,7 +7,7 @@ import { useBundleStore } from "@/app/store/useBundleStore";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { toast } from "react-hot-toast";
 
-/** Normalize any "C++" keys to safe "CPP" keys */
+/** Normalize "C++" keys → "CPP" */
 function normalizeLangKeys(problem) {
   const deep = JSON.parse(JSON.stringify(problem || {}));
   const fix = (obj, from, to) => {
@@ -34,7 +34,7 @@ function ensureExample(e, defIn = "1", defOut = "1") {
   };
 }
 
-/** Convert problem from problemStore → inline snapshot with safe defaults (avoids 400) */
+/** Convert problem → inline snapshot with safe defaults */
 function toInlineSnapshot(p) {
   const norm = normalizeLangKeys(p);
 
@@ -47,18 +47,18 @@ function toInlineSnapshot(p) {
     title: nonEmptyString(norm.title, "Untitled"),
     description: nonEmptyString(norm.description, "No description provided."),
     difficulty: norm.difficulty || "EASY",
-    tags: tags.length ? tags : ["misc"],                             // ✅ >=1
-    constraints: nonEmptyString(norm.constraints, "N/A"),            // ✅ non-empty
+    tags: tags.length ? tags : ["misc"],
+    constraints: nonEmptyString(norm.constraints, "N/A"),
     hints: norm.hints || "",
     editorial: norm.editorial || "",
 
     testcases:
       Array.isArray(norm.testcases) && norm.testcases.length
         ? norm.testcases.map((t) => ({
-            input: nonEmptyString(t?.input, "1"),                    // ✅
-            output: nonEmptyString(t?.output, "1"),                  // ✅
+            input: nonEmptyString(t?.input, "1"),
+            output: nonEmptyString(t?.output, "1"),
           }))
-        : [{ input: "1", output: "1" }],                             // ✅ >=1
+        : [{ input: "1", output: "1" }],
 
     examples: {
       JAVASCRIPT: ensureExample(ex.JAVASCRIPT),
@@ -68,16 +68,16 @@ function toInlineSnapshot(p) {
     },
 
     codeSnippets: {
-      JAVASCRIPT: nonEmptyString(code.JAVASCRIPT, "// js starter"),  // ✅
-      PYTHON:     nonEmptyString(code.PYTHON,     "# py starter"),   // ✅
-      JAVA:       nonEmptyString(code.JAVA,       "// java starter"),// ✅
+      JAVASCRIPT: nonEmptyString(code.JAVASCRIPT, "// js starter"),
+      PYTHON:     nonEmptyString(code.PYTHON, "# py starter"),
+      JAVA:       nonEmptyString(code.JAVA, "// java starter"),
       ...(code.CPP ? { CPP: code.CPP } : {}),
     },
 
     referenceSolutions: {
-      JAVASCRIPT: nonEmptyString(ref.JAVASCRIPT, "// js ref"),       // ✅
-      PYTHON:     nonEmptyString(ref.PYTHON,     "# py ref"),        // ✅
-      JAVA:       nonEmptyString(ref.JAVA,       "// java ref"),     // ✅
+      JAVASCRIPT: nonEmptyString(ref.JAVASCRIPT, "// js ref"),
+      PYTHON:     nonEmptyString(ref.PYTHON, "# py ref"),
+      JAVA:       nonEmptyString(ref.JAVA, "// java ref"),
       ...(ref.CPP ? { CPP: ref.CPP } : {}),
     },
 
@@ -86,7 +86,7 @@ function toInlineSnapshot(p) {
       memoryLimitMb: norm.judge?.memoryLimitMb ?? 256,
     },
 
-    source: { kind: "INLINE", sourceProblemId: p?.id }, // audit backlink (optional)
+    source: { kind: "INLINE", sourceProblemId: p?.id },
   };
 }
 
@@ -94,12 +94,12 @@ export default function AdminAttachProblemsDialog({ contestId }) {
   const { authUser } = useAuthStore();
   const isAdmin = authUser?.role === "ADMIN";
 
-  const { problems, isProblemsLoading, getAllProblems } = useProblemStore();
+  const { problems, isProblemsLoading, getAllProblems, getProblemById } = useProblemStore();
   const { attachInlineProblems, fetchBundle, isLoading } = useBundleStore();
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState([]); // [{id, title, points, order}]
+  const [selected, setSelected] = useState([]);
   const [pointsDefault, setPointsDefault] = useState(100);
 
   useEffect(() => {
@@ -121,13 +121,51 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   const alreadySelected = new Set(selected.map((s) => s.id));
 
-  const addProblem = (p) => {
+//   const addProblem = async (p) => {
+//   if (alreadySelected.has(p.id)) return;
+
+//   try {
+//     // Fetch full problem details
+//     const result = await getProblemById(p.id); 
+//     const fullProblem = result.problem;
+
+//     if (!fullProblem) {
+//       toast.error("Failed to fetch problem details.");
+//       return;
+//     }
+
+//     setSelected((prev) => [
+//       ...prev,
+//       { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
+//     ]);
+//   } catch (error) {
+//     console.error("Error fetching problem details:", error);
+//     toast.error("Error fetching problem details.");
+//   }
+// };
+  const addProblem = async (p) => {
     if (alreadySelected.has(p.id)) return;
-    setSelected((prev) => [
-      ...prev,
-      { id: p.id, title: p.title, points: pointsDefault, order: prev.length },
-    ]);
+
+    try {
+// -     const result = await getProblemById(p.id); 
+// -     const fullProblem = result.problem;
+     const fullProblem = await getProblemById(p.id); // <-- now we get the real object
+
+      if (!fullProblem) {
+        toast.error("Failed to fetch problem details.");
+        return;
+      }
+
+      setSelected((prev) => [
+        ...prev,
+        { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
+      ]);
+    } catch (error) {
+      console.error("Error fetching problem details:", error);
+      toast.error("Error fetching problem details.");
+    }
   };
+
 
   const removeProblem = (id) => {
     setSelected((prev) =>
@@ -160,16 +198,11 @@ export default function AdminAttachProblemsDialog({ contestId }) {
     return;
   }
 
-  const byId = new Map((problems || []).map((p) => [p.id, p]));
-  const payload = selected.map((s) => {
-    const p = byId.get(s.id);
-    if (!p) throw new Error(`Problem not found: ${s.id}`);
-    return {
-      points: s.points,
-      order: s.order,
-      inline: toInlineSnapshot(p),
-    };
-  });
+  const payload = selected.map((s) => ({
+    points: s.points,
+    order: s.order,
+    inline: toInlineSnapshot(s.fullProblem), // use the fetched full problem
+  }));
 
   const loadingToast = toast.loading("Attaching problems to contest…");
 
@@ -180,10 +213,8 @@ export default function AdminAttachProblemsDialog({ contestId }) {
       toast.dismiss(loadingToast);
       toast.success(`✅ ${selected.length} problem${selected.length > 1 ? "s" : ""} successfully attached.`);
 
-      // Refresh bundle immediately for admin visibility
       await fetchBundle?.({ contestId, userId: authUser.id });
 
-      // Reset UI
       setOpen(false);
       setSelected([]);
       setQuery("");
@@ -205,9 +236,9 @@ export default function AdminAttachProblemsDialog({ contestId }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white p-2"
+        className="font-semibold inline-flex items-center gap-2 rounded-full text-white hover:text-blue-400 p-2 border border-white hover:border-blue-400 cursor-pointer transition-colors"
       >
-        <Plus className="w-5 h-5 font-semibold" />
+        <Plus className="w-5 h-5" />
         Attach Problems
       </button>
 
