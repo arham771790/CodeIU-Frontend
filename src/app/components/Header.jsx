@@ -9,6 +9,8 @@ import Profile from "./smallcomponents/Profile";
 import Image from "next/image";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
+import { Flame , Sun} from "lucide-react";
+
 export default function Header() {
   const { isLoggingIn, authUser, logout, isLoggingOut } = useAuthStore();
   const [image, setImage] = useState(
@@ -118,7 +120,13 @@ export default function Header() {
         <div className=" flex  px-2 py-2 rounded-full">
           <nav className="hidden md:block">
             {authUser ? (
-              <ul className="flex justify-center items-center gap-2 text-md font-mono cursor-pointer">
+             <div>
+               <ul className="flex justify-center items-center gap-4 text-md font-mono cursor-pointer">
+                 
+                <li className="text-blue-400 "><Flame /></li>
+
+                <li className="text-yellow-500 "> <Sun /></li>
+        
                 <li className="mr-2">
                   {
                     <div
@@ -146,6 +154,7 @@ export default function Header() {
                   }
                 </li>
               </ul>
+             </div>
             ) : (
               <Link
                 href="/login"

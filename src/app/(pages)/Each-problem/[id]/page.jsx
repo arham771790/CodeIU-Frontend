@@ -23,6 +23,11 @@ const EachProblemPage = () => {
     useEffect(() => {
       getProblemById(id);
     }, [getProblemById , id]);
+
+
+    console.log("..............problems..............");
+    console.log(problem);
+  
   
     
   return (

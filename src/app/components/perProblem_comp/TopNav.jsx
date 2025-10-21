@@ -28,7 +28,7 @@ const TopNav = ({problem}) => {
 
     const {userCode ,  RunReslts ,  runCode , isexecuting , languageId , submitCode , isSubmittingCode} = useSubmissionStore();
 
-    const visibleTestCase = problem?.testcases?.slice(0, 2);
+    const visibleTestCase = problem?.visibleTestcases;
     const handleRunCode = async(e) => {
         e.preventDefault();
         try {
@@ -49,10 +49,8 @@ const TopNav = ({problem}) => {
       try {
 
         let sourceCode = userCode;
-        const stdin = visibleTestCase?.map(item => item.input);
-        const expected_output = visibleTestCase?.map(item => item.output);
-
-        await submitCode(sourceCode , stdin , languageId , expected_output , problemId);
+        
+        await submitCode(sourceCode , languageId , problemId);
         
       } catch (error) {
         console.log("error occured while submitting the code from TopNav component : " , error);
