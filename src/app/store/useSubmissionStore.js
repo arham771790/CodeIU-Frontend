@@ -96,12 +96,12 @@ export const useSubmissionStore = create((set , get) => ({
         }
     } ,
 
-    submitCode : async(sourceCode , stdin , languageId , expected_output , problemId) => {
+    submitCode : async(sourceCode , languageId ,  problemId) => {
         try {
             
             set({isSubmittingCode : true})
 
-            const result = await axiosInstanceSubmissionService.post("/execute/submit-code" , {sourceCode , stdin , languageId , expected_output , problemId} ) ;
+            const result = await axiosInstanceSubmissionService.post("/execute/submit-code" , {sourceCode , languageId , problemId} ) ;
 
             set(state => ({
                 submissions : [...state.submissions , result.data.submission]

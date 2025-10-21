@@ -23,6 +23,11 @@ const EachProblemPage = () => {
     useEffect(() => {
       getProblemById(id);
     }, [getProblemById , id]);
+
+
+    console.log("..............problems..............");
+    console.log(problem);
+  
   
     
   return (
@@ -35,13 +40,13 @@ const EachProblemPage = () => {
             <ProblemDescription 
               title={problem?.title}
               description={problem?.description}
-              testcases={problem?.testcases}
+              testcases={problem?.visibleTestcases}
               constraints={problem?.constraints}
             />
             <CodeEditor
               description={problem?.description}
               codeSnippets={problem?.codeSnippets}
-              testcases={problem?.testcases}
+              testcases={problem?.visibleTestcases}
             />
           </main>
         

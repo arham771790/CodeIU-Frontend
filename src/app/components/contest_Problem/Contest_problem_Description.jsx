@@ -11,8 +11,9 @@ const Code = (props) => (
   </span>
 );
 
-const ProblemDescription = ({ title, description, testcases, constraints }) => {
+const Contest_problem_Description = ({ title, description, testcases, constraints }) => {
   
+
   return (
     <div className="bg-[#212121] text-gray-300 flex flex-col h-full overflow-y-auto rounded-lg">
       <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between border-b border-zinc-800 text-sm">
@@ -79,4 +80,4 @@ const ProblemDescription = ({ title, description, testcases, constraints }) => {
   );
 };
 
-export default ProblemDescription;
+export default Contest_problem_Description;

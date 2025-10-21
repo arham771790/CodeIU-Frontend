@@ -58,8 +58,6 @@ export default function ContestDetailPage() {
   const isAdmin = authUser?.role === "ADMIN";
   const problems = bundle?.problems || [];
 
-  console.log("........................Problems of the contest ...........................:");
-  console.log(problems);
 
   return (
     <div className="min-h-screen bg-black text-gray-200">
@@ -120,7 +118,7 @@ export default function ContestDetailPage() {
             // Participant sees Enter Contest button
             <div className="flex-col mt-6">
               <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
-              <Link href="/contestPage">
+              <Link href={`/Contest_ProblemPage/${contestId}`}>
                 <button className="p-2 bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white cursor-pointer hover:text-white border border-white hover:border-blue-400 rounded-full font-semibold">
                   Enter Contest
                 </button>
