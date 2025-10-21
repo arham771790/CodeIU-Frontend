@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Profile from './smallcomponents/Profile';
 import Image from 'next/image';
-import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
+
 
 export default function Header() {
   
