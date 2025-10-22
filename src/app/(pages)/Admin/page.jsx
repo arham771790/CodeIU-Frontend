@@ -7,7 +7,6 @@ import { useAuthStore } from '@/app/store/useAuthStore';
 import SidebarLink from './components/SidebarLink';
 import UsersView from './components/Userview';
 import CrudView from './components/CrudView';
-import ProblemsView from './components/ProblemsView';
 
 // --- Mock Data ---
 const overviewData = [
@@ -43,7 +42,10 @@ const DashboardView = () => (
     <div className="space-y-8 ">
         <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-white">Overview</h2>
-        
+            <button className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                <Plus className="w-5 h-5 mr-2" />
+                Add Item
+            </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {overviewData.map(item => (
@@ -87,7 +89,7 @@ const DashboardView = () => (
 
 
 
-
+const ProblemsView = () => <CrudView title="Manage Problems" data={mockProblems} columns={[{key: 'title', label: 'Title'}, {key: 'difficulty', label: 'Difficulty', render: (item) => <span className={`${item.difficulty === 'Easy' ? 'text-green-400' : item.difficulty === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>{item.difficulty}</span>}, {key: 'tags', label: 'Tags', render: (item) => item.tags.join(', ')}]} onAddItem={() => alert('Add new problem')} />;
 const ContestsView = () => <CrudView title="Manage Contests" data={mockContests} columns={[{key: 'title', label: 'Title'}, {key: 'startTime', label: 'Start Time'}, {key: 'endTime', label: 'End Time'}, {key: 'status', label: 'Status', render: (item) => <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'Live' ? 'bg-red-500/50 text-red-300' : item.status === 'Upcoming' ? 'bg-yellow-500/50 text-yellow-300' : 'bg-gray-500/50 text-gray-300'}`}>{item.status}</span>}]} onAddItem={() => alert('Add new contest')} />;
 const GenericView = ({ title }) => (<div><h2 className="text-2xl font-bold text-white">{title}</h2><p className="text-gray-400 mt-2">Content for {title} will be displayed here.</p></div>);
 

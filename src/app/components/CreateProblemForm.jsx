@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const ProblemSchema = z.object({
   title: z.string().min(3, "title must be at least of 3 charecter"),
@@ -522,70 +522,41 @@ public class Main {
 
 export const CreateProblemForm = () => {
   const { createProblem, isCreatingProblem } = useProblemStore();
-   const { id } = useParams();
-  const [problemDetail,setproblemDetail]=useState({})
-const {getProblemById}=useProblemStore();
-
-   useEffect(()=>{
-const Q=async()=>{
- const res= await getProblemById(id)
-   setproblemDetail(res);
-    }
-    Q();
-
-   },[id])
-   
-    const form =useForm({
-      resolver: zodResolver(ProblemSchema),
-      defaultValues: {
-        testcases: [{ input: "", output: "" }],
-        tags: [""],
-        examples: {
-          JAVASCRIPT: { input: "", output: "", explanation: "" },
-          PYTHON: { input: "", output: "", explanation: "" },
-          JAVA: { input: "", output: "", explanation: "" },
-        },
-        codeSnippets: {
-          JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
-          PYTHON: "def solution():\n    # Write your code here\n    pass",
-          JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
-        },
-        referenceSolutions: {
-          JAVASCRIPT: "// Add your reference solution here",
-          PYTHON: "# Add your reference solution here",
-          JAVA: "// Add your reference solution here",
-        },
-      },
-    })
-
-      const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = form;
 
   
-   useEffect(() => {
-  if (problemDetail) {
-    form.reset({
-      title: problemDetail.title,
-      description: problemDetail.description,
-      difficulty: problemDetail.difficulty,
-      testCases: problemDetail.testCases,
-      codeSnippets: problemDetail.codeSnippets,
-      referenceSolutions: problemDetail.referenceSolutions,
-      examples: problemDetail.examples,
-    });
-  }}
-)
 
   const router = useRouter();
 
   const [sampleType, setSampleType] = useState("DP");
 
-
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(ProblemSchema),
+    defaultValues: {
+      testcases: [{ input: "", output: "" }],
+      tags: [""],
+      examples: {
+        JAVASCRIPT: { input: "", output: "", explanation: "" },
+        PYTHON: { input: "", output: "", explanation: "" },
+        JAVA: { input: "", output: "", explanation: "" },
+      },
+      codeSnippets: {
+        JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
+        PYTHON: "def solution():\n    # Write your code here\n    pass",
+        JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
+      },
+      referenceSolutions: {
+        JAVASCRIPT: "// Add your reference solution here",
+        PYTHON: "# Add your reference solution here",
+        JAVA: "// Add your reference solution here",
+      },
+    },
+  });
 
   const {
     fields: testCaseFields,
@@ -634,8 +605,7 @@ const Q=async()=>{
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
               <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              {!id==null?<span>Create Problem</span>
-              :<span>Edit Problem</span>}
+              Create Problem
             </h2>
 
             <div className="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
