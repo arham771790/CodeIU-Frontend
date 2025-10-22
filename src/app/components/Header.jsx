@@ -1,6 +1,5 @@
 "use client";
 
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "../store/useAuthStore";
@@ -10,8 +9,7 @@ import Profile from "./smallcomponents/Profile";
 import Image from "next/image";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
-import { Flame , Sun} from "lucide-react";
-
+import { Flame, Sun } from "lucide-react";
 
 export default function Header() {
   const { isLoggingIn, authUser, logout, isLoggingOut } = useAuthStore();
@@ -27,8 +25,6 @@ export default function Header() {
       setImage(res.data.results[0].picture?.medium);
     })();
   }, []);
-
-  console.log(authUser);
 
   const pages = [
     {
@@ -91,20 +87,38 @@ export default function Header() {
               </Link>
             </li>
             <li className="">
-              <Link
-                href="/problem"
-                className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
-              >
-                Problem
-              </Link>
+              {authUser ? (
+                <Link
+                  href="/problem"
+                  className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
+                >
+                  Problem
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
+                >
+                  Problem
+                </Link>
+              )}
             </li>
             <li className="">
-              <Link
-                href="/contest"
-                className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
-              >
-                Contest
-              </Link>
+              {authUser ? (
+                <Link
+                  href="/contest"
+                  className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
+                >
+                  Contest
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-white hover:text-gray-300 gap-2  transition-colors relative group"
+                >
+                  Contest
+                </Link>
+              )}
             </li>
             {!authUser && (
               <li className="">
@@ -122,41 +136,45 @@ export default function Header() {
         <div className=" flex  px-2 py-2 rounded-full">
           <nav className="hidden md:block">
             {authUser ? (
-             <div>
-               <ul className="flex justify-center items-center gap-4 text-md font-mono cursor-pointer">
-                 
-                <li className="text-blue-400 "><Flame /></li>
+              <div>
+                <ul className="flex justify-center items-center gap-4 text-md font-mono cursor-pointer">
+                  <li className="text-blue-400 ">
+                    <Flame />
+                  </li>
 
-                <li className="text-yellow-500 "> <Sun /></li>
-        
-                <li className="mr-2">
-                  {
-                    <div
-                      onClick={() => setIsProfileOpen((p) => !p)}
-                      className="cursor-pointer bg-white/30 rounded-full p-1 relative"
-                    >
-                      <Image
-                        src={image}
-                        alt="Profile"
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      {isProfileOpen && (
-                        <div className="absolute right-0  mt-2 w-30  rounded-md shadow-lg overflow-hidden z-20">
-                          <Profile
-                            logout={logout}
-                            isLoggingOut={isLoggingOut}
-                            authUser={authUser}
-                            setIsProfileOpen={setIsProfileOpen}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  }
-                </li>
-              </ul>
-             </div>
+                  <li className="text-yellow-500 ">
+                    {" "}
+                    <Sun />
+                  </li>
+
+                  <li className="mr-2">
+                    {
+                      <div
+                        onClick={() => setIsProfileOpen((p) => !p)}
+                        className="cursor-pointer bg-white/30 rounded-full p-1 relative"
+                      >
+                        <Image
+                          src={image}
+                          alt="Profile"
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                        />
+                        {isProfileOpen && (
+                          <div className="absolute right-0  mt-2 w-30  rounded-md shadow-lg overflow-hidden z-20">
+                            <Profile
+                              logout={logout}
+                              isLoggingOut={isLoggingOut}
+                              authUser={authUser}
+                              setIsProfileOpen={setIsProfileOpen}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    }
+                  </li>
+                </ul>
+              </div>
             ) : (
               <Link
                 href="/login"
