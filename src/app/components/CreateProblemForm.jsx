@@ -708,7 +708,7 @@ export const CreateProblemForm = () => {
             </div>
 
             {/* Tags */}
-            <div className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6">
+            <div className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6">
               <div className="flex items-center justify-between mb-4 ">
                 <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
@@ -752,7 +752,7 @@ export const CreateProblemForm = () => {
             </div>
 
             {/* Test Cases */}
-            <div className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6">
+            <div className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5" />
@@ -841,7 +841,7 @@ export const CreateProblemForm = () => {
               {["JAVASCRIPT", "PYTHON", "JAVA" , "C++"].map((language) => (
                 <div
                   key={language}
-                  className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6"
+                  className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6"
                 >
                   <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
                     <Code2 className="w-5 h-5" />
