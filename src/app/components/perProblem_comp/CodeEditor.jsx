@@ -8,11 +8,9 @@ import {
   RefreshCw,
   Settings,
   Expand,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
-
-
 
 import { useState, useEffect, useRef } from "react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
@@ -47,7 +45,6 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
 
   // This gets the most recent submission from the array
   const latestSubmission = submissions?.[0];
-
 
   useEffect(() => {
     if (codeSnippets) {
@@ -85,6 +82,9 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
     setCode(codeSnippets?.[lang] || "");
   };
 
+  const handleRefreshCode = () => {
+    setUserCode(codeSnippets?.[selectedLanguage] || "");
+  };
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -123,8 +123,6 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-
-
   return (
     <div ref={containerRef} className="flex flex-col h-full">
       {/* Top Panel: Header + Code Editor */}
@@ -147,7 +145,11 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
             </select>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="hover:bg-zinc-800 p-1.5 rounded">
+            <button
+              className="hover:bg-zinc-800 p-1.5 rounded"
+              onClick={handleRefreshCode}
+              title="Warning: This will reset the code"
+            >
               <RefreshCw className="w-5 h-5 text-gray-400" />
             </button>
             <button className="hover:bg-zinc-800 p-1.5 rounded">
