@@ -63,7 +63,7 @@ const TopNav = ({problem}) => {
     <div>
        <nav className="bg-[#212121] text-gray-300 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-            <h1 className='text-xl font-bold text-white'>🌊odeIU</h1>
+            <span className=' inline-flex items-center text-xl font-bold text-blue-400'>🌊ode<h1 className='text-xl font-bold text-white'>IU</h1></span>
             <div className="flex items-center space-x-2">
                 <button className="hover:bg-zinc-800 p-1 rounded"><List className="w-5 h-5"/></button>
                 <span className="font-medium">Problem List</span>
