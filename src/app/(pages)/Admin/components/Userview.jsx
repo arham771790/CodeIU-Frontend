@@ -16,11 +16,18 @@ useEffect(()=>{
    fetchData();
 
 },[])
+const handledelete=(item)=>{
+    setisDeleting(p=>!p)
+    setdeletedid(item.id);
+}
 
 
 
 
-
+const handleEdit=(SelectedUser)=>{
+setisEditing(p=>!p)
+setuser(SelectedUser);
+}
 
 
 const coloumns=[{key: 'username', label: 'Name'},{key: 'email', label: 'Email'}, {key: 'role', label: 'Role'}, {key: 'createdAt', label: 'Joined'}];
@@ -29,7 +36,7 @@ const coloumns=[{key: 'username', label: 'Name'},{key: 'email', label: 'Email'},
 
 
     return (
-     <CrudViewuser title="Manage Users" data={allUsers} columns={coloumns} onAddItem={() => alert('Add new user')} />
+     <CrudViewuser title="Manage Users" data={allUsers} columns={coloumns} onAddItem={() => alert('Add new user')} handletask={handledelete} handleEdit={handleEdit} />
     )
 }
 
