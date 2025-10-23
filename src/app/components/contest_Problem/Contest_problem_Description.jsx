@@ -62,19 +62,6 @@ const Contest_problem_Description = ({ title, description, testcases, constraint
       </div>
 
       <div className="flex-shrink-0 px-4 py-2 border-t border-zinc-800 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <button className="flex items-center space-x-1.5 hover:bg-zinc-800 p-1.5 rounded">
-            <ThumbsUp className="w-4 h-4" />{" "}
-            <span className="text-xs">64.3K</span>
-          </button>
-          <button className="flex items-center space-x-1.5 hover:bg-zinc-800 p-1.5 rounded">
-            <ThumbsDown className="w-4 h-4" />{" "}
-            <span className="text-xs">1.6K</span>
-          </button>
-        </div>
-        <div className="flex items-center space-x-2 text-xs text-gray-400">
-          <span>2361 Online</span>
-        </div>
       </div>
     </div>
   );
