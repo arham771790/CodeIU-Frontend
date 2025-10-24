@@ -1,6 +1,5 @@
 import axios from "axios";
 
-console.log("env:", process.env.NEXT_PUBLIC_MODE);
 
 export const axiosInstanceAuthService = axios.create({
   baseURL:
