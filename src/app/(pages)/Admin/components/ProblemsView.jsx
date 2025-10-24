@@ -42,7 +42,7 @@ async () => {
                     <button className="flex items-center  bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                     onClick={()=>navigate.push('/CreateProblem')}
                     >
-                            <Plus className="w-5 h-5 mr-2" />
+                            <Plus className="w-5 h-5 mr-3" />
                             Add Problems
                         </button>
                 </div>

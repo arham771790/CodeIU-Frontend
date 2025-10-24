@@ -16,7 +16,7 @@ const AddProblem = () => {
 //       </div>
 //     );
 //   }
- // ✅ works for /EditProblem/prob_1
+ // ✅ works for /EditProblem/prob_
 
   return (
 
