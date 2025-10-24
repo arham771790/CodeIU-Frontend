@@ -7,7 +7,19 @@ import CrudViewuser from "./CrudView";
 const UsersView = () =>{
 
 const {allUsers,fetchAllUsers}=useAdminStore();
-const [users,setallusers]=useState([])
+const [isEditing,setisEditing]=useState(false);
+const [isDeleting,setisDeleting]=useState(false)
+const [deletedid,setdeletedid]=useState(null)
+
+const handleEdit=(SelectedUser)=>{
+setisEditing(p=>!p)
+setuser(SelectedUser);
+}
+const handledelete=(item)=>{
+    setisDeleting(p=>!p)
+    setdeletedid(item.id);
+}
+
 
 useEffect(()=>{
    async function fetchData(){
@@ -29,7 +41,10 @@ const coloumns=[{key: 'username', label: 'Name'},{key: 'email', label: 'Email'},
 
 
     return (
-     <CrudViewuser title="Manage Users" data={allUsers} columns={coloumns} onAddItem={() => alert('Add new user')} />
+     <CrudViewuser title="Manage Users" data={allUsers} columns={coloumns} onAddItem={() => alert('Adding user soon') } handleEdit={handleEdit} handledelete={handledelete}
+     isDeleting={isDeleting} setisDeleting={setisDeleting} isEditing={isEditing} setisEditing={setisEditing}
+    deletedid={deletedid}
+     />
     )
 }
 
