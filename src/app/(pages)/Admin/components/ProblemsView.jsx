@@ -15,7 +15,10 @@ const ProblemsView = () =>{
     { id: 'prob_3', title: 'Median of Two Sorted Arrays', difficulty: 'Hard', tags: ['Array', 'Binary Search'] },
     { id: 'prob_4', title: 'Valid Parentheses', difficulty: 'Easy', tags: ['String', 'Stack'] },
 ];
-
+const [isEditing,setisEditing]=useState(false);
+const [user,setuser]=useState(null)
+const [isDeleting,setisDeleting]=useState(false)
+const [deletedid,setdeletedid]=useState(null)
 
 const navigate=useRouter();
 const {getAllProblems, problems}=useProblemStore();
@@ -33,21 +36,22 @@ async () => {
     }
 
     const deleteproblem=(item)=>{
-      alert('problem deleted')
+     setdeletedid(item.id)
+     setisDeleting(true)
+    }
+
+    const AddProblem=()=>{
+        navigate.push('/CreateProblem')
     }
     return(
 
         <div className="flex flex-col">
-                <div className="flex w-full justify-end">
-                    <button className="flex items-center  bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                    onClick={()=>navigate.push('/CreateProblem')}
-                    >
-                            <Plus className="w-5 h-5 mr-3" />
-                            Add Problems
-                        </button>
-                </div>
+            
                            <CrudView title="Manage Problems" data={problems.length>0?problems:mockProblems} 
-         columns={coloumns} onAddItem={() => alert('Add new problem')} handleEdit={handleEditProblem} handletask={deleteproblem} />
+         columns={coloumns} handleEdit={handleEditProblem} handledelete={deleteproblem} onAddItem={AddProblem}
+         isDeleting={isDeleting} setisDeleting={setisDeleting} isEditing={isEditing} setisEditing={setisEditing}
+         deletedid={deletedid}
+         />
         </div>
       
     )

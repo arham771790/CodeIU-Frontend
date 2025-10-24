@@ -1,9 +1,8 @@
 
 import Modal from "@/app/components/smallcomponents/ModalUpdate";
 import { useAdminStore } from "@/app/store/useAdminStore";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { it } from "zod/v4/locales";
+import { Database, Pencil, Plus, Trash2 } from "lucide-react";
+
 
 const ModalDlt= ({ isDeleting, setisDeleting,userid }) => {
   if (!isDeleting) return null;
@@ -32,10 +31,10 @@ const onclose=()=>{
          <div className="absolute w-fit top-1/2 bg-black left-1/2  -translate-y-1/2  p-6 rounded-lg shadow-lg ">
     <div className="flex flex-col w-full">
     
-        <form onSubmit={handledelete} >
-
-            <button type='button' className="rounded bg-green-400 mb-2 ml-2 mr-2 p-2 text-white font-bold" onClick={onclose}>Cancel</button>
-            <button type="submit" className=" rounded bg-red-500 mr-2 p-2 text-white font-bold">Delete</button>
+        <form onSubmit={handledelete} className="flex flex-col">
+             <div className="mb-4 "><span>Are you sure you want to delete this user?</span></div>
+            <button type='button' className="rounded bg-green-400 mb-2  p-2 text-white font-bold" onClick={onclose}>NO</button>
+            <button type="submit" className=" rounded bg-red-500  p-2 text-white font-bold">YES</button>
         </form>
     </div>
     </div>
@@ -43,20 +42,9 @@ const onclose=()=>{
   );
 };
 
-const CrudView = ({ title, data, columns, onAddItem }) => {
-    console.log(data)
-const [isEditing,setisEditing]=useState(false);
-const [user,setuser]=useState(null)
-const [isDeleting,setisDeleting]=useState(false)
-const [deletedid,setdeletedid]=useState(null)
-const handleEdit=(SelectedUser)=>{
-setisEditing(p=>!p)
-setuser(SelectedUser);
-}
-const handledelete=(item)=>{
-    setisDeleting(p=>!p)
-    setdeletedid(item.id);
-}
+const CrudView = ({ title, data, columns, onAddItem,handleEdit,handledelete ,isEditing,isDeleting,setisDeleting,setisEditing,deletedid }) => {
+
+
 
     
   return  <div>
@@ -79,7 +67,7 @@ const handledelete=(item)=>{
                 </tbody>
             </table>
         </div>
-     {isEditing&& <Modal isOpen={isEditing} setisEditing={setisEditing} user={user}/>}
+     {isEditing&& <Modal isOpen={isEditing} setisEditing={setisEditing} user={data}/>}
      {isDeleting&& <ModalDlt isDeleting={isDeleting} setisDeleting={setisDeleting} userid={deletedid}/>}
     </div>
 }

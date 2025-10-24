@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const ProblemSchema = z.object({
   title: z.string().min(3, "title must be at least of 3 charecter"),
@@ -522,41 +522,70 @@ public class Main {
 
 export const CreateProblemForm = () => {
   const { createProblem, isCreatingProblem } = useProblemStore();
+   const { id } = useParams();
+  const [problemDetail,setproblemDetail]=useState({})
+const {getProblemById}=useProblemStore();
 
-  
+   useEffect(()=>{
+const Q=async()=>{
+ const res= await getProblemById(id)
+   setproblemDetail(res);
+    }
+    Q();
 
-  const router = useRouter();
+   },[id])
+   
+    const form =useForm({
+      resolver: zodResolver(ProblemSchema),
+      defaultValues: {
+        testcases: [{ input: "", output: "" }],
+        tags: [""],
+        examples: {
+          JAVASCRIPT: { input: "", output: "", explanation: "" },
+          PYTHON: { input: "", output: "", explanation: "" },
+          JAVA: { input: "", output: "", explanation: "" },
+        },
+        codeSnippets: {
+          JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
+          PYTHON: "def solution():\n    # Write your code here\n    pass",
+          JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
+        },
+        referenceSolutions: {
+          JAVASCRIPT: "// Add your reference solution here",
+          PYTHON: "# Add your reference solution here",
+          JAVA: "// Add your reference solution here",
+        },
+      },
+    })
 
-  const [sampleType, setSampleType] = useState("DP");
-
-  const {
+      const {
     register,
     control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(ProblemSchema),
-    defaultValues: {
-      testcases: [{ input: "", output: "" }],
-      tags: [""],
-      examples: {
-        JAVASCRIPT: { input: "", output: "", explanation: "" },
-        PYTHON: { input: "", output: "", explanation: "" },
-        JAVA: { input: "", output: "", explanation: "" },
-      },
-      codeSnippets: {
-        JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
-        PYTHON: "def solution():\n    # Write your code here\n    pass",
-        JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
-      },
-      referenceSolutions: {
-        JAVASCRIPT: "// Add your reference solution here",
-        PYTHON: "# Add your reference solution here",
-        JAVA: "// Add your reference solution here",
-      },
-    },
-  });
+  } = form;
+
+  
+   useEffect(() => {
+  if (problemDetail) {
+    form?.reset({
+      title: problemDetail.title,
+      description: problemDetail.description,
+      difficulty: problemDetail.difficulty,
+      testCases: problemDetail.testCases,
+      codeSnippets: problemDetail.codeSnippets,
+      referenceSolutions: problemDetail.referenceSolutions,
+      examples: problemDetail.examples,
+    });
+  }},[problemDetail]
+)
+
+  const router = useRouter();
+
+  const [sampleType, setSampleType] = useState("DP");
+
+
 
   const {
     fields: testCaseFields,
@@ -605,7 +634,8 @@ export const CreateProblemForm = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
               <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              Create Problem
+              {!id==null?<span>Create Problem</span>
+              :<span>Edit Problem</span>}
             </h2>
 
             <div className="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
@@ -708,7 +738,7 @@ export const CreateProblemForm = () => {
             </div>
 
             {/* Tags */}
-            <div className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6">
+            <div className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6">
               <div className="flex items-center justify-between mb-4 ">
                 <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
@@ -752,7 +782,7 @@ export const CreateProblemForm = () => {
             </div>
 
             {/* Test Cases */}
-            <div className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6">
+            <div className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5" />
@@ -841,7 +871,7 @@ export const CreateProblemForm = () => {
               {["JAVASCRIPT", "PYTHON", "JAVA" , "C++"].map((language) => (
                 <div
                   key={language}
-                  className="card bg-base-200  md:p-6 shadow-md border border-white/10 rounded-md p-6"
+                  className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6"
                 >
                   <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
                     <Code2 className="w-5 h-5" />
@@ -1051,7 +1081,7 @@ export const CreateProblemForm = () => {
                 ) : (
                   <>
                     <CheckCircle2 className="w-6 h-6" />
-                    Create Problem
+                    Upload Problem
                   </>
                 )}
               </button>
@@ -1061,4 +1091,4 @@ export const CreateProblemForm = () => {
       </div>
     </div>
   );
-};
+}; 
