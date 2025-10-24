@@ -93,7 +93,7 @@ const ProblemsView = () => <CrudView title="Manage Problems" data={mockProblems}
 const ContestsView = () => <CrudView title="Manage Contests" data={mockContests} columns={[{key: 'title', label: 'Title'}, {key: 'startTime', label: 'Start Time'}, {key: 'endTime', label: 'End Time'}, {key: 'status', label: 'Status', render: (item) => <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'Live' ? 'bg-red-500/50 text-red-300' : item.status === 'Upcoming' ? 'bg-yellow-500/50 text-yellow-300' : 'bg-gray-500/50 text-gray-300'}`}>{item.status}</span>}]} onAddItem={() => alert('Add new contest')} />;
 const GenericView = ({ title }) => (<div><h2 className="text-2xl font-bold text-white">{title}</h2><p className="text-gray-400 mt-2">Content for {title} will be displayed here.</p></div>);
 
-// --- Admin Panel Component ---
+// --- Admin Panel Component --
 const AdminPage = () => {
     const [activeView, setActiveView] = useState('Dashboard');
     const {authUser} = useAuthStore();
