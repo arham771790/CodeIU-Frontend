@@ -14,7 +14,10 @@ import {
 } from "lucide-react";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import {useSearchStore} from "@/app/store/useSearchStore";
 import Link from "next/link";
+import ProblemSearchBar from "@/app/components/smallcomponents/SearchBar";
+
 
 const problemSets = [
   {
@@ -49,10 +52,15 @@ const ProblemsPage = () => {
 
   const { isProblemsLoading, problems, getAllProblems } = useProblemStore();
 
+  const { searchTerm, results, isLoading: isSearchLoading, error: searchError} = useSearchStore();
+
   useEffect(() => {
     getAllProblems();
   }, []);
 
+  const isSearching = searchTerm.trim() !== "";
+  const listToRender = isSearching ? results : problems;
+  const isActuallyLoading = isProblemsLoading || isSearchLoading;
 
   return (
     <div className="bg-black  text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
@@ -101,14 +109,7 @@ const ProblemsPage = () => {
 
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div className="relative w-full sm:w-auto flex-grow max-w-lg ">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500  " />
-            <input
-              type="text"
-              placeholder="Search problems"
-              className="w-full bg-gray-800 border border-gray-700/50 rounded-full pl-12 pr-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-            />
-          </div>
+         <ProblemSearchBar />
           <div className="flex items-center gap-3">
             {authUser?.role === "ADMIN" && (
               <Link href="/CreateProblem">
@@ -137,13 +138,17 @@ const ProblemsPage = () => {
             <div className="col-span-3 text-center">Difficulty</div>
             <div className="col-span-3 text-right">Acceptance</div>
           </div>
-          {isProblemsLoading ? (
+          {isActuallyLoading ? (
             <div className="flex items-center justify-center mt-4 mb-4">
               <Loader className="h-10 w-10 animate-spin " />
             </div>
           ) : (
             <div>
-              {problems.map((problem, index) => (
+              {searchError && (
+                <div className="p-4 text-center text-red-400">{searchError}</div>
+              )}
+              {listToRender.length > 0 ? (
+              listToRender.map((problem, index) => (
                <Link href= {`/Each-problem/${problem.id}`} key={problem.id}>
                  <div
                   className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
@@ -159,7 +164,14 @@ const ProblemsPage = () => {
                   </div>
                 </div>
                </Link>
-              ))}
+              ))
+              ) : (
+                <div className="p-6 text-center text-gray-500">
+                  {isSearching
+                    ? `No results found for "${searchTerm}"`
+                    : "No problems found."}
+                </div>
+              )}
             </div>
           )}
         </div>
