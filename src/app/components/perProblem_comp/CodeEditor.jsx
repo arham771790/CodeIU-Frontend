@@ -79,7 +79,7 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
 
-    setCode(codeSnippets?.[lang] || "");
+    setUserCode(codeSnippets?.[lang] || "");
   };
 
   const handleRefreshCode = () => {

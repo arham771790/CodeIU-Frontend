@@ -123,6 +123,7 @@ export const config = {
      
      
 HOW I CAN SOLVE IT :  i have to make a checkadmin controller in auth service  which will
-                      directly check the role from database not from token this is the only way.      
+                      directly check the role from database not from token this is the only way.
+
   
 */}
