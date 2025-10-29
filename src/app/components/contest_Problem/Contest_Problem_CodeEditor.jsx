@@ -165,17 +165,21 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
     finalStatus = "Wrong Answer";
   }
 
+  const handleRefreshCode = () => {
+    setUserCode(codeSnippets?.[selectedLanguage] || "");
+  };
+
   return (
     <div ref={containerRef} className="flex flex-col h-full">
       {/* Top Panel: Header + Code Editor */}
       <div
-        className="bg-[#212121] rounded-lg flex flex-col overflow-hidden"
+        className="bg-[#0e0e0e]  rounded-lg flex flex-col overflow-hidden"
         style={{ height: `${topPanelHeight}%` }}
       >
         <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between border-b border-zinc-800   ">
           <div className="flex items-center ">
             <select
-              className="bg-[#1e1e1e] text-white text-sm font-semibold rounded-lg focus:outline-none"
+              className="bg-[#0e0e0e] text-white text-sm font-semibold rounded-lg focus:outline-none"
               value={selectedLanguage}
               onChange={handleLanguageChange}
             >
@@ -187,10 +191,10 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
             </select>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="hover:bg-zinc-800 p-1.5 rounded">
+            <button className="hover:bg-zinc-800 p-1.5 rounded" onClick={handleRefreshCode} title="Warning: This will reset the code">
               <RefreshCw className="w-5 h-5 text-gray-400" />
             </button>
-            <button className="hover:bg-zinc-800 p-1.5 rounded">
+            <button className="hover:bg-zinc-800 p-1.5 rounded" >
               <Expand className="w-5 h-5 text-gray-400" />
             </button>
           </div>
@@ -222,7 +226,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
       ></div>
 
       {/* Bottom Panel: Test Cases */}
-      <div className="bg-[#212121] rounded-lg flex-grow flex flex-col overflow-hidden">
+      <div className="bg-[#0e0e0e] rounded-lg flex-grow flex flex-col overflow-hidden">
         <div className="flex-shrink-0 flex items-center space-x-2 px-4 border-b border-zinc-800">
           <button
             onClick={() => setActiveTab("testcase")}
@@ -264,10 +268,10 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                   <button
                     key={testCase?.id || index}
                     onClick={() => setSelectedCaseIndex(index)}
-                    className={`bg-zinc-700 text-sm font-semibold px-3 py-1 rounded-md transition-colors ${
+                    className={`bg-[#272727] text-sm font-semibold px-3 py-1 rounded-md transition-colors ${
                       selectedCaseIndex === index
                         ? "bg-zinc-700 text-white"
-                        : "bg-zinc-800 text-gray-400"
+                        : "bg-[#272727] text-gray-400"
                     }`}
                   >
                     Case {index + 1}
@@ -282,13 +286,13 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                 <div className="space-y-2">
                   <div>
                     <p className="text-sm font-semibold mb-1">Input:</p>
-                    <pre className="text-sm text-gray-300 bg-[#272727] p-3 rounded">
+                    <pre className="text-sm text-gray-300 bg-[#1a1a1a] p-3 rounded">
                       {testcases[selectedCaseIndex].input}
                     </pre>
                   </div>
                   <div>
                     <p className="text-sm font-semibold mb-1">Output:</p>
-                    <pre className="text-sm text-gray-300 bg-[#272727] p-3 rounded">
+                    <pre className="text-sm text-gray-300 bg-[#1a1a1a] p-3 rounded">
                       {testcases[selectedCaseIndex].output}
                     </pre>
                   </div>
@@ -319,7 +323,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                         className={`flex items-center space-x-2 text-sm font-semibold px-3 py-1 rounded-md transition-colors ${
                           selectedResultIndex === index
                             ? "bg-zinc-700 text-white"
-                            : "bg-zinc-800 text-gray-400"
+                            : "bg-[#1a1a1a] text-gray-400"
                         }`}
                       >
                         <span
@@ -338,7 +342,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                         <p className="text-sm font-semibold text-gray-400 mb-1 mt-2">
                           Input
                         </p>
-                        <pre className="text-sm text-gray-200 bg-[#272727] p-3 rounded-md w-full">
+                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md w-full">
                           {RunReslts[selectedResultIndex].Input}
                         </pre>
                       </div>
@@ -346,7 +350,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                         <p className="text-sm font-semibold text-gray-400 mb-1">
                           Output
                         </p>
-                        <pre className="text-sm text-gray-200 bg-[#272727] p-3 rounded-md">
+                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md">
                           {RunReslts[selectedResultIndex].stdout}
                         </pre>
                       </div>
@@ -354,7 +358,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                         <p className="text-sm font-semibold text-gray-400 mb-1">
                           Expected
                         </p>
-                        <pre className="text-sm text-gray-200 bg-[#272727] p-3 rounded-md">
+                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md">
                           {RunReslts[selectedResultIndex].expected}
                         </pre>
                       </div>
@@ -399,7 +403,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
                         {latestSubmission.testcases.map((tc, index) => (
                           <div
                             key={index}
-                            className="bg-[#272727] p-3 rounded-md"
+                            className="bg-[#1a1a1a] p-3 rounded-md"
                           >
                             <div className="flex justify-between items-center">
                               <span className="font-semibold text-white">

@@ -55,7 +55,7 @@ const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange }) => {
 
   return (
     <div>
-      <nav className="bg-[#212121] text-gray-300 px-4 py-2 flex items-center justify-between">
+      <nav className="bg-[#0e0e0e] text-gray-300 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <h1 className='text-xl font-bold text-white'>🌊odeIU</h1>
 

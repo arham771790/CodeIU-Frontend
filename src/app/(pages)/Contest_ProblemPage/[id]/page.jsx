@@ -99,7 +99,7 @@ const page = () => {
 
 
   return (
-     <div className="bg-[#1a1a1a] flex flex-col  min-h-screen font-sans text-white">
+     <div className="bg-[#080808] flex flex-col  min-h-screen font-sans text-white">
       {!isOpenQuestion ? (
         // Show this overlay before the test starts
         <div className="flex flex-col items-center justify-center h-full">
