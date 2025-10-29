@@ -14,6 +14,9 @@ export const useProblemStore = create((set) => ({
   isProblemLoading: false,
   isCreatingProblem: false,
 
+  isDeletingProblem: false ,
+  isUpdatingProblem : false ,
+
 
   createProblem : async(data) => {
     try {
@@ -83,5 +86,33 @@ export const useProblemStore = create((set) => ({
 
   //function of getProblem Solved by user will be added in the future
   //function of update and delete problem will be added in the future
+
+  UpdateProblem : async() => {
+    try {
+      
+    } catch (error) {
+      
+    }
+  } ,
+
+  deleteProblem : async(ProblemId) => {
+    try {
+
+      set({isDeletingProblem : true})
+
+      await axiosInstanceProblemService.delete(`/problem/deleteProblem/${ProblemId}`);
+
+      set((state)=>({
+        problems : state.problems.filter(problem => problem.id !== ProblemId)
+      }))
+      
+    } catch (error) {
+      console.log("error occured while deleting problem :" , error);
+      toast.error("error occured while deleting problem");
+      
+    } finally {
+      set({isDeletingProblem : false})
+    }
+  }
 
 }))
