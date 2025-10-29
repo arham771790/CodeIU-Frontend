@@ -8,8 +8,9 @@ import SidebarLink from './components/SidebarLink';
 import UsersView from './components/Userview';
 import CrudView from './components/CrudView';
 import ProblemsView from './components/ProblemsView';
+import ContestView from './components/ContestView';
 
-// --- Mock Data ---
+
 const overviewData = [
     { name: 'Members Online', value: '10,368', icon: Users, color: 'from-purple-500 to-indigo-500', trend: <LineChart width={100} height={40} data={[{uv: 10}, {uv: 50}, {uv: 30}, {uv: 60}, {uv: 40}]}><Line type="monotone" dataKey="uv" stroke="#fff" strokeWidth={2} dot={false} /></LineChart> },
     { name: 'Submissions Today', value: '3,886', icon: BarChart2, color: 'from-teal-500 to-cyan-500', trend: <LineChart width={100} height={40} data={[{uv: 20}, {uv: 40}, {uv: 10}, {uv: 50}, {uv: 30}]}><Line type="monotone" dataKey="uv" stroke="#fff" strokeWidth={2} dot={false} /></LineChart> },
@@ -25,20 +26,7 @@ const recentReportsData = [
 const charByPercentData = [ { name: 'Products', value: 400 }, { name: 'Services', value: 300 } ];
 const COLORS = ['#0088FE', '#00C49F'];
 
-const mockProblems = [
-    { id: 'prob_1', title: 'Two Sum', difficulty: 'Easy', tags: ['Array', 'Hash Table'] },
-    { id: 'prob_2', title: 'Add Two Numbers', difficulty: 'Medium', tags: ['Linked List', 'Math'] },
-    { id: 'prob_3', title: 'Median of Two Sorted Arrays', difficulty: 'Hard', tags: ['Array', 'Binary Search'] },
-    { id: 'prob_4', title: 'Valid Parentheses', difficulty: 'Easy', tags: ['String', 'Stack'] },
-];
 
-const mockContests = [
-    { id: 'cont_1', title: 'Weekly Contest #301', startTime: '2025-10-18 10:00', endTime: '2025-10-18 12:00', status: 'Live' },
-    { id: 'cont_2', title: 'Biweekly Contest #98', startTime: '2025-10-25 20:00', endTime: '2025-10-25 22:00', status: 'Upcoming' },
-    { id: 'cont_3', title: 'Weekly Contest #300', startTime: '2025-10-11 10:00', endTime: '2025-10-11 12:00', status: 'Finished' },
-];
-
-// --- Main Views ---
 const DashboardView = () => (
     <div className="space-y-8 ">
         <div className="flex justify-between items-center">
@@ -88,7 +76,7 @@ const DashboardView = () => (
 
 
 
-const ContestsView = () => <CrudView title="Manage Contests" data={mockContests} columns={[{key: 'title', label: 'Title'}, {key: 'startTime', label: 'Start Time'}, {key: 'endTime', label: 'End Time'}, {key: 'status', label: 'Status', render: (item) => <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'Live' ? 'bg-red-500/50 text-red-300' : item.status === 'Upcoming' ? 'bg-yellow-500/50 text-yellow-300' : 'bg-gray-500/50 text-gray-300'}`}>{item.status}</span>}]} onAddItem={() => alert('Add new contest')} />;
+
 const GenericView = ({ title }) => (<div><h2 className="text-2xl font-bold text-white">{title}</h2><p className="text-gray-400 mt-2">Content for {title} will be displayed here.</p></div>);
 
 // --- Admin Panel Component --
@@ -110,7 +98,7 @@ const AdminPage = () => {
             case 'Dashboard': return <DashboardView />;
             case 'Users': return <UsersView />;
             case 'Problems': return <ProblemsView />;
-            case 'Contests': return <ContestsView />;
+            case 'Contests': return <ContestView />;
             case 'Submissions': return <GenericView title="Submissions" />;
             case 'Settings': return <GenericView title="Settings" />;
             default: return <DashboardView />;

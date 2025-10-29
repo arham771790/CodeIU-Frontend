@@ -18,7 +18,7 @@ export default function CreateContestDialog() {
     endsAt: "",
   });
 
-  if (!isAdmin) return null; // hide for non-admins
+  // if (!isAdmin) return null; // hide for non-admins
 
   const onChange = (e) => {
     const { name, value } = e.target;
