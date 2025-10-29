@@ -37,7 +37,7 @@ export default function  Section3() {
                 {/* Card 1 - Data Structures */}
                 <div className="bg-gradient-to-bl from-purple-500 via-yellow-500 to-purple-600 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition">
                   <div className="text-sm font-semibold mb-3 opacity-90">
-                    LeetCode's Interviews Crash Course
+                  DSA Crash Course
                   </div>
                   <h4 className="text-sm font-bold mb-4">Data Structures and Algorithms</h4>
                   <div className="flex justify-between text-xs">
@@ -53,7 +53,7 @@ export default function  Section3() {
                 {/* Card 2 - System Design */}
                 <div className="bg-gradient-to-br from-green-500 via-blue-400 to-green-400 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition">
                   <div className="text-sm font-semibold mb-3 opacity-90">
-                    LeetCode's Interviews Crash Course
+                  Specialised Interviews Crash Course
                   </div>
                   <h4 className="text-sm font-bold mb-4">System Design for Interviews and Beyond</h4>
                   <div className="flex justify-between text-xs">

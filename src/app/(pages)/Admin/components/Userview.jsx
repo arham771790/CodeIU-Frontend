@@ -2,7 +2,7 @@ import { useAdminStore } from "@/app/store/useAdminStore";
 import { all } from "axios";
 import { useEffect, useState } from "react";
 import CrudViewuser from "./CrudView";
-
+import SkeletonUI from "@/app/components/smallcomponents/SkeletonUI"
 
 const UsersView = () =>{
 
@@ -37,7 +37,9 @@ useEffect(()=>{
 
 const coloumns=[{key: 'username', label: 'Name'},{key: 'email', label: 'Email'}, {key: 'role', label: 'Role'}, {key: 'createdAt', label: 'Joined'}];
 
-
+if(allUsers?.length==0){
+    return <SkeletonUI/>
+}
 
 
     return (
