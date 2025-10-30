@@ -25,7 +25,7 @@ const [isDeleting,setisDeleting]=useState(false)
 const [deletedid,setdeletedid]=useState(null)
 
 const navigate=useRouter();
-const {getAllProblems, problems}=useProblemStore();
+const {getAllProblems, problems,createProblem,updateProblem,deleteProblem}=useProblemStore();
 useEffect(()=>{
 (async () => {
     await getAllProblems();

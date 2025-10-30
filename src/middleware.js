@@ -12,7 +12,7 @@ export function middleware(request) {
     '/contest',
     '/problem',
     '/profile',
-    '/Admin',
+      '/Admin',
     '/Each-problem',
     '/Contest_ProblemPage',
     '/CreateProblem' ,
