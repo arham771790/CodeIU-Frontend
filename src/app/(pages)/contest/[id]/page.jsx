@@ -20,12 +20,12 @@ export default function ContestDetailPage() {
   const contestId = params?.id;
   const { authUser } = useAuthStore();
 
-  const { contest, fetchContest, isLoading } = useContestStore();
+  const { contest, fetchContestById, isLoading } = useContestStore();
   const { bundle, fetchBundle } = useBundleStore();
 
   useEffect(() => {
-    if (contestId) fetchContest(contestId);
-  }, [contestId, fetchContest]);
+    if (contestId) fetchContestById(contestId);
+  }, [contestId, fetchContestById]);
 
   useEffect(() => {
     if (contestId && authUser?.id) {
@@ -40,12 +40,12 @@ export default function ContestDetailPage() {
     socket.on("contestStatusUpdated", ({ contestId: changedId, newStatus }) => {
       if (changedId === contestId) {
         console.log(`[socket] contest ${contestId} updated → ${newStatus}`);
-        fetchContest(contestId);
+        fetchContestById(contestId);
       }
     });
 
     return () => socket.off("contestStatusUpdated");
-  }, [contestId, fetchContest]);
+  }, [contestId, fetchContestById]);
 
   if (isLoading || !contest) {
     return (

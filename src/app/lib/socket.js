@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 let socket;
 export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:8090", {
+    socket = io("http://localhost:8060", {
       path: "/realtime",       // ✅ must match backend
       transports: ["websocket"],
       withCredentials: false,

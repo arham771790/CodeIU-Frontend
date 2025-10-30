@@ -59,18 +59,30 @@ export const useProblemStore = create((set) => ({
   } ,
 
   getProblemById : async(ProblemID) => {
-    try {
-
-        // set({ isProblemLoading : true })        
-        // const result = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`)
-        // set({problem : result.data.problem })
-        
-        // toast.success(result.data.message)
-         set({ isProblemLoading : true })
+     try {
+       set({ isProblemLoading : true })
        const res = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`);
        const prob = res?.data?.problem;
+
+       // 🔎 LOG: raw and summarized testcase sources
+       console.log("[ProblemStore] getProblemById raw:", res?.data);
+       console.log("[ProblemStore] getProblemById keys:", Object.keys(prob || {}));
+       console.log("[ProblemStore] testcases lengths:", {
+         testcases: Array.isArray(prob?.testcases) ? prob.testcases.length : 0,
+         testCases: Array.isArray(prob?.testCases) ? prob.testCases.length : 0,
+         publicTestcases: Array.isArray(prob?.publicTestcases) ? prob.publicTestcases.length : 0,
+         hiddenTestcases: Array.isArray(prob?.hiddenTestcases) ? prob.hiddenTestcases.length : 0,
+         privateTestcases: Array.isArray(prob?.privateTestcases) ? prob.privateTestcases.length : 0,
+       });
+       console.log("[ProblemStore] first few examples:", {
+         exJS: prob?.examples?.JAVASCRIPT,
+         exPY: prob?.examples?.PYTHON,
+         exJAVA: prob?.examples?.JAVA,
+         exCPP: prob?.examples?.CPP,
+       });
+
        set({ problem: prob });
-       return prob; // returned the problem initially problem was not returned just zustand state was set 
+       return prob;
 
     } catch (error) {
 
