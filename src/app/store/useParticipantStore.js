@@ -2,20 +2,22 @@
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/app/lib/axios";
 import { toast } from "react-toastify";
-
 export const useParticipantStore = create((set, get) => ({
   isRegistered: false,
   isRegistering: false,
   isUnregistering: false,
   participantCount: 0,
   error: null,
-
+  
   // 🔍 Check if user is already registered
   async checkRegistration({ contestId, userId }) {
+    
     try {
+      
       const res = await axiosInstanceContestService.get(`contest/contests/${contestId}/check`, {
         params: { userId },
       });
+
       set({ isRegistered: res.data.isRegistered || false });
     } catch (err) {
       console.error("Error checking registration:", err);
@@ -24,11 +26,11 @@ export const useParticipantStore = create((set, get) => ({
   },
 
   // ✅ Register for contest
-  async register({ contestId, userId }) {
+  async register({ contestId, userId ,username}) {
     try {
       set({ isRegistering: true, error: null });
       const res = await axiosInstanceContestService.post(`contest/contests/${contestId}/register`, {
-        userId,
+        userId,username
       });
       if (res.data.ok) {
         toast.success("Registered successfully!");

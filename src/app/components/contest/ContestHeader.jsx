@@ -34,7 +34,11 @@ export default function ContestHeader({ contest }) {
 
   const onRegister = async () => {
     if (!authUser?.id) return;
-    await register({ contestId: contest.id, userId: authUser.id });
+    await register({
+      contestId: contest.id,
+      userId: authUser.id,
+      username: authUser.username, // ✅ pass username from authStore
+    });
   };
 
   const onUnregister = async () => {
@@ -43,18 +47,15 @@ export default function ContestHeader({ contest }) {
   };
 
   return (
-    <div className="px-4 md:px-8 py-8 md:py-12  bg-[radial-gradient(ellipse_120%_60%_at_50%_50%,_rgba(37,99,235,0.6),transparent)] p-6 text-white shadow-xl mb-4">
-      
-      <div className="max-w-6xl mx-auto flex items-start md:items-center justify-between    pb-4    ">
-        
-        <div >
-          {/* fix invalid sizes: use arbitrary values */}
-
+    <div className="px-4 md:px-8 py-8 md:py-12 bg-[radial-gradient(ellipse_120%_60%_at_50%_50%,_rgba(37,99,235,0.6),transparent)] p-6 text-white shadow-xl mb-4">
+      <div className="max-w-6xl mx-auto flex items-start md:items-center justify-between pb-4">
+        <div>
           <h1 className="text-2xl md:text-4xl font-semibold text-white">
-            
             {contest?.title || "Contest"}
           </h1>
-          <p className="text-sm md:text-base text-gray-300 mt-2">{startsAtText}</p>
+          <p className="text-sm md:text-base text-gray-300 mt-2">
+            {startsAtText}
+          </p>
         </div>
 
         {isRegistered ? (
