@@ -21,7 +21,7 @@ const AddProblem = () => {
   return (
 
     <div>
-      <CreateProblemForm   />
+      <CreateProblemForm/>
     </div>
   );
 };
