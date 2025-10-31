@@ -16,6 +16,7 @@ export const useContestStore = create((set, get) => ({
       const res = await axiosInstanceContestService.get(
         `/contest/contests${type ? `?type=${type}` : ""}`
       );
+      console.log(res)
       if (res?.data?.ok) set({ contests: res.data.contests });
       else toast.error(res?.data?.error || "Failed to fetch contests");
     } catch (err) {
@@ -28,7 +29,7 @@ export const useContestStore = create((set, get) => ({
   },
 
   /* ---------- Fetch One Contest by ID ---------- */
-  fetchContest: async (id) => {
+  fetchContestById: async (id) => {
     if (!id) return;
     set({ isLoading: true, error: null });
     try {

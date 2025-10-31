@@ -6,7 +6,7 @@ let socket;
 export const getSocket = (contestId) => {
   // Avoid multiple socket connections
   if (!socket) {
-    socket = io("http://localhost:8090", {
+    socket = io("http://localhost:8060", {
       path: "/realtime",           // ✅ must match backend
       transports: ["websocket"],   // skip polling to avoid 404 spam
       withCredentials: false,

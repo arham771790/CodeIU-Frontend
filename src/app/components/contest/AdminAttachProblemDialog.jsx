@@ -7,6 +7,32 @@ import { useBundleStore } from "@/app/store/useBundleStore";
 import { useProblemStore } from "@/app/store/useProblemStore";
 import { toast } from "react-hot-toast";
 
+/** ---------- helpers ---------- */
+function tcRow(row) {
+  if (!row) return { input: "1", output: "1" };
+  if (typeof row === "string") {
+    const [i, o] = row.split("|");
+    return { input: String(i ?? "1").trim(), output: String(o ?? "1").trim() };
+  }
+  const input = (row.input ?? row.in ?? row.stdin ?? "1").toString().trim();
+  const output = (row.output ?? row.out ?? row.stdout ?? "1").toString().trim();
+  return { input, output };
+}
+
+// replace your extractTC with this version (JS)
+function extractTC(src) {
+  const a = Array.isArray(src?.testcases) ? src.testcases : [];
+  const b = Array.isArray(src?.testCases) ? src.testCases : [];
+  const c = Array.isArray(src?.publicTestcases) ? src.publicTestcases : [];
+  const d = Array.isArray(src?.hiddenTestcases) ? src.hiddenTestcases : [];
+  const e = Array.isArray(src?.privateTestcases) ? src.privateTestcases : [];
+  const v = Array.isArray(src?.visibleTestcases) ? src.visibleTestcases : []; // ✅ NEW
+
+  const merged = [...a, ...b, ...c, ...d, ...e, ...v];
+  return (merged.length ? merged : [{ input: "1", output: "1" }]).map(tcRow);
+}
+
+
 /** Normalize "C++" keys → "CPP" */
 function normalizeLangKeys(problem) {
   const deep = JSON.parse(JSON.stringify(problem || {}));
@@ -39,8 +65,8 @@ function toInlineSnapshot(p) {
   const norm = normalizeLangKeys(p);
 
   const code = norm.codeSnippets || {};
-  const ref  = norm.referenceSolutions || {};
-  const ex   = norm.examples || {};
+  const ref = norm.referenceSolutions || {};
+  const ex = norm.examples || {};
   const tags = Array.isArray(norm.tags) ? norm.tags.filter(Boolean) : [];
 
   return {
@@ -52,32 +78,27 @@ function toInlineSnapshot(p) {
     hints: norm.hints || "",
     editorial: norm.editorial || "",
 
-    testcases:
-      Array.isArray(norm.testcases) && norm.testcases.length
-        ? norm.testcases.map((t) => ({
-            input: nonEmptyString(t?.input, "1"),
-            output: nonEmptyString(t?.output, "1"),
-          }))
-        : [{ input: "1", output: "1" }],
+    // ✅ merged, real testcases from the problem service
+    testcases: extractTC(norm),
 
     examples: {
       JAVASCRIPT: ensureExample(ex.JAVASCRIPT),
-      PYTHON:     ensureExample(ex.PYTHON),
-      JAVA:       ensureExample(ex.JAVA),
+      PYTHON: ensureExample(ex.PYTHON),
+      JAVA: ensureExample(ex.JAVA),
       ...(ex.CPP ? { CPP: ensureExample(ex.CPP) } : {}),
     },
 
     codeSnippets: {
       JAVASCRIPT: nonEmptyString(code.JAVASCRIPT, "// js starter"),
-      PYTHON:     nonEmptyString(code.PYTHON, "# py starter"),
-      JAVA:       nonEmptyString(code.JAVA, "// java starter"),
+      PYTHON: nonEmptyString(code.PYTHON, "# py starter"),
+      JAVA: nonEmptyString(code.JAVA, "// java starter"),
       ...(code.CPP ? { CPP: code.CPP } : {}),
     },
 
     referenceSolutions: {
       JAVASCRIPT: nonEmptyString(ref.JAVASCRIPT, "// js ref"),
-      PYTHON:     nonEmptyString(ref.PYTHON, "# py ref"),
-      JAVA:       nonEmptyString(ref.JAVA, "// java ref"),
+      PYTHON: nonEmptyString(ref.PYTHON, "# py ref"),
+      JAVA: nonEmptyString(ref.JAVA, "// java ref"),
       ...(ref.CPP ? { CPP: ref.CPP } : {}),
     },
 
@@ -121,58 +142,43 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   const alreadySelected = new Set(selected.map((s) => s.id));
 
-//   const addProblem = async (p) => {
-//   if (alreadySelected.has(p.id)) return;
-
-//   try {
-//     // Fetch full problem details
-//     const result = await getProblemById(p.id); 
-//     const fullProblem = result.problem;
-
-//     if (!fullProblem) {
-//       toast.error("Failed to fetch problem details.");
-//       return;
-//     }
-
-//     setSelected((prev) => [
-//       ...prev,
-//       { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
-//     ]);
-//   } catch (error) {
-//     console.error("Error fetching problem details:", error);
-//     toast.error("Error fetching problem details.");
-//   }
-// };
   const addProblem = async (p) => {
-    if (alreadySelected.has(p.id)) return;
-
-    try {
-// -     const result = await getProblemById(p.id); 
-// -     const fullProblem = result.problem;
-     const fullProblem = await getProblemById(p.id); // <-- now we get the real object
-
-      if (!fullProblem) {
-        toast.error("Failed to fetch problem details.");
-        return;
-      }
-
-      setSelected((prev) => [
-        ...prev,
-        { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
-      ]);
-    } catch (error) {
-      console.error("Error fetching problem details:", error);
-      toast.error("Error fetching problem details.");
+  if (alreadySelected.has(p.id)) return;
+  try {
+    const fullProblem = await getProblemById(p.id);
+    if (!fullProblem) {
+      toast.error("Failed to fetch problem details.");
+      return;
     }
-  };
 
+    // 🔎 LOG raw merged tcs for this problem
+    const merged = extractTC(fullProblem);
+    console.log("[AdminAttach] addProblem merged TCs:", {
+      id: fullProblem.id,
+      title: fullProblem.title,
+      tcsCount: merged.length,
+      tcsHead: merged.slice(0, 2),
+      sources: {
+        testcases: fullProblem?.testcases?.length || 0,
+        testCases: fullProblem?.testCases?.length || 0,
+        publicTestcases: fullProblem?.publicTestcases?.length || 0,
+        hiddenTestcases: fullProblem?.hiddenTestcases?.length || 0,
+        privateTestcases: fullProblem?.privateTestcases?.length || 0,
+      }
+    });
+
+    setSelected((prev) => [
+      ...prev,
+      { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
+    ]);
+  } catch (error) {
+    console.error("Error fetching problem details:", error);
+    toast.error("Error fetching problem details.");
+  }
+};
 
   const removeProblem = (id) => {
-    setSelected((prev) =>
-      prev
-        .filter((x) => x.id !== id)
-        .map((x, i) => ({ ...x, order: i }))
-    );
+    setSelected((prev) => prev.filter((x) => x.id !== id).map((x, i) => ({ ...x, order: i })));
   };
 
   const move = (idx, dir) => {
@@ -192,7 +198,6 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   const onSubmit = async (e) => {
   e.preventDefault();
-
   if (selected.length === 0) {
     toast.error("⚠️ Select at least one problem to attach.");
     return;
@@ -201,34 +206,42 @@ export default function AdminAttachProblemsDialog({ contestId }) {
   const payload = selected.map((s) => ({
     points: s.points,
     order: s.order,
-    inline: toInlineSnapshot(s.fullProblem), // use the fetched full problem
+    inline: toInlineSnapshot(s.fullProblem),
   }));
+
+  // 🔎 LOG payload testcase preview before sending to backend
+  console.log("[AdminAttach] onSubmit payload preview:", {
+    count: payload.length,
+    first: payload[0] ? {
+      order: payload[0].order,
+      points: payload[0].points,
+      title: payload[0].inline?.title,
+      tcsCount: payload[0].inline?.testcases?.length || 0,
+      tcsHead: payload[0].inline?.testcases?.slice(0, 2),
+    } : null
+  });
 
   const loadingToast = toast.loading("Attaching problems to contest…");
 
-  try {
-    const ok = await attachInlineProblems({ contestId, problems: payload });
-
-    if (ok) {
+    try {
+      const ok = await attachInlineProblems({ contestId, problems: payload });
       toast.dismiss(loadingToast);
-      toast.success(`✅ ${selected.length} problem${selected.length > 1 ? "s" : ""} successfully attached.`);
 
-      await fetchBundle?.({ contestId, userId: authUser.id });
-
-      setOpen(false);
-      setSelected([]);
-      setQuery("");
-    } else {
+      if (ok) {
+        toast.success(`✅ ${selected.length} problem${selected.length > 1 ? "s" : ""} successfully attached.`);
+        await fetchBundle?.({ contestId, userId: authUser.id });
+        setOpen(false);
+        setSelected([]);
+        setQuery("");
+      } else {
+        toast.error("❌ Failed to attach problems. Please check the problem data or try again.");
+      }
+    } catch (error) {
+      console.error("Error attaching problems:", error);
       toast.dismiss(loadingToast);
-      toast.error("❌ Failed to attach problems. Please check the problem data or try again.");
+      toast.error("🚨 Unexpected error while attaching problems.");
     }
-  } catch (error) {
-    console.error("Error attaching problems:", error);
-    toast.dismiss(loadingToast);
-    toast.error("🚨 Unexpected error while attaching problems.");
-  }
-};
-
+  };
 
   if (!isAdmin) return null;
 
@@ -298,7 +311,7 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                             onClick={() => addProblem(p)}
                             className="px-2 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
                           >
-                            {alreadySelected.has(p.id) ? "Added" : "Add"}
+                            {alreadySelected.has(p.id) ? "Added" : isLoading ? "Adding..." : "Add"}
                           </button>
                         </li>
                       ))}
@@ -370,6 +383,7 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                   </button>
                   <button
                     type="submit"
+                    onClick={onSubmit}
                     disabled={isLoading || selected.length === 0}
                     className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-60"
                   >

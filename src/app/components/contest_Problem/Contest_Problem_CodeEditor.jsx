@@ -8,16 +8,16 @@ import {
   RefreshCw,
   Settings,
   Expand,
-  Loader2,
+  Loader2
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 
 import { useState, useEffect, useRef } from "react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import SubmissionResult from "./SubmissionResult";
 
-const CodeEditor = ({ description, codeSnippets, testcases }) => {
+const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) => {
+
   const [activeTab, setActiveTab] = useState("testcase");
   const [topPanelHeight, setTopPanelHeight] = useState(60); // Initial height in percentage
   const [isDragging, setIsDragging] = useState(false);
@@ -43,8 +43,11 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
 
   const userId = authUser?.id;
 
+  console.log("run code result : ", RunReslts);
+
   // This gets the most recent submission from the array
   const latestSubmission = submissions?.[0];
+
 
   useEffect(() => {
     if (codeSnippets) {
@@ -79,12 +82,9 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
 
-    setUserCode(codeSnippets?.[lang] || "");
+    setCode(codeSnippets?.[lang] || "");
   };
 
-  const handleRefreshCode = () => {
-    setUserCode(codeSnippets?.[selectedLanguage] || "");
-  };
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -123,41 +123,83 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
+  useEffect(() => {
+    const preventCheating = (e) => e.preventDefault();
+
+    const handleFullScreenChange = () => {
+      if (!document.fullscreenElement) setShowWarning(true);
+    };
+
+    const handleVisiblityChange = () => {
+      if (document.hidden) setShowWarning(true);
+    };
+
+    document.addEventListener("copy", preventCheating);
+    document.addEventListener("cut", preventCheating);
+    document.addEventListener("paste", preventCheating);
+    document.addEventListener("contextmenu", preventCheating);
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    document.addEventListener("visibilitychange", handleVisiblityChange);
+
+    return () => {
+      document.removeEventListener("copy", preventCheating);
+      document.removeEventListener("cut", preventCheating);
+      document.removeEventListener("paste", preventCheating);
+      document.removeEventListener("contextmenu", preventCheating);
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+      document.removeEventListener("visibilitychange", handleVisiblityChange);
+    };
+  });
+
+  let finalStatus = "Wrong Answer";
+
+  if (RunReslts.every((r) => r.passed === true)) {
+    finalStatus = "Accepted";
+  } else if (RunReslts.some((r) => r.compileOutput)) {
+    finalStatus = "Compile Error";
+  } else if (
+    RunReslts.some((r) => r.status && r.status.includes("Runtime Error"))
+  ) {
+    finalStatus = "Runtime Error";
+  } else {
+    finalStatus = "Wrong Answer";
+  }
+
+  const handleRefreshCode = () => {
+    setUserCode(codeSnippets?.[selectedLanguage] || "");
+  };
+
   return (
     <div ref={containerRef} className="flex flex-col h-full">
       {/* Top Panel: Header + Code Editor */}
       <div
-        className="bg-[#0e0e0e] rounded-lg flex flex-col overflow-hidden"
+        className="bg-[#0e0e0e]  rounded-lg flex flex-col overflow-hidden"
         style={{ height: `${topPanelHeight}%` }}
       >
         <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between border-b border-zinc-800   ">
           <div className="flex items-center ">
             <select
-              className="bg-black/10 text-white text-sm font-semibold rounded-xl focus:outline-none"
+              className="bg-[#0e0e0e] text-white text-sm font-semibold rounded-lg focus:outline-none"
               value={selectedLanguage}
               onChange={handleLanguageChange}
             >
               {Object.keys(codeSnippets || {}).map((lang) => (
-                <option key={lang} value={lang} className="text-black ">
+                <option key={lang} value={lang}>
                   {lang.charAt(0).toUpperCase() + lang.slice(1)}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              className="hover:bg-zinc-800 p-1.5 rounded"
-              onClick={handleRefreshCode}
-              title="Warning: This will reset the code"
-            >
+            <button className="hover:bg-zinc-800 p-1.5 rounded" onClick={handleRefreshCode} title="Warning: This will reset the code">
               <RefreshCw className="w-5 h-5 text-gray-400" />
             </button>
-            <button className="hover:bg-zinc-800 p-1.5 rounded">
+            <button className="hover:bg-zinc-800 p-1.5 rounded" >
               <Expand className="w-5 h-5 text-gray-400" />
             </button>
           </div>
         </div>
-        <div className="  flex-1 overflow-hidden ">
+        <div className="  flex-1 overflow-hidden">
           <Editor
             height="100%"
             language={selectedLanguage.toLowerCase()}
@@ -264,7 +306,15 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
                 <div> Run your code to see the results.</div>
               ) : (
                 <div>
-                  <SubmissionResult runResults={RunReslts} />
+                  <h2
+                    className={`text-2xl font-semibold mb-3 ${
+                      RunReslts.every((r) => r.passed === true)
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {finalStatus}
+                  </h2>
                   <div className="flex items-center space-x-3 mb-2">
                     {RunReslts.map((result, index) => (
                       <button
@@ -384,4 +434,4 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
   );
 };
 
-export default CodeEditor;
+export default Contest_Problem_CodeEditor;
