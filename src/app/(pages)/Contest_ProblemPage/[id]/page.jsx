@@ -18,7 +18,7 @@ const page = () => {
   const params = useParams();
   const contestId = params?.id;
 
-  const [isOpenQuestion, setisOpenQuestion] = useState(false); //yhan pr false hoga testing e liye i did true
+  const [isOpenQuestion, setisOpenQuestion] = useState(true); //yhan pr false hoga testing e liye i did true
   const [warnings, setwarning] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
 

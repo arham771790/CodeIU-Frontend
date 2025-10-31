@@ -21,6 +21,8 @@ const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange }) => {
 
   const currentProblem = problems[activeIndex];
 
+  console.log("currentProblem : ",currentProblem)
+
 
   const visibleTestCase = currentProblem?.snapshot?.testcases;
   
@@ -45,8 +47,12 @@ const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange }) => {
       const stdin = visibleTestCase?.map(item => item.input);
       const expected_output = visibleTestCase?.map(item => item.output);
 
+      console.log(sourceCode)
+      console.log(languageId)
+      console.log("currentprobl;em : ",currentProblem?.snapshot?.id)
+
       // --- 6. 🐞 BUG FIX: Pass the 'currentProblem.id' ---
-      await submitCode(sourceCode, languageId,  currentProblem?.id);
+      await submitCode(sourceCode, languageId,  currentProblem?.snapshot?.id);
 
     } catch (error) {
       console.log("error occured while submitting the code from TopNav component : ", error);

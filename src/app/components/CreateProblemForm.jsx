@@ -528,9 +528,11 @@ const {getProblemById}=useProblemStore();
 
    useEffect(()=>{
 const Q=async()=>{
- const res= await getProblemById(id)
+  if(id){
+    const res= await getProblemById(id)
    setproblemDetail(res);
     }
+  }
     Q();
 
    },[id])
@@ -634,7 +636,7 @@ const Q=async()=>{
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
               <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              {!id==null?<span>Create Problem</span>
+              {!id?<span>Create Problem</span>
               :<span>Edit Problem</span>}
             </h2>
 
