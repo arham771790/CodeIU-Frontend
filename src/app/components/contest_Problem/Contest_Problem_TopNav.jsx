@@ -13,7 +13,7 @@ import {
 
 import { useSubmissionStore } from '@/app/store/useSubmissionStore';
 
-const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange }) => {
+const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange , contestId}) => {
 
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
 
@@ -52,7 +52,7 @@ const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange }) => {
       console.log("currentprobl;em : ",currentProblem?.snapshot?.id)
 
       // --- 6. 🐞 BUG FIX: Pass the 'currentProblem.id' ---
-      await submitCode(sourceCode, languageId,  currentProblem?.snapshot?.id);
+      await submitCode(sourceCode, languageId,  currentProblem?.snapshot?.id , contestId);
 
     } catch (error) {
       console.log("error occured while submitting the code from TopNav component : ", error);
