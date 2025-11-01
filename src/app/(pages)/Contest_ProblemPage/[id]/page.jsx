@@ -150,7 +150,8 @@ const page = () => {
             problems={sortedProblems}    // Pass the WHOLE array
             activeIndex={activeIndex}      // Pass the CURRENT index
             onProblemChange={setActiveIndex}
-            problemId={activeProblem?.snapshot?.id}  // Pass the FUNCTION to change it
+            problemId={activeProblem?.snapshot?.id}
+            contestId={contestId}  // Pass the FUNCTION to change it
           />
           <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Now, pass the *activeProblem* data to the children */}
