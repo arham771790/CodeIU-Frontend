@@ -4,12 +4,11 @@ import { X, Plus } from "lucide-react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useContestStore } from "@/app/store/useContestStore";
 
-export default function CreateContestDialog() {
+export default function CreateContestDialog({setOpen}) {
   const { authUser } = useAuthStore();
   const isAdmin = authUser?.role === "ADMIN";
   const { createContest, isLoading } = useContestStore();
 
-  const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     slug: "",
     title: "",
@@ -53,15 +52,8 @@ export default function CreateContestDialog() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className=" font-semibold inline-flex items-center gap-2 rounded-full bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 border border-gray-700"
-      >
-        <Plus className="w-4 h-4" />
-        Add Contest
-      </button>
-
-      {open && (
+   
+ (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
           <div className="relative w-full max-w-lg mx-4 rounded-xl bg-[#121212] border border-gray-800 p-4">
@@ -149,7 +141,7 @@ export default function CreateContestDialog() {
             </form>
           </div>
         </div>
-      )}
+      )
     </>
   );
 }

@@ -38,7 +38,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const router = useRouter();
-  const { login , isLoggingIn } = useAuthStore();
+  const { login , isLoggingIn,GoogleLoginCall } = useAuthStore();
 
 
 
@@ -206,6 +206,7 @@ export default function Login() {
                     type="button"
                     className="p-3 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 flex items-center justify-center"
                     aria-label="Sign in with Google"
+                    onClick={GoogleLoginCall}
                 >
                     <GoogleIcon />
                 </button>

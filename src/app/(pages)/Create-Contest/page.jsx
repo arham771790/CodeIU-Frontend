@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className='w-screen h-screen bg-amber-600'>
+    <div className='w-screen h-screen '>
       <CreateContestDialog/>
     </div>
   )
