@@ -36,7 +36,7 @@ export default function Signup() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signup } = useAuthStore();
+  const { signup,GoogleLoginCall } = useAuthStore();
   const router= useRouter()
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -173,7 +173,7 @@ export default function Signup() {
                 <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">or you can sign in with</span></div>
             </div>
             <div className="mt-6 flex justify-center gap-4">
-                <button type="button" className="p-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50"><GoogleIcon /></button>
+                <button type="button" className="p-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50"  onClick={GoogleLoginCall}><GoogleIcon /></button>
                 <button type="button" className="p-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50"><Github className="w-5 h-5" /></button>
                 <button type="button" className="p-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50"><AppleIcon /></button>
             </div>
