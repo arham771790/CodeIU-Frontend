@@ -12,7 +12,6 @@ export function middleware(request) {
     '/contest',
     '/problem',
     '/profile',
-      '/Admin',
     '/Each-problem',
     '/Contest_ProblemPage',
     '/CreateProblem' ,

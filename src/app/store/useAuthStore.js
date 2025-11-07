@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { axiosInstanceAuthService } from "@/app/lib/axios";
 import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
@@ -10,6 +11,20 @@ export const useAuthStore = create((set) => ({
   isLoggingIn: false,
   isSigninUp: false,
   isLoggingOut : false ,
+
+  GoogleLoginCall:async()=>{
+    set({isLoggingIn:true})
+try {
+  const res = await axiosInstanceAuthService.get("/auth/google/redirect");
+
+window.location.href = res.data.url;
+set({isLoggingIn:false})
+  
+  
+} catch (error) {
+   toast.error('Error while logging in with Google')
+}
+  },
    signup: async (payload) => {
     set({ isSigninUp: true });
     try {
