@@ -19,6 +19,20 @@ export const useSubmissionStore = create((set , get) => ({
     selectedLanguage : 'JAVA' ,
     languageId : getLanguageId('JAVA') ,
 
+    setRunResults: (results) => set({ RunReslts: results }),
+
+    // 2. This new function ONLY clears the temporary 'Run Code' results
+    clearRunResults: () => set({ RunReslts: [] }),
+
+    // 3. This function will be called by your socket when a submission is graded
+  //    Make sure the 'newSubmission' object includes the 'problemId'!
+  addSubmission: (newSubmission) => set((state) => ({
+    // Adds the new submission to the front of the persistent history
+    submissions: [newSubmission, ...state.submissions] 
+  })),
+
+    clearResults: () => set({ submissions: [], RunReslts: [] }),
+
     setUserCode : (code) => {
         set({userCode : code})
     },
@@ -32,14 +46,15 @@ export const useSubmissionStore = create((set , get) => ({
 
     intializeSocket : async (userId) => {
 
-        //prevent socket re-intialization if the socket already exist
-        if(get().socket){
-            return ;
-        }
+        let newSocket = get().socket;
 
-        const newSocket = io("http://localhost:8080" , {
+
+        //prevent socket re-intialization if the socket already exist
+       if(!newSocket){
+           newSocket = io("http://localhost:8080" , {
            withCredentials: true
         });
+       }
 
         //connect the socket
         newSocket.on('connect' , ()=>{
@@ -70,6 +85,13 @@ export const useSubmissionStore = create((set , get) => ({
             console.log('Received leaderboard update via store:', leaderboardData);
             set({ leaderboard: leaderboardData });
         });
+
+        // 2. JOINING PHASE: Ensure we join the room on every navigation
+        // Using 'newSocket' for checks now
+        if (newSocket && newSocket.connected && userId) {
+            console.log("🔄 Re-verifying room join for user:", userId);
+            newSocket.emit('join-room', userId);
+        }
     } ,
 
 
@@ -102,7 +124,6 @@ export const useSubmissionStore = create((set , get) => ({
             set({isSubmittingCode : true})
 
             const result = await axiosInstanceSubmissionService.post(`/execute/submit-code/${contestId}` , {sourceCode , languageId , problemId } ) ;
-
             set(state => ({
                 submissions : [...state.submissions , result.data.submission]
             }))
@@ -124,7 +145,5 @@ export const useSubmissionStore = create((set , get) => ({
             set({ socket: null, submissions: [] });
             console.log('Submission socket disconnected.');
         }
-    },
-
-   
+    }, 
 }))

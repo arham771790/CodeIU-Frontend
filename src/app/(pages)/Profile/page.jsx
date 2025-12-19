@@ -1,6 +1,7 @@
-
+"use client";
 import React from 'react';
 import { User, Edit, Eye, CheckSquare, MessageSquare, Star, ChevronRight, BarChart, List, FileCheck, BrainCircuit, Calendar, ChevronDown } from 'lucide-react';
+import { useAuthStore } from '@/app/store/useAuthStore';
 
 // A placeholder for the circular progress bar using SVG
 const CircularProgress = ({ percentage, solved, total }) => {
@@ -74,6 +75,9 @@ const ActivityCalendar = () => {
 
 
 const ProfilePage = () => {
+  const {authUser} = useAuthStore();
+  console.log(authUser);
+  
   return (
     <div className="min-h-screen bg-gradient-to-t from-gray-900 via-black to-black text-gray-300 font-sans p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -84,7 +88,9 @@ const ProfilePage = () => {
             <div className="w-24 h-24 rounded-full bg-gray-700 mx-auto mb-4 flex items-center justify-center">
                 <User className="w-12 h-12 text-gray-500"/>
             </div>
-            <h1 className="text-xl font-bold text-white">Username</h1>
+            <h1 className="text-xl font-bold text-white">{authUser?.username}</h1>
+            <h1 className="text-sm font-semibold text-white">{authUser?.role}</h1>
+
             <p className="text-gray-400">Rank <span className="text-white font-semibold">Rank</span></p>
             <button className="mt-4 w-full bg-green-600/20 text-green-400 border border-green-600/30 font-semibold py-2 px-4 rounded-lg hover:bg-green-600/30 transition-colors">
               Edit Profile
@@ -110,14 +116,14 @@ const ProfilePage = () => {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <span>C++</span>
-                <span className="text-gray-400">10 problems solved</span>
+                <span className="text-gray-400"> problems solved</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-1.5"><div className="bg-blue-500 h-1.5 rounded-full" style={{width: '75%'}}></div></div>
             </div>
              <div className="space-y-3 mt-4">
               <div className="flex justify-between items-center text-sm">
                 <span>JavaScript</span>
-                <span className="text-gray-400">9 problems solved</span>
+                <span className="text-gray-400"> problems solved</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-1.5"><div className="bg-yellow-500 h-1.5 rounded-full" style={{width: '25%'}}></div></div>
             </div>
@@ -141,16 +147,16 @@ const ProfilePage = () => {
         <main className="lg:col-span-3 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
             <div className="bg-gradient-to-t from-gray-900 via-black to-black md:col-span-2 bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 flex items-center justify-around">
-                <CircularProgress percentage={2.9} solved={10} total={3716}/>
+                <CircularProgress percentage={2.9} solved={0} total={8}/>
                 <div className="text-center">
                     <p className="text-2xl font-bold text-white">5</p>
                     <p className="text-gray-400">Attempting</p>
                 </div>
             </div>
              <div className="space-y-2">
-                <div className="bg-teal-800 border border-green-600/30 p-3 rounded-lg flex justify-between items-center"><span>Easy</span> <span className="font-semibold">41/907</span></div>
-                <div className="bg-yellow-600 border border-yellow-600/30 p-3 rounded-lg flex justify-between items-center"><span>Med.</span> <span className="font-semibold">62/1933</span></div>
-                <div className="bg-red-900 border border-red-600/30 p-3 rounded-lg flex justify-between items-center"><span>Hard</span> <span className="font-semibold">5/876</span></div>
+                <div className="bg-teal-800 border border-green-600/30 p-3 rounded-lg flex justify-between items-center"><span>Easy</span> <span className="font-semibold">0/6</span></div>
+                <div className="bg-yellow-600 border border-yellow-600/30 p-3 rounded-lg flex justify-between items-center"><span>Med.</span> <span className="font-semibold">0/2</span></div>
+                <div className="bg-red-900 border border-red-600/30 p-3 rounded-lg flex justify-between items-center"><span>Hard</span> <span className="font-semibold">0/0</span></div>
              </div>
           </div>
           
@@ -168,9 +174,9 @@ const ProfilePage = () => {
 
           <div className=" bg-gradient-to-t from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6 overflow-x-auto">
              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold text-white">207 submissions in the past one year</h2>
+                <h2 className="text-lg font-bold text-white"> submissions in the past one year</h2>
                 <div className="flex items-center gap-4 text-sm">
-                    <p>Total active days: <span className="text-white">37</span></p>
+                    <p>Total active days: <span className="text-white"></span></p>
                     <p>Max streak: <span className="text-white">6</span></p>
                      <button className="flex items-center gap-1 bg-gray-700/50 px-3 py-1 rounded-md hover:bg-gray-700">Current <ChevronDown className="w-4 h-4"/></button>
                 </div>
@@ -193,10 +199,10 @@ const ProfilePage = () => {
             </div>
             <div className="space-y-3 ">
                 {[
-                    {title: 'Check if Array is Sorted and Rotated', time: '4 days ago'},
-                    {title: 'Unique Number of Occurrences', time: '8 days ago'},
-                    {title: 'Remove Duplicates from Sorted Array', time: '8 days ago'},
-                    {title: 'Max Consecutive Ones', time: '8 days ago'},
+                    {title: 'Check if Array is Sorted and Rotated', time: 'time'},
+                    {title: 'Unique Number of Occurrences', time: 'time'},
+                    {title: 'Remove Duplicates from Sorted Array', time: 'time'},
+                    {title: 'Max Consecutive Ones', time: 'time'},
                 ].map(item => (
                     <div key={item.title} className="flex justify-between items-center p-3 hover:bg-gray-700/30 rounded-lg">
                         <p className="font-semibold text-white">{item.title}</p>

@@ -17,7 +17,7 @@ const Contest_Problem_TopNav = ({ problems, activeIndex, onProblemChange , conte
 
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
 
-  const { userCode, RunReslts, runCode, isexecuting, languageId, submitCode, isSubmittingCode } = useSubmissionStore();
+  const { userCode, RunReslts, runCode, isexecuting, languageId, submitCode, isSubmittingCode, clearResults } = useSubmissionStore();
 
   const currentProblem = problems[activeIndex];
 

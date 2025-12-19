@@ -1,7 +1,6 @@
-// src/app/(pages)/contest/[id]/page.jsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // Import useState
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getSocket } from "@/app/lib/socket";
@@ -22,6 +21,23 @@ export default function ContestDetailPage() {
 
   const { contest, fetchContestById, isLoading } = useContestStore();
   const { bundle, fetchBundle } = useBundleStore();
+
+  // console.log("contest starts at : ", contest?.startsAt);
+  // console.log("contest ends at : ", contest?.endsAt);
+
+  // --- Time State ---
+  // We need to track the current time to reactively show/hide the enter button
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update current time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    // Clear interval on component unmount
+    return () => clearInterval(timer);
+  }, []);
+  // --- End Time State ---
 
   useEffect(() => {
     if (contestId) fetchContestById(contestId);
@@ -47,6 +63,21 @@ export default function ContestDetailPage() {
     return () => socket.off("contestStatusUpdated");
   }, [contestId, fetchContestById]);
 
+  // --- Contest Time Logic ---
+  const startTime = contest?.startsAt ? new Date(contest.startsAt) : null;
+  const endTime = contest?.endsAt ? new Date(contest.endsAt) : null;
+
+  let hasContestStarted = false;
+  let hasContestEnded = false;
+  let isContestRunning = false;
+
+  if (startTime && endTime) {
+    hasContestStarted = currentTime >= startTime;
+    hasContestEnded = currentTime >= endTime;
+    isContestRunning = hasContestStarted && !hasContestEnded;
+  }
+  // --- End Contest Time Logic ---
+
   if (isLoading || !contest) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center text-gray-400">
@@ -57,7 +88,6 @@ export default function ContestDetailPage() {
 
   const isAdmin = authUser?.role === "ADMIN";
   const problems = bundle?.problems || [];
-
 
   return (
     <div className="min-h-screen bg-black text-gray-200">
@@ -115,14 +145,39 @@ export default function ContestDetailPage() {
               </div>
             </div>
           ) : (
-            // Participant sees Enter Contest button
+            // Participant sees conditional button/messages
             <div className="flex-col mt-6">
-              <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
-              <Link href={`/Contest_ProblemPage/${contestId}`}>
-                <button className="p-2 bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white cursor-pointer hover:text-white border border-white hover:border-blue-400 rounded-full font-semibold">
-                  Enter Contest
-                </button>
-              </Link>
+              {isContestRunning ? (
+                // 1. Contest is running
+                <>
+                  <p className="mb-2 font-semibold text-lg">Click below 👇 to enter the contest</p>
+                  <Link href={`/Contest_ProblemPage/${contestId}`}>
+                    <button className="p-2 bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white cursor-pointer hover:text-white border border-white hover:border-blue-400 rounded-full font-semibold">
+                      Enter Contest
+                    </button>
+                  </Link>
+                </>
+              ) : hasContestEnded ? (
+                // 2. Contest has ended
+                <p className="mb-2 font-semibold text-lg text-yellow-500">
+                  The contest has ended.
+                </p>
+              ) : !hasContestStarted ? (
+                // 3. Contest has not started
+                <p className="mb-2 font-semibold text-lg text-cyan-400">
+                  The contest has not started yet.
+                  {startTime && (
+                    <span className="block text-sm font-normal text-gray-400 mt-1">
+                      Starts at: {startTime.toLocaleString()}
+                    </span>
+                  )}
+                </p>
+              ) : (
+                // Fallback (e.g., if dates are invalid, though handled by isContestRunning)
+                <p className="mb-2 font-semibold text-lg text-gray-500">
+                  Please wait...
+                </p>
+              )}
             </div>
           )
         ) : (
