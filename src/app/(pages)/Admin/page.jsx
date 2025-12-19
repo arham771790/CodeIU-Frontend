@@ -38,7 +38,7 @@ const DashboardView = () => (
                 <div key={item.name} className={`bg-gradient-to-br ${item.color} p-6 rounded-xl text-white shadow-lg`}>
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-3xl font-bold">{item.value}</p>
+                            
                             <p className="text-white/80">{item.name}</p>
                         </div>
                         <div className="p-2 bg-white/20 rounded-full"><item.icon className="w-6 h-6" /></div>
@@ -125,7 +125,7 @@ const AdminPage = () => {
                     <div className="flex items-center gap-6">
                         <button className="relative text-gray-400 hover:text-white"><Mail className="w-6 h-6"/><span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-xs rounded-full">2</span></button>
                         <button className="relative text-gray-400 hover:text-white"><Bell className="w-6 h-6"/><span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs rounded-full">3</span></button>
-                        <div className="flex items-center gap-3"><img src="https://placehold.co/40x40/1f2937/ffffff?text=JD" alt="John Doe" className="w-10 h-10 rounded-full"/><div><p className="text-white font-semibold">John Doe</p></div></div>
+                        <div className="flex items-center gap-3"><img src="https://placehold.co/40x40/1f2937/ffffff?text=AD" alt="John Doe" className="w-10 h-10 rounded-full"/><div><p className="text-white font-semibold">ADMIN</p></div></div>
                     </div>
                 </header>
                 <main className="flex-1 p-8 bg-gray-800/50 overflow-y-auto">{renderContent()}</main>

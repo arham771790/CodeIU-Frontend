@@ -66,6 +66,12 @@ const CodeEditor = ({ description, codeSnippets, testcases }) => {
   }, [submissions]);
 
   useEffect(() => {
+    if (RunReslts && RunReslts.length > 0) {
+      setActiveTab("testresult");
+    }
+  }, [RunReslts]);
+
+  useEffect(() => {
     if (authUser && userId) {
       intializeSocket(userId);
     }

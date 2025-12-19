@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Code2,
   ThumbsUp,
@@ -8,7 +8,8 @@ import {
   RefreshCw,
   Settings,
   Expand,
-  Loader2
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 
@@ -16,7 +17,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 
-const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) => {
+const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases,problemId }) => {
 
   const [activeTab, setActiveTab] = useState("testcase");
   const [topPanelHeight, setTopPanelHeight] = useState(60); // Initial height in percentage
@@ -38,6 +39,7 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
     intializeSocket,
     disconnectSocket,
     submissions,
+    clearResults
   } = useSubmissionStore();
   const { authUser } = useAuthStore();
 
@@ -46,7 +48,15 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
   console.log("run code result : ", RunReslts);
 
   // This gets the most recent submission from the array
-  const latestSubmission = submissions?.[0];
+  const latestSubmission = useMemo(() => {
+    if (!submissions || submissions.length === 0) {
+      return null;
+    }
+    // This finds the first submission where the problemId matches.
+    // Since you add new submissions to the front, this is the latest one.
+    return submissions.find(sub => sub.problemId === problemId);
+    
+  }, [submissions, problemId]);
 
 
   useEffect(() => {
@@ -60,7 +70,9 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
         Output: testCase?.output,
       })) || []
     );
-  }, [codeSnippets, selectedLanguage]);
+
+    clearResults();
+  }, [codeSnippets, selectedLanguage , clearResults  ]);
 
   useEffect(() => {
     if (latestSubmission && latestSubmission.status === "Pending") {
@@ -76,7 +88,17 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
     return () => {
       disconnectSocket();
     };
-  }, [authUser, intializeSocket, disconnectSocket]);
+  }, [authUser, intializeSocket, disconnectSocket,clearResults]);
+
+  const isSolved = useMemo(() => {
+    return latestSubmission?.status === "Accepted";
+  }, [latestSubmission]);
+
+  console.log("...............isSolved..................");
+  console.log(isSolved);
+
+  console.log("...........Submissions...............");
+  console.log(submissions)
 
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
@@ -251,13 +273,14 @@ const Contest_Problem_CodeEditor = ({ description, codeSnippets, testcases }) =>
 
           <button
             onClick={() => setActiveTab("submission")}
-            className={`py-2 ml-3 text-sm font-semibold border-b-2 hover:cursor-pointer ${
+            className={`py-2 ml-3 text-sm font-semibold border-b-2 hover:cursor-pointer flex items-center space-x-1.5 ${ 
               activeTab === "submission"
                 ? "border-white text-white"
                 : "border-transparent text-gray-400"
             }`}
           >
-            Submission
+            <span>Submission</span>
+            {isSolved && <CheckCircle2 className="w-4 h-4 text-green-500" />}
           </button>
         </div>
         <div className="flex-grow overflow-auto">

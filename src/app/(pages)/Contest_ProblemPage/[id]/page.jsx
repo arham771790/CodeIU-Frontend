@@ -14,7 +14,7 @@ import Link from "next/link";
 const page = () => {
   const { bundle , contestId:storedContestId , fetchBundle , isLoading } = useBundleStore();
   const {authUser} = useAuthStore();
-  
+
   const params = useParams();
   const contestId = params?.id;
 
@@ -40,6 +40,9 @@ const page = () => {
 
   const sortedProblems = Problems.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const activeProblem = sortedProblems[activeIndex]; 
+
+  console.log("................active problem......................");
+  console.log(activeProblem)
 
 
   const handleOpenQuestion = () => {
@@ -149,7 +152,7 @@ const page = () => {
           <Contest_Problem_TopNav
             problems={sortedProblems}    // Pass the WHOLE array
             activeIndex={activeIndex}      // Pass the CURRENT index
-            onProblemChange={setActiveIndex}
+            onProblemChange={setActiveIndex }
             problemId={activeProblem?.snapshot?.id}
             contestId={contestId}  // Pass the FUNCTION to change it
           />
