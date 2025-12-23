@@ -14,51 +14,9 @@ import {
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { getSocket, joinContestRoom } from "@/app/lib/socket";
 
-function pad2(n) {
-  return String(Math.max(0, n)).padStart(2, "0");
-}
+import { useContestTimer } from "@/app/hooks/useContestTimer";
 
-function formatHMS(totalSec) {
-  const s = Math.max(0, Math.floor(totalSec));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const r = s % 60;
-  return `${pad2(h)}:${pad2(m)}:${pad2(r)}`;
-}
-
-/**
- * Compute timer state from timestamps
- * - before start: starts in
- * - running: ends in
- * - ended: ended
- */
-function computeTimer({ startsAt, endsAt }) {
-  const now = Date.now();
-  const start = startsAt ? new Date(startsAt).getTime() : null;
-  const end = endsAt ? new Date(endsAt).getTime() : null;
-
-  if (!start || !end) {
-    return { label: "Timer", value: "--:--:--", phase: "unknown" };
-  }
-
-  if (now < start) {
-    return {
-      label: "Starts in",
-      value: formatHMS((start - now) / 1000),
-      phase: "upcoming",
-    };
-  }
-
-  if (now >= start && now < end) {
-    return {
-      label: "Ends in",
-      value: formatHMS((end - now) / 1000),
-      phase: "running",
-    };
-  }
-
-  return { label: "Ended", value: "00:00:00", phase: "ended" };
-}
+// Removed computeTimer and formatHMS as they are now internal to the hook (or formatHMS is redundant)
 
 const Contest_Problem_TopNav = ({
   problems = [],
@@ -85,44 +43,10 @@ const Contest_Problem_TopNav = ({
   const visibleTestCase = currentProblem?.snapshot?.testcases;
 
   // ----- Timer state -----
-  const [timerState, setTimerState] = useState(() =>
-    computeTimer({ startsAt, endsAt })
-  );
+  const { label, value, phase } = useContestTimer({ startsAt, endsAt });
 
-  // Local fallback timer tick (only if startsAt/endsAt given)
-  useEffect(() => {
-    if (!startsAt || !endsAt) return;
-    const t = setInterval(() => {
-      setTimerState(computeTimer({ startsAt, endsAt }));
-    }, 1000);
-    return () => clearInterval(t);
-  }, [startsAt, endsAt]);
-
-  // Optional: Socket timer (if backend emits `contest:timer`)
-  useEffect(() => {
-    if (!contestId) return;
-
-    const socket = getSocket();
-    joinContestRoom(contestId);
-
-    const onTick = (payload) => {
-      // payload example:
-      // { contestId, phase: "running", secondsLeft: 1234, label: "Ends in" }
-      if (payload?.contestId !== contestId) return;
-
-      if (typeof payload?.secondsLeft === "number") {
-        const label = payload?.label || "Timer";
-        setTimerState({
-          label,
-          value: formatHMS(payload.secondsLeft),
-          phase: payload.phase || "unknown",
-        });
-      }
-    };
-
-    socket.on("contest:timer", onTick);
-    return () => socket.off("contest:timer", onTick);
-  }, [contestId]);
+  // Update timerState for compatibility with existing render logic
+  const timerState = { label, value, phase };
 
   // Close dropdown on outside click / ESC
   useEffect(() => {

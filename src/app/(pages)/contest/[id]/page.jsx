@@ -7,6 +7,7 @@ import { getSocket } from "@/app/lib/socket";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
+import { useContestTimer } from "@/app/hooks/useContestTimer";
 
 import ContestHeader from "@/app/components/contest/ContestHeader";
 import ContestRules from "@/app/components/contest/ContestRules";
@@ -25,18 +26,10 @@ export default function ContestDetailPage() {
   // console.log("contest starts at : ", contest?.startsAt);
   // console.log("contest ends at : ", contest?.endsAt);
 
-  // --- Time State ---
-  // We need to track the current time to reactively show/hide the enter button
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // console.log("contest ends at : ", contest?.endsAt);
 
-  useEffect(() => {
-    // Update current time every second
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    // Clear interval on component unmount
-    return () => clearInterval(timer);
-  }, []);
+  // --- Time State ---
+  // Using useContestTimer hook now
   // --- End Time State ---
 
   useEffect(() => {
@@ -63,19 +56,14 @@ export default function ContestDetailPage() {
     return () => socket.off("contestStatusUpdated");
   }, [contestId, fetchContestById]);
 
-  // --- Contest Time Logic ---
+  // --- Contest Time Logic (Synchronized) ---
+  const { phase } = useContestTimer(contest);
+
+  const hasContestStarted = phase === "running" || phase === "ended";
+  const hasContestEnded = phase === "ended";
+  const isContestRunning = phase === "running";
+
   const startTime = contest?.startsAt ? new Date(contest.startsAt) : null;
-  const endTime = contest?.endsAt ? new Date(contest.endsAt) : null;
-
-  let hasContestStarted = false;
-  let hasContestEnded = false;
-  let isContestRunning = false;
-
-  if (startTime && endTime) {
-    hasContestStarted = currentTime >= startTime;
-    hasContestEnded = currentTime >= endTime;
-    isContestRunning = hasContestStarted && !hasContestEnded;
-  }
   // --- End Contest Time Logic ---
 
   if (isLoading || !contest) {

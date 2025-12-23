@@ -8,12 +8,14 @@ import Contest_problem_Description from "@/app/components/contest_Problem/Contes
 import Contest_Problem_TopNav from "@/app/components/contest_Problem/Contest_Problem_TopNav";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
+import { useContestStore } from "@/app/store/useContestStore";
 import Link from "next/link";
 
 
 const page = () => {
-  const { bundle , contestId:storedContestId , fetchBundle , isLoading } = useBundleStore();
-  const {authUser} = useAuthStore();
+  const { bundle, contestId: storedContestId, fetchBundle, isLoading } = useBundleStore();
+  const { authUser } = useAuthStore();
+  const { contest, fetchContestById } = useContestStore();
 
   const params = useParams();
   const contestId = params?.id;
@@ -24,22 +26,24 @@ const page = () => {
 
   useEffect(() => {
     if (contestId && authUser?.id) {
-      
+
       // 👇 3. The new, smart check
       if (contestId !== storedContestId || !bundle) {
         console.log("Store is empty or has wrong contest. Fetching...");
         fetchBundle({ contestId, userId: authUser.id });
       }
-      
+      if (!contest || contest.id !== contestId) {
+        fetchContestById(contestId);
+      }
     }
     // Add all dependencies
-  }, [contestId, authUser?.id, fetchBundle, storedContestId, bundle]);
+  }, [contestId, authUser?.id, fetchBundle, storedContestId, bundle, fetchContestById, contest]);
 
   const Problems = bundle?.problems || [];
 
 
   const sortedProblems = Problems.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  const activeProblem = sortedProblems[activeIndex]; 
+  const activeProblem = sortedProblems[activeIndex];
 
   console.log("................active problem......................");
   console.log(activeProblem)
@@ -102,7 +106,7 @@ const page = () => {
 
 
   return (
-     <div className="bg-[#080808] flex flex-col  min-h-screen font-sans text-white">
+    <div className="bg-[#080808] flex flex-col  min-h-screen font-sans text-white">
       {!isOpenQuestion ? (
         // Show this overlay before the test starts
         <div className="flex flex-col items-center justify-center h-full">
@@ -113,24 +117,24 @@ const page = () => {
             </p>
           )}
           {warnings > 3 ? (
-           <div>
-             <div className="text-center">
-              <h1 className="text-2xl font-bold text-green-500 mb-4">
-                Test Submitted Successfully
-              </h1>
-              <p className="text-gray-300">
-                You exited full-screen mode too many times. Your progress has
-                been automatically submitted.
-              </p>
+            <div>
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-green-500 mb-4">
+                  Test Submitted Successfully
+                </h1>
+                <p className="text-gray-300">
+                  You exited full-screen mode too many times. Your progress has
+                  been automatically submitted.
+                </p>
+              </div>
+              <div className="flex flex-col items-center justify-center font-semibold test-xl mb-4 mt-4">
+                <p>Click 👇to go back to Constest Page</p>
+
+                <Link href={`/contest/${contestId}`} className="mt-2">
+                  <button className="inline-flex items-center justify-center border border-white/20 bg-blue-400 p-4 rounded-lg">Click me</button>
+                </Link>
+              </div>
             </div>
-            <div className="flex flex-col items-center justify-center font-semibold test-xl mb-4 mt-4">
-              <p>Click 👇to go back to Constest Page</p>
-           
-              <Link href={`/contest/${contestId}`} className="mt-2">
-                <button className="inline-flex items-center justify-center border border-white/20 bg-blue-400 p-4 rounded-lg">Click me</button>
-               </Link>
-            </div>
-           </div>
           ) : (
             <>
               <p className="mb-8">
@@ -152,13 +156,15 @@ const page = () => {
           <Contest_Problem_TopNav
             problems={sortedProblems}    // Pass the WHOLE array
             activeIndex={activeIndex}      // Pass the CURRENT index
-            onProblemChange={setActiveIndex }
+            onProblemChange={setActiveIndex}
             problemId={activeProblem?.snapshot?.id}
             contestId={contestId}  // Pass the FUNCTION to change it
+            startsAt={contest?.startsAt}
+            endsAt={contest?.endsAt}
           />
           <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Now, pass the *activeProblem* data to the children */}
-            <Contest_problem_Description 
+            <Contest_problem_Description
               title={activeProblem?.snapshot?.title}
               description={activeProblem?.snapshot?.description}
               testcases={activeProblem?.snapshot?.testcases}
@@ -168,7 +174,7 @@ const page = () => {
               description={activeProblem?.snapshot?.description}
               codeSnippets={activeProblem?.snapshot?.codeSnippets}
               testcases={activeProblem?.snapshot?.testcases}
-              problemId={activeProblem?.snapshot?.id} 
+              problemId={activeProblem?.snapshot?.id}
             />
           </main>
         </>
