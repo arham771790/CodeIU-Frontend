@@ -3,22 +3,18 @@ import { io } from "socket.io-client";
 
 let socket;
 
-export const getSocket = (contestId) => {
-  // Avoid multiple socket connections
+export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:8060", {
-      path: "/realtime",           // ✅ must match backend
-      transports: ["websocket"],   // skip polling to avoid 404 spam
+    const url =
+      process.env.NEXT_PUBLIC_CONTEST_SERVICE_URL || "http://localhost:8090";
+    socket = io(url, {
+      path: "/realtime",
+      transports: ["websocket"],
       withCredentials: false,
     });
 
-    // --- Global connection lifecycle logs ---
     socket.on("connect", () => {
       console.log("✅ Connected to realtime server:", socket.id);
-      if (contestId) {
-        socket.emit("joinRoom", `contest:${contestId}`);
-        console.log(`📡 Joined room contest:${contestId}`);
-      }
     });
 
     socket.on("disconnect", (reason) => {
@@ -26,29 +22,26 @@ export const getSocket = (contestId) => {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("❌ Socket connection error:", err.message);
+      console.error("❌ Socket connection remember:", err.message);
     });
-
-    // --- Leaderboard live updates ---
-    socket.on("leaderboard:update", (data) => {
-      console.log("🔥 Leaderboard update event received:", data);
-      // You can dispatch a Zustand store update or re-fetch leaderboard here
-      // Example: useLeaderboardStore.getState().fetchLeaderboard(data.contestId);
-    });
-
-    // --- Contest status changes ---
-    socket.on("contestStatusUpdated", (payload) => {
-      console.log("🚀 Contest status updated:", payload);
-      // Example: useContestStore.getState().updateContestStatus(payload);
-    });
-  }
-
-  // If a contestId is passed after socket already exists, ensure room join
-  if (socket.connected && contestId) {
-    socket.emit("joinRoom", `contest:${contestId}`);
   }
 
   return socket;
+};
+
+// ✅ Backend expects join:contest with payload object
+export const joinContestRoom = (contestId) => {
+  const s = getSocket();
+  if (!contestId) return;
+  s.emit("join:contest", { contestId });
+  console.log(`📡 join:contest -> ${contestId}`);
+};
+
+export const joinUserRoom = (userId) => {
+  const s = getSocket();
+  if (!userId) return;
+  s.emit("join:user", { userId });
+  console.log(`🔐 join:user -> ${userId}`);
 };
 
 export const disconnectSocket = () => {
