@@ -1,81 +1,76 @@
+// src/app/store/useLeaderBoardStore.js
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/app/lib/axios";
-import { io } from 'socket.io-client';
+import { getSocket, joinContestRoom } from "@/app/lib/socket";
 
 export const useLeaderboardStore = create((set, get) => ({
   rows: [],
   isLoading: false,
   updatedAt: null,
-  socket: null, // Store the socket instance here
+  source: null,
 
   fetchLeaderboard: async (contestId, limit = 100) => {
-    // Don't trigger loading spinner on background updates (when rows already exist)
+    if (!contestId) return;
     if (get().rows.length === 0) set({ isLoading: true });
-    
+
     try {
-      const res = await axiosInstanceContestService.get(`contest/contests/${contestId}/leaderboard`);
-      set({ 
-          rows: res.data.rows, 
-          updatedAt: Date.now(), 
-          isLoading: false 
-      });
+      const res = await axiosInstanceContestService.get(
+        `/contest/contests/${contestId}/leaderboard?limit=${limit}`
+      );
+
+      if (res.data?.ok) {
+        set({
+          rows: res.data.rows || [],
+          updatedAt: res.data.updatedAt || Date.now(),
+          source: res.data.source || null,
+          isLoading: false,
+        });
+      } else {
+        set({ isLoading: false });
+      }
     } catch (err) {
-      console.error("Error fetching leaderboard:", err);
+      console.error("[fetchLeaderboard] error:", err);
       set({ isLoading: false });
     }
   },
 
-  initializeSocket: (contestId) => {
-    let socket = get().socket;
+  // call this when opening contest page
+  bindRealtime: (contestId) => {
+    if (!contestId) return;
 
-    // 1. Connect if not exists
-    if (!socket) {
-      socket = io("http://localhost:8080", {
-        withCredentials: true,
-        transports: ['websocket', 'polling'] // Force stability
-      });
+    const socket = getSocket();
+    joinContestRoom(contestId);
 
-      socket.on("connect", () => {
-        console.log("✅ Leaderboard Socket connected:", socket.id);
-        // Emit join event immediately on connect
-        if (contestId) socket.emit("join:contest", contestId);
-      });
+    // prevent duplicate handlers
+    socket.off("leaderboard:update");
 
-      // 2. Listen for updates
-      // NOTE: Changed 'leaderboard:update' to 'leaderboard-update' to match your Submission Store
-      socket.on("leaderboard-update", (data) => {
-        console.log("📈 Live leaderboard update received:", data);
-        
-        // OPTION A: If the socket sends the full data, use it directly (Faster)
-        if (data.rows) {
-             set({ 
-                 rows: data.rows, 
-                 updatedAt: Date.now() 
-             });
-        } 
-        // OPTION B: Fallback to fetching (Reliable)
-        else {
-             get().fetchLeaderboard(contestId);
-        }
-      });
+    let debounceTimer;
+    socket.on("leaderboard:update", (payload) => {
+      if (payload?.contestId !== contestId) return;
 
-      set({ socket });
-    }
-
-    // 3. CRITICAL: Always ensure we join the contest room on function call
-    // This handles the client-side navigation issue
-    if (socket && socket.connected && contestId) {
-        console.log(`Joining contest room: ${contestId}`);
-        socket.emit("join:contest", contestId);
-    }
+      // Simple debounce: cancel previous, wait 1s
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        get().fetchLeaderboard(contestId);
+      }, 1000);
+    });
   },
 
-  disconnectSocket: () => {
-    const { socket } = get();
-    if (socket) {
-      socket.disconnect();
-      set({ socket: null });
-      console.log("Leaderboard socket disconnected");
-    }
+  // optional
+  bindTimer: (contestId, onTick) => {
+    const socket = getSocket();
+    joinContestRoom(contestId);
+
+    socket.off("contest:timer");
+    socket.on("contest:timer", (payload) => {
+      if (payload?.contestId !== contestId) return;
+      if (typeof onTick === "function") onTick(payload);
+    });
+  },
+
+  unbindRealtime: () => {
+    const socket = getSocket();
+    socket.off("leaderboard:update");
+    socket.off("contest:timer");
   },
 }));
