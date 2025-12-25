@@ -2,6 +2,7 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 import { Palette, Check } from "lucide-react";
+import { color } from "motion";
 
 export default function ThemeController() {
   const { theme, setTheme } = useTheme();
@@ -29,14 +30,10 @@ export default function ThemeController() {
   const themes = [
     { name: "dark", color: "bg-[#1d232a]" },
     { name: "light", color: "bg-[#ffffff]" },
-    { name: "retro", color: "bg-[#e4e4e4]" },
     { name: "nord", color: "bg-[#2e3440]" },
-    { name: "dracula", color: "bg-[#282a36]" },
     { name: "forest", color: "bg-[#3b4b38]" },
     { name: "black" , color: "bg-[#000000]"},
-    { name: "synthwave" , color: "bg-[#f1f1f1]"},
-    { name : "abyss" , color : "bg-[#1d1d1d]"}
-
+    { name : "abyss" , color : "bg-[#1d1d1d]"},
   ];
 
   return (

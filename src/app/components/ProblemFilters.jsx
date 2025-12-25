@@ -26,11 +26,12 @@ export default function ProblemFilters({ isAdmin }) {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
       {/* Search Input */}
-      <div className="relative w-full sm:w-auto flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="relative w-full sm:w-[40%]">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 w-4 h-4" />
         <input
           placeholder="Search problems..."
-          className="w-full bg-gray-900 border border-gray-700 rounded-full py-2 pl-10 pr-4 text-sm text-gray-300 focus:outline-none focus:border-blue-500"
+          /* SENIOR FIX: bg-base-200 and border-base-content/20 */
+          className="w-full bg-base-200 border border-base-content/20 rounded-full py-2.5 pl-10 pr-4 text-sm text-base-content focus:outline-none focus:border-primary transition-all"
           defaultValue={searchParams.get("q")?.toString()} 
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -38,13 +39,13 @@ export default function ProblemFilters({ isAdmin }) {
 
       <div className="flex items-center gap-3">
         {isAdmin && (
-           <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 transition-colors">
-             <Plus className="w-5 h-5 text-gray-400" />
+           <button className="btn btn-circle btn-ghost border border-base-content/10 bg-base-200 hover:bg-base-300">
+             <Plus className="w-5 h-5 opacity-70" />
            </button>
         )}
         
-        <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 transition-colors">
-          <Filter className="w-5 h-5 text-gray-400" />
+        <button className="btn btn-circle btn-ghost border border-base-content/10 bg-base-200 hover:bg-base-300">
+          <Filter className="w-5 h-5 opacity-70" />
         </button>
       </div>
     </div>
