@@ -1,14 +1,8 @@
-
 import React, { useEffect, useState } from "react";
 import { TextFlip } from "./smallcomponents/TextFlip";
 
-
-
 const Landingpage = () => {
   const words = ["CodeIU", "CodeBetter", "CodeFast", "CodeSmart"];
-
-
-
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -25,41 +19,52 @@ const Landingpage = () => {
   }, []);
 
   return (
-   <div className="bg-gradiend-to-t  from-green-700 via-black to-black">
-     <div className="flex flex-col items-center justify-around mb-15">
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-bold uppercase px-4  rounded mb-6">
-          <div className="inline-block text-4xl md:text-5xl md:w-[125px] relative md:mr-2">
-            <span
-              className={`text-blue-500 w-full mr-2 text-center font-extrabold inline-block transition-all duration-500 ${
-                fadeOut ? "opacity-63 scale-65" : "opacity-100 scale-100"
-              }`}
-            >
-             <TextFlip/>
-            </span>
+   
+    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-base-100 transition-colors duration-500">
+      
+      {/* Dynamic Background Glow that follows the theme's primary color */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-from)_0%,transparent_70%)] from-primary/10 to-transparent pointer-events-none" />
+
+      <div className="flex flex-col items-center justify-around mb-15 z-10">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-6xl font-bold uppercase px-4 mb-6 text-base-content tracking-tight">
+            <div className="inline-block md:w-[150px] relative md:mr-2">
+              <span
+                className={`text-primary w-full mr-2 text-center font-extrabold inline-block transition-all duration-500 ${
+                  fadeOut ? "opacity-0 scale-90" : "opacity-100 scale-100"
+                }`}
+              >
+                <TextFlip />
+              </span>
+            </div>
+            {" with next\n generation developer"} <br />
+          </h1>
+
+          <div className="flex flex-col items-center justify-center gap-2">
+            <p className="max-w-2xl mx-auto text-sm md:text-xl font-medium text-base-content/70">
+              Ultimate Platform For Next-Gen Coding Contests
+            </p>
+            
+            <div className="flex items-center gap-2 max-w-2xl mx-auto text-sm md:text-lg font-semibold text-base-content/60">
+              Developed by Students of 
+              <span className="text-primary font-bold">Integral University</span>
+            </div>
           </div>
-          {"  with next\n  generation developer"} <br />
-        </h1>
-        <div className="flex flex-col items-center justify-center">
-          <p className="max-w-2xl mx-auto text-sm  md:text-lg font-semibold bg-gradient-to-b from-white/50  to-blue-400/90 bg-clip-text text-transparent">
-          Ultimate Platform For Next-Gen Coding Contest
-        </p>
-        <span  className=" flex gap-2 max-w-2xl mx-auto  text-sm  md:text-lg font-semibold bg-gradient-to-b from-white/50  to-blue-400/50 bg-clip-text text-transparent">
-          Devloped by Student of <p className="text-white"> Integral University  
-        </p></span>
+        </div>
+
+        {/* SENIOR FIX: Replaced hardcoded buttons with DaisyUI semantic buttons */}
+        <div className="mt-12 flex flex-col sm:flex-row gap-6">
+          <button className="bg-transparent btn btn-outline btn-primary px-8 h-auto py-4 text-lg hover:scale-105 transition-transform rounded-lg">
+            <span>Start Coding</span>
+            <div className="badge badge-primary ml-2 p-3">{"</>"}</div>
+          </button>
+
+          <button className="btn btn-primary px-8 h-auto py-4 text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform rounded-lg">
+            Join a Contest
+          </button>
         </div>
       </div>
-      <div className="mt-8 flex flex-col sm:flex-row gap-4 bg-transparent">
-        <button className=" bg-transparent  border border-white/20 text-start font-semibold p-3 rounded-lg hover:bg-white/10 transition-colors duration-300 ">
-          <span> Start Coding</span>{" "}
-          <span className="p-2 bg-blue-600 ml-3 rounded">{"</>"}</span>
-        </button>
-        <button className="bg-black text-white font-semibold p-3 rounded-lg border border-white/20 hover:bg-white/10 -900 transition-colors duration-300">
-          Join a Contest
-        </button>
-      </div>
     </div>
-   </div>
   );
 };
 

@@ -1,8 +1,9 @@
+// src/app/layout.jsx
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
-import "./bg.css";
 import Structure from './Structure'
+import { ThemeProvider } from "./components/ThemeProvider"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,19 +15,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "CodeIU - Modern Web Development",
-  description: "Your gateway to modern web development with Next.js and React",
-};
-
 export default function RootLayout({ children }) {
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen max-w-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-base-100 text-base-content flex flex-col transition-colors duration-300`}
       >
-     <Structure children={children}/>
+        <ThemeProvider>
+          {/* Ensure Structure component doesn't have bg-black inside it */}
+          <Structure>{children}</Structure>
+        </ThemeProvider>
       </body>
     </html>
   );

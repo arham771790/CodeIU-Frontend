@@ -4,10 +4,10 @@ import Link from 'next/link';
 
 export default function Section2() {
   return (
-    <div className="min-h-screen w-screen">
+    <div className="min-h-screen w-screen bg-base-100 transition-colors">
       {/* Header */}
       <div className="text-center pt-12 pb-20">
-        <h1 className="text-5xl md:text-6xl font-light tracking-tight text-gray-200">
+        <h1 className="text-5xl md:text-6xl font-light tracking-tight text-base-content">
           The Developer Skills Platform
         </h1>
       </div>
@@ -19,18 +19,18 @@ export default function Section2() {
           <div className="space-y-8">
             {/* Badge */}
             <div className="inline-block">
-              <span className="bg-black text-white px-4 py-2 rounded-full text-sm font-bold tracking-widest uppercase">
+              <span className="bg-primary text-primary-content px-4 py-2 rounded-full text-sm font-bold tracking-widest uppercase">
                 🌊ODEIU Community
               </span>
             </div>
 
             {/* Title */}
-            <h2 className="text-4xl md:text-5xl font-light text-gray-200 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-light text-base-content leading-tight">
               Prepare and apply for your dream job
             </h2>
 
             {/* Description */}
-            <li className="text-md text-gray-200 leading-relaxed max-w-md">
+            <li className="text-md text-base-content leading-relaxed max-w-md">
 
 <span className=' font-bold mr-1 text-md'>
 ⁠  ⁠CodeIU Practice
@@ -39,7 +39,7 @@ export default function Section2() {
 
             </li>
 
- <li className="text-md text-gray-200 leading-relaxed max-w-md">
+ <li className="text-md text-base-content leading-relaxed max-w-md">
         
 ⁠  ⁠CodeIU Contests
   Compete in 
@@ -47,7 +47,7 @@ export default function Section2() {
 
 •</li>
 
- <li className="text-md text-gray-200 leading-relaxed max-w-md">
+ <li className="text-md text-base-content leading-relaxed max-w-md">
            ⁠CodeIU Community
   Join peers in forums, blogs, and group-solving rooms. Share knowledge, discuss solutions, and learn multiple approaches.
 
@@ -55,7 +55,7 @@ export default function Section2() {
             {/* Learn More Link */}
             <Link
               href="/"
-              className="inline-flex bg-white/40 p-2 rounded-2xl hover:bg-transparent items-center gap-2 text-gray-100 hover:gap-4 transition-all font-medium text-lg group"
+              className="inline-flex btn btn-ghost border border-base-content/20 text-base-content p-2 rounded-2xl hover:bg-transparent items-center gap-2  hover:gap-4 transition-all font-medium text-lg group"
             >
               Learn more
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -67,7 +67,7 @@ export default function Section2() {
             <div className=" rounded-lg overflow-hidden shadow-2xl">
               {/* Editor Header */}
               <div className="flex justify-between items-center px-2 py-4  bg-gray-950">
-                <select className="bg-gray-800 text-white px-3 py-1 rounded text-sm  hover:border-gray-600 transition-colors cursor-pointer font-mono">
+                <select className="text-base-content text-white px-3 py-1 rounded text-sm  hover:border-gray-600 transition-colors cursor-pointer font-mono">
               
                   <option>C++</option>
                 </select>
