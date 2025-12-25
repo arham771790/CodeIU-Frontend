@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 
 export default function  Section3() {
   return (
-    <div className="min-h-screen max-w-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen max-w-screen bg-base-100 text-base-content overflow-hidden transition-colors">
       {/* Main container */}
       <div className="flex items-center justify-between px-12 py-16 max-w-7xl mx-auto">
         {/* Left side - Text content */}

@@ -1,71 +1,33 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import {
-  Search,
-  ArrowUpDown,
-  Filter,
-  Shuffle,
-  Moon,
-  Loader2,
-  Loader,
-  Ellipsis,
-  Plus,
-} from "lucide-react";
-import { useProblemStore } from "@/app/store/useProblemStore";
-import { useAuthStore } from "@/app/store/useAuthStore";
-import {useSearchStore} from "@/app/store/useSearchStore";
+// app/problems/page.jsx
 import Link from "next/link";
-import ProblemSearchBar from "@/app/components/smallcomponents/SearchBar";
-
-
-const problemSets = [
-  {
-    title: "Master Interview",
-    progress: "0/25",
-    author: "By CodeIU",
-  },
-  {
-    title: "Array Mastery",
-    progress: "0/15",
-    author: "By CodeIU",
-  },
-  {
-    title: "Master Google Prep",
-    progress: "0/15",
-    author: "By CodeIU",
-  },
-];
+import { getProblems } from "@/lib/services/problemService";
+import ProblemFilters from "@/app/components/ProblemFilters";
 
 const DifficultyChip = ({ difficulty }) => {
   const color =
-    difficulty === "EASY"
-      ? "text-green-400"
-      : difficulty === "MEDIUM"
-      ? "text-yellow-400"
-      : "text-red-400";
+    difficulty === "EASY" ? "text-green-400"
+    : difficulty === "MEDIUM" ? "text-yellow-400"
+    : "text-red-400";
   return <span className={`font-medium ${color}`}>{difficulty}</span>;
 };
 
-const ProblemsPage = () => {
-  const { authUser } = useAuthStore();
+// 🛑 FIX HERE: 'searchParams' is now a Promise
+export default async function ProblemsPage({ searchParams }) {
+  
+  // 1. AWAIT the params before using them
+  const params = await searchParams;
+  
+  const query = params?.q || '';
+  const difficulty = params?.difficulty || '';
 
-  const { isProblemsLoading, problems, getAllProblems } = useProblemStore();
-
-  const { searchTerm, results, isLoading: isSearchLoading, error: searchError} = useSearchStore();
-
-  useEffect(() => {
-    getAllProblems();
-  }, []);
-
-  const isSearching = searchTerm.trim() !== "";
-  const listToRender = isSearching ? results : problems;
-  const isActuallyLoading = isProblemsLoading || isSearchLoading;
+  // 2. Pass extracted values to the fetcher
+  const problems = await getProblems(query, difficulty);
+  
+  const isAdmin = true; 
 
   return (
-    <div className="bg-black  text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+    <div className="bg-black text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">Problems</h1>
@@ -75,84 +37,19 @@ const ProblemsPage = () => {
           </div>
         </header>
 
-        {/* Problem Sets */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {problemSets.map((set, index) => (
-            <div
-              key={index}
-              className="relative overflow-hidden bg-gradient-to-tl from-blue-900 to-black border border-gray-700/50 rounded-xl p-6 flex flex-col justify-between hover:border-gray-600 hover:-translate-y-1 transition-all cursor-pointer"
-            >
-              {/* Background Effects */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_2px,transparent_2px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_2px,transparent_4px)] bg-[size:1.5rem_1.5rem] opacity-50"></div>
-              <div className="absolute -bottom-20 -right-15 w-60 h-60 bg-[radial-gradient(circle,rgba(96,165,250,0.15)_0%,transparent_60%)]"></div>
+        <ProblemFilters isAdmin={isAdmin} />
 
-              {/* Card Content */}
-              <div className="relative z-10 flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-bold text-white">
-                      {set.title}
-                    </h2>
-                    <span className="text-gray-300 font-semibold bg-gray-800 px-3 py-1 rounded-full text-xs">
-                      {set.progress}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-end mt-15">
-                  <span>{set.author}</span>
-                  <span className="text-2xl filter opacity-60">🌊</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-         <ProblemSearchBar />
-          <div className="flex items-center gap-3">
-            {authUser?.role === "ADMIN" && (
-              <Link href="/CreateProblem">
-                <button className="p-2.5 bg-gray-800 border border-gray-700/50 font-bold rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
-                  <Plus className="w-5 h-5 text-gray-400 font-bold" />
-                </button>
-              </Link>
-            )}
-
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
-              <ArrowUpDown className="w-5 h-5 text-gray-400" />
-            </button>
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
-              <Filter className="w-5 h-5 text-gray-400" />
-            </button>
-            <button className="p-2.5 bg-gray-800 border border-gray-700/50 rounded-full hover:bg-gray-800 cursor-pointer transition-colors">
-              <Shuffle className="w-5 h-5 text-gray-400" />
-            </button>
-          </div>
-        </div>
-
-        {/* Problems List */}
         <div className="bg-gray-900 border border-gray-700/50 rounded-xl">
           <div className="grid grid-cols-12 px-6 py-4 border-b border-gray-700/50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
             <div className="col-span-6">Title</div>
             <div className="col-span-3 text-center">Difficulty</div>
             <div className="col-span-3 text-right">Acceptance</div>
           </div>
-          {isActuallyLoading ? (
-            <div className="flex items-center justify-center mt-4 mb-4">
-              <Loader className="h-10 w-10 animate-spin " />
-            </div>
-          ) : (
-            <div>
-              {searchError && (
-                <div className="p-4 text-center text-red-400">{searchError}</div>
-              )}
-              {listToRender.length > 0 ? (
-              listToRender.map((problem, index) => (
-               <Link href= {`/Each-problem/${problem.id}`} key={problem.id}>
-                 <div
-                  className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
-                 >
+
+          {problems.length > 0 ? (
+            problems.map((problem) => (
+              <Link href={`/Each-problem/${problem.id}`} key={problem.id}>
+                <div className="grid grid-cols-12 items-center px-6 py-5 bg-black border-b border-white/10 last:border-b-0 hover:bg-gray-800/50 transition-colors cursor-pointer">
                   <div className="col-span-6">
                     <p className="text-white font-medium">{problem.title}</p>
                   </div>
@@ -163,21 +60,15 @@ const ProblemsPage = () => {
                     <p className="text-gray-400">{problem.acceptance}</p>
                   </div>
                 </div>
-               </Link>
-              ))
-              ) : (
-                <div className="p-6 text-center text-gray-500">
-                  {isSearching
-                    ? `No results found for "${searchTerm}"`
-                    : "No problems found."}
-                </div>
-              )}
+              </Link>
+            ))
+          ) : (
+            <div className="p-6 text-center text-gray-500">
+              No problems found.
             </div>
           )}
         </div>
       </div>
     </div>
   );
-};
-
-export default ProblemsPage;
+}

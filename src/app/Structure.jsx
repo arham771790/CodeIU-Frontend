@@ -9,37 +9,40 @@ import { usePathname } from 'next/navigation'
 const Structure = ({children}) => {
     const pathname = usePathname();
     
-    // --- 1. Define the base paths to hide ---
-    // No trailing slashes needed
     const hideLayoutOn = [
       '/login',
       '/register',
       '/Each-problem', 
       '/Admin', 
-      '/Contest_ProblemPage' // Changed from hideLayout
+      '/Contest_ProblemPage'
     ];
 
-    // --- 2. Check if the current pathname *starts with* any of the paths ---
     const shouldHide = hideLayoutOn.some(path => pathname.startsWith(path));
-
-    // Optional: Keep your console logs for debugging
-    console.log("Current Path:", pathname);
-    console.log("Should Hide:", shouldHide);
           
     return (
       <IsClient>
-        <div>
+        {/* SENIOR FIX: 
+           1. Added 'bg-base-100' (The theme's primary background)
+           2. Added 'text-base-content' (The theme's primary text color)
+           3. Added 'min-h-screen' to ensure the background covers the whole page
+        */}
+        <div className="bg-base-100 text-base-content min-h-screen flex flex-col transition-colors duration-300">
+          
           {!shouldHide && <Header />}
-          <main className="flex-1 max-w-screen">
+          
+          <main className="flex-1 w-full max-w-screen">
             {children}
           </main>
+
           {!shouldHide && <Footer />}
 
+          {/* SENIOR TIP: Changed ToastContainer theme to 'auto' or controlled 
+             so it doesn't stay 'dark' in 'light' mode.
+          */}
           <ToastContainer
             position="top-right"
             autoClose={2000}
-            /* ...other props */
-            theme="colored"
+            theme="auto" 
           />
         </div>
       </IsClient>

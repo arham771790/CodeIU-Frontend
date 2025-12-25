@@ -1,60 +1,61 @@
+// src/components/smallcomponents/Profile.jsx
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { Loader2, LogOut, User, Settings , UserStar } from "lucide-react";
+import { Loader2, LogOut, User, Settings, UserStar } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 
 const Profile = () => {
-  const { isLoggingIn, authUser, logout, isLoggingOut } = useAuthStore();
+  const { authUser, logout, isLoggingOut } = useAuthStore();
 
-  const Logout = () => {
+  const LogoutButton = () => {
     return (
-      <>
-        <button
-          className="p-1 mb-1 cursor-pointer hover:text-white  hover:bg-red-800  rounded-lg bg-black text-white transition-all ease-in-out duration-300 relative group"
-          onClick={logout}
-        >
-          {isLoggingOut ? (
-            <>
-              {" "}
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </>
-          ) : (
-            <div className="flex items-center justify-center font-medium gap-1 cursor-pointer ">
-              <LogOut className="h-4 w-4 font-semibold ml-1" />
-              Logout
-            </div>
-          )}
-        </button>
-      </>
+      <button
+        /* SENIOR FIX: Removed bg-black. Used btn-error with ghost style for transparency */
+        className="btn btn-ghost btn-sm w-full hover:bg-error hover:text-error-content transition-all duration-300 mt-2 hover:rounded-lg"
+        onClick={logout}
+        disabled={isLoggingOut}
+      >
+        {isLoggingOut ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <div className="flex items-center justify-center gap-2">
+            <LogOut className="h-4 w-4" />
+            Logout
+          </div>
+        )}
+      </button>
     );
   };
+
   return (
-    <div className="bg-black text-white">
-      <div className="flex flex-col justify-center items-center ">
-        <ul>
-          <li className=" font-medium cursor-pointer mb-1 mt-1  border-b-white/10  hover:text-black hover:bg-white rounded-lg transition-colors gap-1">
-            <Link href="/Profile" className="flex items-center justify-center font-medium gap-2 p-1">
+    /* SENIOR FIX: Changed bg-black to bg-transparent */
+    <div className="bg-transparent text-base-content p-2 w-full">
+      <div className="flex flex-col">
+        <ul className="menu menu-sm p-0">
+          <li>
+            <Link href="/Profile" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
               <User className="h-4 w-4" />
               Profile
             </Link>
           </li>
-          <li className="flex items-center justify-center font-medium cursor-pointer mb-1 mt-1 p-1 border-b-white/10  hover:text-black hover:bg-white rounded-lg transition-colors gap-1">
-            <Settings className="h-4 w-4" />
-            Settings
+          <li>
+            <div className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg cursor-pointer">
+              <Settings className="h-4 w-4" />
+              Settings
+            </div>
           </li>
-          {
-            authUser?.role === "ADMIN" && (
-              <li className=" font-medium cursor-pointer mb-1 mt-1  border-b-white/10  hover:text-black hover:bg-white rounded-lg transition-colors gap-1">
-            <Link href="/Admin" className="flex items-center justify-center font-medium gap-2 p-1 ">
-              <UserStar className="h-4 w-4 text-green-500"/>
-              Admin
-            </Link>
-          </li>
-            )
-          }
+          {authUser?.role === "ADMIN" && (
+            <li>
+              <Link href="/Admin" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
+                <UserStar className="h-4 w-4 text-success" />
+                Admin
+              </Link>
+            </li>
+          )}
         </ul>
-
-        <Logout />
+        
+        <div className="border-t border-base-content/10 my-1"></div>
+        <LogoutButton />
       </div>
     </div>
   );
