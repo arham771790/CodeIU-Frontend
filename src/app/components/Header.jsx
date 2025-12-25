@@ -6,7 +6,7 @@ import UserActions from "./UserActions";
 export default function Header() {
   const pages = [
     { name: "Explore", link: "/Explore" },
-    { name: "Problem", link: "/problem" },
+    { name: "Problems", link: "/problems" },
     { name: "Contest", link: "/contest" },
     { name: "Devloper", link: "/Devloper" },
     

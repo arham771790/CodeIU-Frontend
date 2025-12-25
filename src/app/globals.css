@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light, dark, retro, nord, dracula, forest , black , synthwave ,abyss;
+  themes: light, dark, nord, forest , black ,abyss ;
 }
+
 
 /* Force the body to inherit theme colors */
 @layer base {
@@ -19,4 +20,24 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+@layer utilities {
+  .bg-dynamic-grid {
+    /* Standard Light Mode: Darker gray lines */
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 1.5rem 1.5rem;
+  }
+
+  /* When the theme is dark/dracula/black: Lighter white/blue lines */
+  [data-theme="dark"] .bg-dynamic-grid,
+  [data-theme="dracula"] .bg-dynamic-grid,
+  [data-theme="black"] .bg-dynamic-grid,
+  [data-theme="codeiu-midnight"] .bg-dynamic-grid {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  }
 }
