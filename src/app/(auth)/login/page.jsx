@@ -89,7 +89,7 @@ export default function Login() {
 
       if (res) {
         
-        router.push("/problem");
+        router.push("/problems");
       }
     }
   };

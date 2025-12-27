@@ -1,385 +1,346 @@
 "use client";
-
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Code2,
-  ThumbsUp,
-  ThumbsDown,
   RefreshCw,
-  Settings,
   Expand,
   Loader2,
+  CheckCircle2,
+  XCircle,
+  Clock,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
-
-import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import SubmissionResult from "./SubmissionResult";
 
-const CodeEditor = ({ description, codeSnippets, testcases }) => {
+const CodeEditor = ({ codeSnippets, testcases }) => {
+  const { resolvedTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("testcase");
-  const [topPanelHeight, setTopPanelHeight] = useState(60); // Initial height in percentage
+  const [topPanelHeight, setTopPanelHeight] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
 
-  const [testCases, setTestCases] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(null);
-  const [showWarning, setShowWarning] = useState(true);
-  const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
-  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
-
   const {
-    setUserCode,
     userCode,
+    setUserCode,
     RunReslts,
     selectedLanguage,
     setSelectedLanguage,
     intializeSocket,
-    disconnectSocket,
+    resetProblemState,
     submissions,
   } = useSubmissionStore();
+
   const { authUser } = useAuthStore();
+  const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
 
-  const userId = authUser?.id;
-
-  // This gets the most recent submission from the array
-  const latestSubmission = submissions?.[0];
-
+  // Initialize Socket Connection
   useEffect(() => {
-    if (codeSnippets) {
-      setUserCode(codeSnippets?.[selectedLanguage] || "");
-    }
+    if (authUser?.id) intializeSocket(authUser.id);
+  }, [authUser, intializeSocket]);
 
-    setTestCases(
-      testcases?.map((testCase) => ({
-        Input: testCase?.input,
-        Output: testCase?.output,
-      })) || []
-    );
-  }, [codeSnippets, selectedLanguage]);
-
+  // Handle Code Initialization
   useEffect(() => {
-    if (latestSubmission && latestSubmission.status === "Pending") {
-      setActiveTab("submission");
-    }
+    resetProblemState();
+    if (codeSnippets) setUserCode(codeSnippets[selectedLanguage] || "");
+  }, [codeSnippets, selectedLanguage, setUserCode, resetProblemState]);
+
+  // Auto-switch tabs based on state
+  useEffect(() => {
+    if (submissions?.length > 0) setActiveTab("submission");
   }, [submissions]);
 
   useEffect(() => {
-    if (RunReslts && RunReslts.length > 0) {
-      setActiveTab("testresult");
-    }
+    if (RunReslts?.length > 0) setActiveTab("testresult");
   }, [RunReslts]);
 
-  useEffect(() => {
-    if (authUser && userId) {
-      intializeSocket(userId);
-    }
-
-    return () => {
-      disconnectSocket();
-    };
-  }, [authUser, intializeSocket, disconnectSocket]);
-
-  const handleLanguageChange = (e) => {
-    const lang = e.target.value;
-    setSelectedLanguage(lang);
-
-    setUserCode(codeSnippets?.[lang] || "");
-  };
-
-  const handleRefreshCode = () => {
-    setUserCode(codeSnippets?.[selectedLanguage] || "");
-  };
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
+  // Resizing Logic
   const handleMouseMove = (e) => {
-    if (!isDragging || !containerRef.current) return;
-
-    const containerRect = containerRef.current.getBoundingClientRect();
-    let newHeight =
-      ((e.clientY - containerRect.top) / containerRect.height) * 100;
-
-    // Clamp the height between 20% and 80%
-    if (newHeight < 20) newHeight = 20;
-    if (newHeight > 85) newHeight = 85;
-
-    setTopPanelHeight(newHeight);
+    if (!isDragging) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const newHeight = ((e.clientY - rect.top) / rect.height) * 100;
+    if (newHeight > 20 && newHeight < 85) setTopPanelHeight(newHeight);
   };
 
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    } else {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    }
-
+    const up = () => setIsDragging(false);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", up);
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", up);
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging]);
 
   return (
-    <div ref={containerRef} className="flex flex-col h-full">
-      {/* Top Panel: Header + Code Editor */}
+    <div ref={containerRef} className="flex flex-col h-full gap-2">
+      {/* Top Panel: Monaco Editor */}
       <div
-        className="bg-[#0e0e0e] rounded-lg flex flex-col overflow-hidden"
+        className="bg-base-200 rounded-xl flex flex-col overflow-hidden border border-base-content/10"
         style={{ height: `${topPanelHeight}%` }}
       >
-        <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between border-b border-zinc-800   ">
-          <div className="flex items-center ">
-            <select
-              className="bg-black/10 text-white text-sm font-semibold rounded-xl focus:outline-none"
-              value={selectedLanguage}
-              onChange={handleLanguageChange}
-            >
-              {Object.keys(codeSnippets || {}).map((lang) => (
-                <option key={lang} value={lang} className="text-black ">
-                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              className="hover:bg-zinc-800 p-1.5 rounded"
-              onClick={handleRefreshCode}
-              title="Warning: This will reset the code"
-            >
-              <RefreshCw className="w-5 h-5 text-gray-400" />
-            </button>
-            <button className="hover:bg-zinc-800 p-1.5 rounded">
-              <Expand className="w-5 h-5 text-gray-400" />
-            </button>
+        <div className="bg-base-300/50 px-4 py-2 flex items-center justify-between border-b border-base-content/10">
+          <select
+            className="select select-ghost select-xs font-bold text-primary"
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+          >
+            {Object.keys(codeSnippets || {}).map((lang) => (
+              <option
+                key={lang}
+                value={lang}
+                className="bg-base-200 text-base-content"
+              >
+                {lang.toUpperCase()}
+              </option>
+            ))}
+          </select>
+          <div className="flex gap-2 text-base-content/50">
+            <RefreshCw
+              size={16}
+              className="cursor-pointer hover:text-primary transition-colors"
+              onClick={() => setUserCode(codeSnippets[selectedLanguage])}
+            />
+            <Expand
+              size={16}
+              className="cursor-pointer hover:text-primary transition-colors"
+            />
           </div>
         </div>
-        <div className="  flex-1 overflow-hidden ">
+        <div className="flex-1">
           <Editor
             height="100%"
             language={selectedLanguage.toLowerCase()}
-            theme="vs-dark"
+            theme={['dark','black','abyss','forest'].includes(resolvedTheme) ? 'vs-dark' : 'light'}
             value={userCode}
-            onChange={(value) => setUserCode(value || "")}
+            onChange={(v) => setUserCode(v || "")}
             options={{
               minimap: { enabled: false },
-              fontSize: 15,
-              lineNumbers: "on",
-              roundedSelection: false,
-              scrollBeyondLastLine: false,
-              readOnly: false,
+              fontSize: 14,
               automaticLayout: true,
+              scrollBeyondLastLine: false,
+              padding: { top: 10 },
             }}
           />
         </div>
       </div>
 
-      {/* Draggable Divider */}
+      {/* Resize Handle */}
       <div
-        className="w-full h-2 flex-shrink-0 cursor-row-resize "
-        onMouseDown={handleMouseDown}
+        className="h-1.5 w-full cursor-row-resize hover:bg-primary/20 transition-colors"
+        onMouseDown={() => setIsDragging(true)}
       ></div>
 
-      {/* Bottom Panel: Test Cases */}
-      <div className="bg-[#0e0e0e] rounded-lg flex-grow flex flex-col overflow-hidden">
-        <div className="flex-shrink-0 flex items-center space-x-2 px-4 border-b border-zinc-800">
-          <button
-            onClick={() => setActiveTab("testcase")}
-            className={`py-2 text-sm  font-semibold border-b-2 hover:cursor-pointer ${
-              activeTab === "testcase"
-                ? "border-white text-white"
-                : "border-transparent text-gray-400"
-            }`}
-          >
-            Testcase
-          </button>
-          <button
-            onClick={() => setActiveTab("testresult")}
-            className={`py-2 ml-3 text-sm font-semibold border-b-2 hover:cursor-pointer ${
-              activeTab === "testresult"
-                ? "border-white text-white"
-                : "border-transparent text-gray-400"
-            }`}
-          >
-            Test Result
-          </button>
-
-          <button
-            onClick={() => setActiveTab("submission")}
-            className={`py-2 ml-3 text-sm font-semibold border-b-2 hover:cursor-pointer ${
-              activeTab === "submission"
-                ? "border-white text-white"
-                : "border-transparent text-gray-400"
-            }`}
-          >
-            Submission
-          </button>
+      {/* Bottom Panel: Testcases / Results / Submissions */}
+      <div className="bg-base-200 rounded-xl flex-grow flex flex-col overflow-hidden border border-base-content/10">
+        <div className="tabs tabs-bordered bg-base-300/30 px-2">
+          {["testcase", "testresult", "submission"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`tab tab-sm h-10 transition-all ${
+                activeTab === tab
+                  ? "tab-active font-bold border-primary text-primary"
+                  : "opacity-50"
+              }`}
+            >
+              {tab.toUpperCase()}
+            </button>
+          ))}
         </div>
-        <div className="flex-grow overflow-auto">
+
+        <div className="p-4 overflow-auto flex-1">
+          {/* Tab 1: Testcases */}
           {activeTab === "testcase" && (
-            <div className="p-2">
-              <div className="flex items-center space-x-3 mb-2">
-                {testcases?.map((testCase, index) => (
+            <div className="space-y-4">
+              <div className="flex gap-2 flex-wrap">
+                {testcases?.map((_, i) => (
                   <button
-                    key={testCase?.id || index}
-                    onClick={() => setSelectedCaseIndex(index)}
-                    className={`bg-[#272727] text-sm font-semibold px-3 py-1 rounded-md transition-colors ${
-                      selectedCaseIndex === index
-                        ? "bg-zinc-700 text-white"
-                        : "bg-[#272727] text-gray-400"
+                    key={i}
+                    onClick={() => setSelectedCaseIndex(i)}
+                    className={`btn btn-xs ${
+                      selectedCaseIndex === i
+                        ? "btn-primary"
+                        : "btn-ghost bg-base-300"
                     }`}
                   >
-                    Case {index + 1}
+                    Case {i + 1}
                   </button>
                 ))}
               </div>
-
-              {/*RENDER THE DETAILS FOR ONLY THE SELECTED CASE */}
-              {/*  check if the test case exists before trying to show its data */}
-
-              {testcases && testcases[selectedCaseIndex] && (
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-sm font-semibold mb-1">Input:</p>
-                    <pre className="text-sm text-gray-300 bg-[#1a1a1a] p-3 rounded">
-                      {testcases[selectedCaseIndex].input}
-                    </pre>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold mb-1">Output:</p>
-                    <pre className="text-sm text-gray-300 bg-[#1a1a1a] p-3 rounded">
-                      {testcases[selectedCaseIndex].output}
-                    </pre>
-                  </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-bold opacity-50 mb-1 uppercase tracking-wider">
+                    Input
+                  </p>
+                  <pre className="bg-base-300 p-3 rounded-lg text-sm font-mono border border-base-content/5">
+                    {testcases[selectedCaseIndex]?.input}
+                  </pre>
                 </div>
-              )}
+                <div>
+                  <p className="text-xs font-bold opacity-50 mb-1 uppercase tracking-wider">
+                    Expected Output
+                  </p>
+                  <pre className="bg-base-300 p-3 rounded-lg text-sm font-mono border border-base-content/5">
+                    {testcases[selectedCaseIndex]?.output}
+                  </pre>
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Tab 2: Test Results (From 'Run' button) */}
           {activeTab === "testresult" && (
-            <div className="p-4 flex-grow font-semibold items-center  text-gray-500">
-              {!RunReslts || RunReslts.length === 0 ? (
-                <div> Run your code to see the results.</div>
+            <div className="space-y-4">
+              {!RunReslts?.length ? (
+                <div className="flex flex-col items-center justify-center py-10 opacity-50 italic">
+                  <p>Run your code to see results.</p>
+                </div>
               ) : (
-                <div>
+                <>
                   <SubmissionResult runResults={RunReslts} />
-                  <div className="flex items-center space-x-3 mb-2">
-                    {RunReslts.map((result, index) => (
+                  <div className="flex gap-2 flex-wrap">
+                    {RunReslts.map((r, i) => (
                       <button
-                        key={index}
-                        onClick={() => setSelectedResultIndex(index)}
-                        className={`flex items-center space-x-2 text-sm font-semibold px-3 py-1 rounded-md transition-colors ${
-                          selectedResultIndex === index
-                            ? "bg-zinc-700 text-white"
-                            : "bg-[#1a1a1a] text-gray-400"
+                        key={i}
+                        onClick={() => setSelectedResultIndex(i)}
+                        className={`btn btn-xs gap-1 ${
+                          selectedResultIndex === i
+                            ? "btn-primary"
+                            : "bg-base-300"
                         }`}
                       >
-                        <span
+                        <div
                           className={`w-2 h-2 rounded-full ${
-                            result.passed ? "bg-green-500" : "bg-red-500"
+                            r.passed ? "bg-success" : "bg-error"
                           }`}
-                        ></span>
-                        <span>Case {index + 1}</span>
+                        ></div>{" "}
+                        Case {i + 1}
                       </button>
                     ))}
                   </div>
-
-                  {RunReslts[selectedResultIndex] && (
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-400 mb-1 mt-2">
-                          Input
-                        </p>
-                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md w-full">
-                          {RunReslts[selectedResultIndex].Input}
-                        </pre>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-400 mb-1">
-                          Output
-                        </p>
-                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md">
-                          {RunReslts[selectedResultIndex].stdout}
-                        </pre>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-400 mb-1">
-                          Expected
-                        </p>
-                        <pre className="text-sm text-gray-200 bg-[#141414] p-3 rounded-md">
-                          {RunReslts[selectedResultIndex].expected}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                </>
               )}
             </div>
           )}
-
-          {/* RENDER THE SUBMISSION RESULT */}
+          {/* Tab 3: Submission Status */}
           {activeTab === "submission" && (
-            <div>
-              {!latestSubmission ? (
-                <div className="text-gray-500 font-semibold">
-                  Submit your code to see the final result.
+            <div className="space-y-4">
+              {!submissions || submissions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 opacity-50 italic">
+                  <p>No submission attempts yet.</p>
                 </div>
               ) : (
-                <div>
-                  <h2
-                    className={`text-2xl font-semibold mb-3 ${
-                      latestSubmission.status === "Accepted"
-                        ? "text-green-500"
-                        : latestSubmission.status === "Pending"
-                        ? "text-yellow-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {latestSubmission.status}
-                    {latestSubmission.status === "Pending" && (
-                      <Loader2 className="inline-block ml-2 h-6 w-6 animate-spin" />
-                    )}
-                  </h2>
-
-                  {/* Display test cases once they arrive */}
-                  {latestSubmission.testcases &&
-                    latestSubmission.testcases.length > 0 && (
-                      <div className="space-y-4">
-                        <p className="font-semibold text-gray-300">
-                          Test Cases:
-                        </p>
-                        {latestSubmission.testcases.map((tc, index) => (
+                <div className="space-y-6">
+                  {submissions.map((sub, index) => (
+                    <div
+                      key={sub.id || index}
+                      className="bg-base-300/30 rounded-xl border border-base-content/10 overflow-hidden"
+                    >
+                      {/* Header: Overall Result Summary */}
+                      <div className="bg-base-300/50 px-4 py-3 flex justify-between items-center border-b border-base-content/10">
+                        <div className="flex items-center gap-3">
                           <div
-                            key={index}
-                            className="bg-[#1a1a1a] p-3 rounded-md"
+                            className={`p-1.5 rounded-full ${
+                              sub.status === "Accepted"
+                                ? "bg-success/20 text-success"
+                                : "bg-error/20 text-error"
+                            }`}
                           >
-                            <div className="flex justify-between items-center">
-                              <span className="font-semibold text-white">
-                                Case {tc.testCase}
-                              </span>
-                              <span
-                                className={`font-bold text-sm px-2 py-1 rounded-full ${
-                                  tc.passed
-                                    ? "bg-green-800 text-green-300"
-                                    : "bg-red-800 text-red-300"
-                                }`}
-                              >
-                                {tc.passed ? "Passed" : "Failed"}
-                              </span>
-                            </div>
-                            {/* You can add more details here if you want */}
+                            {sub.status === "Accepted" ? (
+                              <CheckCircle2 size={18} />
+                            ) : (
+                              <XCircle size={18} />
+                            )}
                           </div>
-                        ))}
+                          <div>
+                            <h3
+                              className={`font-bold leading-none ${
+                                sub.status === "Accepted"
+                                  ? "text-success"
+                                  : "text-error"
+                              }`}
+                            >
+                              {sub.status}
+                            </h3>
+                            <span className="text-[10px] opacity-50 uppercase tracking-tight">
+                              {sub.language} •{" "}
+                              {new Date(sub.createdAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-mono">
+                            {sub.testcases?.filter((t) => t.passed).length}/
+                            {sub.testcases?.length} Passed
+                          </p>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Individual Test Case List */}
+                      <div className="p-4 space-y-2">
+                        {sub.testcases && sub.testcases.length > 0 ? (
+                          sub.testcases.map((tc, i) => (
+                            <div
+                              key={tc.id || i}
+                              className="flex items-center justify-between p-3 bg-base-200/50 rounded-lg border border-base-content/5 hover:border-base-content/20 transition-colors"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-semibold opacity-70">
+                                  TestCase {tc.testCase || i + 1}
+                                </span>
+                                <div className="h-1 w-1 rounded-full bg-base-content/20"></div>
+                                <span
+                                  className={`text-sm font-medium ${
+                                    tc.passed ? "text-success" : "text-error"
+                                  }`}
+                                >
+                                  {tc.status}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-4 text-[11px] font-mono opacity-60">
+                                <span>{tc.time || "0s"}</span>
+                                <span>{tc.memory || "0KB"}</span>
+                                {tc.passed ? (
+                                  <CheckCircle2
+                                    size={14}
+                                    className="text-success"
+                                  />
+                                ) : (
+                                  <XCircle size={14} className="text-error" />
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          /* Fallback if it's still Pending */
+                          <div className="flex items-center gap-2 py-4 justify-center opacity-50">
+                            <Loader2 className="animate-spin" size={16} />
+                            <p className="text-sm italic">
+                              Queueing test cases...
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Compile/System Error Section */}
+                      {(sub.compileOutput || sub.stderr) && (
+                        <div className="px-4 pb-4">
+                          <div className="bg-error/5 border border-error/20 p-3 rounded-lg">
+                            <p className="text-[10px] font-bold text-error uppercase mb-1">
+                              Error Log
+                            </p>
+                            <pre className="text-xs font-mono text-error/80 whitespace-pre-wrap">
+                              {sub.compileOutput || sub.stderr}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
