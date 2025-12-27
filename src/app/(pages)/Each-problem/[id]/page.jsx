@@ -1,58 +1,42 @@
-"use client";
+import { getProblems, getProblemById } from "@/lib/services/problemService";
+import TopNav from "@/app/components/perProblem_comp/TopNav";
+import ProblemDescription from "@/app/components/perProblem_comp/ProblemDescription";
+import CodeEditor from "@/app/components/perProblem_comp/CodeEditor";
 
-import { useState, useEffect } from "react";
+export default async function EachProblemPage({ params }) {
+  const { id } = await params;
 
-import React from 'react'
-import { useAuthStore } from '@/app/store/useAuthStore';
-import { useProblemStore } from '@/app/store/useProblemStore';
-import { useParams } from 'next/navigation';
+  const [problem, allProblems] = await Promise.all([
+    getProblemById(id),
+    getProblems() 
+  ]);
 
-import TopNav from '@/app/components/perProblem_comp/TopNav';
-import ProblemDescription from '@/app/components/perProblem_comp/ProblemDescription';
-import CodeEditor from '@/app/components/perProblem_comp/CodeEditor';
+  if (!problem) {
+    return (
+      <div className="bg-base-100 text-base-content min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">Problem not found.</h1>
+      </div>
+    );
+  }
 
-
-
-
-const EachProblemPage = () => {
-
-    const { authUser } = useAuthStore();
-    const { isProblemLoading, problem, getProblemById , problems} = useProblemStore();
-    const { id } = useParams();
-
-    useEffect(() => {
-      getProblemById(id);
-    }, [getProblemById , id]);
-
-
-    console.log("..............problems..............");
-    console.log(problem);
-  
-  
-    
   return (
-  
-
-        <div className="bg-[#080808] flex flex-col  min-h-screen font-sans text-white">
-     
-          <TopNav problem={problem} problems={problems} />
-          <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ProblemDescription 
-              title={problem?.title}
-              description={problem?.description}
-              testcases={problem?.visibleTestcases}
-              constraints={problem?.constraints}
-            />
-            <CodeEditor
-              description={problem?.description}
-              codeSnippets={problem?.codeSnippets}
-              testcases={problem?.visibleTestcases}
-            />
-          </main>
+    <div className="bg-base-100 flex flex-col min-h-screen font-sans text-base-content transition-colors duration-300">
+      <TopNav problem={problem} problems={allProblems} />
+      
+      <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ProblemDescription 
+          title={problem.title}
+          description={problem.description}
+          testcases={problem.visibleTestcases}
+          constraints={problem.constraints}
+        />
         
+        <CodeEditor
+          description={problem.description}
+          codeSnippets={problem.codeSnippets}
+          testcases={problem.visibleTestcases}
+        />
+      </main>
     </div>
-   
-  )
+  );
 }
-
-export default EachProblemPage

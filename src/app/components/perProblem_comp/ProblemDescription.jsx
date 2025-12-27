@@ -1,66 +1,36 @@
-
+"use client";
 import React from "react";
-import { Code2, Expand, ThumbsUp, ThumbsDown, Book } from "lucide-react";
-
-const Code = (props) => (
-  <span
-    {...props}
-    className="font-mono bg-zinc-700 bg-opacity-50 rounded px-1.5 py-0.5 text-sm text-gray-300"
-  >
-    {props.children}
-  </span>
-);
+import { Code2, Expand, Book } from "lucide-react";
 
 const ProblemDescription = ({ title, description, testcases, constraints }) => {
-  
   return (
-    <div className="bg-[#0e0e0e] text-gray-300 flex flex-col h-full overflow-y-auto rounded-lg">
-      <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between border-b border-zinc-800 text-sm">
-        <div className="flex items-center space-x-2">
-          <button className=" flex items-center space-x-1 font-semibold hover:bg-zinc-800 rounded px-2 py-1 text-white">
-            <Book className=" text-blue-400 w-4 h-4" />
-            <span className="ml-1">Description</span>
-          </button>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button className="hover:bg-zinc-800 p-1 rounded">
-            <Code2 className="w-5 h-5 text-gray-400" />
-          </button>
-          <button className="hover:bg-zinc-800 p-1 rounded">
-            <Expand className="w-5 h-5 text-gray-400" />
-          </button>
+    <div className="bg-base-200 text-base-content flex flex-col h-full overflow-hidden rounded-xl border border-base-content/10">
+      <div className="bg-base-300/50 px-4 py-2 flex items-center justify-between border-b border-base-content/10">
+        <div className="flex items-center gap-2 text-primary font-bold"><Book size={16} /> Description</div>
+        <div className="flex gap-3 opacity-50">
+          <Code2 size={18} className="cursor-pointer hover:opacity-100" />
+          <Expand size={18} className="cursor-pointer hover:opacity-100" />
         </div>
       </div>
 
-      <div className="p-4 flex-grow overflow-y-auto">
-        <h2 className="text-xl font-medium text-white mb-2">{`Q : ${title}`}</h2>
+      <div className="p-6 overflow-y-auto space-y-6">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <p className="leading-relaxed opacity-90">{description}</p>
 
-        <p className="text-m mb-4 font-sans">{description}</p>
+        <div className="space-y-4">
+          <h3 className="font-bold text-lg">Examples</h3>
+          {testcases?.map((tc, i) => (
+            <div key={i} className="bg-base-300/50 p-4 rounded-xl border border-base-content/5 space-y-2">
+              <p className="text-sm font-mono"><span className="opacity-50 font-bold">Input:</span> {tc.input}</p>
+              <p className="text-sm font-mono"><span className="opacity-50 font-bold">Output:</span> {tc.output}</p>
+            </div>
+          ))}
+        </div>
 
-        <p className="font-semibold text-white mb-2">Examples:</p>
-        {testcases?.map((testCase, index) => (
-          <div key={index} className="mb-4 bg-[#141414] rounded-lg p-4">
-            <p className="text-sm font-mono mb-2">
-              {index + 1}.
-              <span className="font-bold text-gray-400"> Input: </span>
-              {testCase?.input}
-            </p>
-            <p className="text-sm font-mono ml-6">
-              <span className="font-bold text-gray-400"> Output: </span>
-              {testCase?.output}
-            </p>
-          </div>
-        ))}
-
-        <p className="font-semibold text-white mb-2">Constraints:</p>
-        <ul className="list-disc list-inside text-sm space-y-1 font-sans">
-          <li>
-            <Code>{constraints}</Code>
-          </li>
-        </ul>
-      </div>
-
-      <div className="flex-shrink-0 px-4 py-2 border-t border-zinc-800 flex items-center justify-between">
+        <div className="space-y-2">
+          <h3 className="font-bold">Constraints</h3>
+          <code className="block bg-base-300 px-3 py-2 rounded-lg text-sm font-mono border border-base-content/5">{constraints}</code>
+        </div>
       </div>
     </div>
   );

@@ -1,79 +1,78 @@
-import {create} from 'zustand';
-import {axiosInstanceSubmissionService} from '../lib/axios';
-import {toast} from 'react-hot-toast';
-import {io} from 'socket.io-client';
-
+import { create } from 'zustand';
+import { axiosInstanceSubmissionService } from '../lib/axios';
+import { toast } from 'react-hot-toast';
+import { io } from 'socket.io-client';
 import { getLanguageId } from '../lib/lang';
 
-
-
-export const useSubmissionStore = create((set , get) => ({
+export const useSubmissionStore = create((set, get) => ({
     
-    isCodeRunning:false ,
-    isSubmittingCode : false ,
+    isCodeRunning: false,
+    isSubmittingCode: false,
     RunReslts: [],
-    userCode : "",
-    isexecuting:false,
-    submissions : [] ,
-    socket : null ,
-    selectedLanguage : 'JAVA' ,
-    languageId : getLanguageId('JAVA') ,
+    userCode: "",
+    isexecuting: false,
+    submissions: [],
+    socket: null,
+    selectedLanguage: 'JAVA',
+    languageId: getLanguageId('JAVA'),
 
     setRunResults: (results) => set({ RunReslts: results }),
 
-    // 2. This new function ONLY clears the temporary 'Run Code' results
+    // ✅ NEW: Clears temporary state when switching problems, but keeps the socket alive
+    resetProblemState: () => set({ 
+        RunReslts: [], 
+        isexecuting: false, 
+        isSubmittingCode: false,
+        submissions: [] 
+    }),
+
     clearRunResults: () => set({ RunReslts: [] }),
 
-    // 3. This function will be called by your socket when a submission is graded
-  //    Make sure the 'newSubmission' object includes the 'problemId'!
-  addSubmission: (newSubmission) => set((state) => ({
-    // Adds the new submission to the front of the persistent history
-    submissions: [newSubmission, ...state.submissions] 
-  })),
+    addSubmission: (newSubmission) => set((state) => ({
+        submissions: [newSubmission, ...state.submissions] 
+    })),
 
     clearResults: () => set({ submissions: [], RunReslts: [] }),
 
-    setUserCode : (code) => {
-        set({userCode : code})
+    setUserCode: (code) => {
+        set({ userCode: code })
     },
 
     setSelectedLanguage: (langName) => {
         set({
             selectedLanguage: langName,
-            languageId: getLanguageId(langName) || null // Update ID based on name
+            languageId: getLanguageId(langName) || null 
         });
     },
 
-    intializeSocket : async (userId) => {
+    intializeSocket: async (userId) => {
+        const { socket } = get();
 
-        let newSocket = get().socket;
+        // ✅ 1. SINGLETON CHECK: If socket exists and is connected, do nothing.
+        if (socket && socket.connected) {
+            console.log("⚡ Socket already active. Re-joining room for user:", userId);
+            socket.emit('join-room', userId);
+            return;
+        }
 
-
-        //prevent socket re-intialization if the socket already exist
-       if(!newSocket){
-           newSocket = io("http://localhost:8080" , {
-           withCredentials: true
+        // 2. Initialize new socket
+        const newSocket = io("http://localhost:8080", {
+            withCredentials: true,
+            transports: ['websocket'] // Optimization: Force websocket
         });
-       }
 
-        //connect the socket
-        newSocket.on('connect' , ()=>{
+        newSocket.on('connect', () => {
+            console.log("✅ Socket connected:", newSocket.id);
+            if (userId) {
+                newSocket.emit('join-room', userId);
+            }
+        });
 
-           console.log("✅ Socket connected for submissions:", newSocket.id);
+        set({ socket: newSocket });
 
-           // Once connected, join the user-specific room
-           if(userId){
-            newSocket.emit('join-room' , userId);
-           }
-        })
-
-        //set the newsocket to socket
-        set({socket : newSocket});
-
-        //Listen for real-time updates for this user's submissions
+        // Listeners
         newSocket.on("submission-update", (finalSubmission) => {
-            console.log('Received submission update via store:', finalSubmission);
-            // Update the specific submission in our state array
+            console.log('Received submission update:', finalSubmission);
             set((state) => ({
                 submissions: state.submissions.map(sub =>
                     sub.id === finalSubmission.id ? finalSubmission : sub
@@ -82,68 +81,66 @@ export const useSubmissionStore = create((set , get) => ({
         });
 
         newSocket.on("leaderboard-update", (leaderboardData) => {
-            console.log('Received leaderboard update via store:', leaderboardData);
+            console.log('Received leaderboard update:', leaderboardData);
             set({ leaderboard: leaderboardData });
         });
-
-        // 2. JOINING PHASE: Ensure we join the room on every navigation
-        // Using 'newSocket' for checks now
-        if (newSocket && newSocket.connected && userId) {
-            console.log("🔄 Re-verifying room join for user:", userId);
-            newSocket.emit('join-room', userId);
-        }
-    } ,
+    },
 
 
-    runCode : async(sourceCode , stdin , languageId , expected_output) => {
+    runCode: async (sourceCode, stdin, languageId, expected_output) => {
         try {
-
-            set({isexecuting : true});
-
-            const result = await axiosInstanceSubmissionService.post("/execute/run-problem" , {sourceCode , stdin , languageId , expected_output})
-            set({RunReslts : result.data.testCases});
-
-            console.log("result from run  function from use-submission store........................");
-            console.log(result.data.testCases);
-
+            set({ isexecuting: true });
+            const result = await axiosInstanceSubmissionService.post("/execute/run-problem", { 
+                sourceCode, stdin, languageId, expected_output 
+            });
+            set({ RunReslts: result.data.testCases });
+            console.log("Run Results:", result.data.testCases);
 
         } catch (error) {
-
-            console.log("error occured while running the code" , error);
-            toast.error("error occured while running the code");
-            
+            console.log("Run Code Error:", error);
+            toast.error("Error running code");
         } finally {
-
-            set({isexecuting : false});
+            set({ isexecuting: false });
         }
-    } ,
+    },
 
-    submitCode : async(sourceCode , languageId ,  problemId , contestId) => {
+    submitCode: async (sourceCode, languageId, problemId, contestId) => {
         try {
-            
-            set({isSubmittingCode : true})
+            set({ isSubmittingCode: true });
 
-            const result = await axiosInstanceSubmissionService.post(`/execute/submit-code/${contestId}` , {sourceCode , languageId , problemId } ) ;
+            // ✅ 3. DYNAMIC URL: Handle missing contestId
+            // If contestId is null/undefined, use the standard submission route
+            const endpoint = contestId 
+                ? `/execute/submit-code/${contestId}` 
+                : `/execute/submit-code`; // Adjust this if your backend expects a different route for normal problems
+
+            // If your backend handles `undefined` in the param, you can revert this, 
+            // but explicitly checking is safer.
+            const payload = contestId 
+                ? { sourceCode, languageId, problemId } 
+                : { sourceCode, languageId, problemId }; 
+
+            const result = await axiosInstanceSubmissionService.post(endpoint, payload);
+            
             set(state => ({
-                submissions : [...state.submissions , result.data.submission]
-            }))
+                submissions: [result.data.submission, ...state.submissions] // Add to top
+            }));
 
         } catch (error) {
-
-            console.log("error occured while submitting the code" , error);
-            toast.error("error occured while submitting the code");
-            
+            console.log("Submit Code Error:", error);
+            toast.error("Error submitting code");
         } finally {
-            set({isSubmittingCode : false})
+            set({ isSubmittingCode: false });
         }
-    } ,
+    },
 
-    disconnectSocket: () => {
+    // ✅ Renamed to avoid confusion. Only call this on Logout.
+    closeSocketConnection: () => {
         const { socket } = get();
         if (socket) {
             socket.disconnect();
             set({ socket: null, submissions: [] });
-            console.log('Submission socket disconnected.');
+            console.log('Submission socket closed.');
         }
     }, 
-}))
+}));
