@@ -1,7 +1,6 @@
-// src/app/store/useLeaderBoardStore.js
 import { create } from "zustand";
-import { axiosInstanceContestService } from "@/app/lib/axios";
 import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { refreshLeaderboardAction } from "@/actions/leaderboardBridge";
 
 export const useLeaderboardStore = create((set, get) => ({
   rows: [],
@@ -9,68 +8,58 @@ export const useLeaderboardStore = create((set, get) => ({
   updatedAt: null,
   source: null,
 
-  fetchLeaderboard: async (contestId, limit = 100) => {
-    if (!contestId) return;
+  // ✅ Hydrate from Server Page (Instant Load)
+  setInitialLeaderboard: (data) => set({
+    rows: data.rows,
+    updatedAt: data.updatedAt,
+    source: data.source,
+    isLoading: false
+  }),
+
+  // ✅ Refresh using Server Action (Called by Socket)
+  refreshLeaderboard: async (contestId) => {
+    // Only set loading if rows are empty (prevent UI flicker on live updates)
     if (get().rows.length === 0) set({ isLoading: true });
 
     try {
-      const res = await axiosInstanceContestService.get(
-        `/contest/contests/${contestId}/leaderboard?limit=${limit}`
-      );
-
-      if (res.data?.ok) {
+      const res = await refreshLeaderboardAction(contestId);
+      if (res.ok) {
         set({
-          rows: res.data.rows || [],
-          updatedAt: res.data.updatedAt || Date.now(),
-          source: res.data.source || null,
+          rows: res.rows,
+          updatedAt: res.updatedAt,
+          source: res.source,
           isLoading: false,
         });
-      } else {
-        set({ isLoading: false });
       }
     } catch (err) {
-      console.error("[fetchLeaderboard] error:", err);
+      console.error("Leaderboard refresh error:", err);
       set({ isLoading: false });
     }
   },
 
-  // call this when opening contest page
   bindRealtime: (contestId) => {
     if (!contestId) return;
-
     const socket = getSocket();
     joinContestRoom(contestId);
 
-    // prevent duplicate handlers
     socket.off("leaderboard:update");
 
     let debounceTimer;
     socket.on("leaderboard:update", (payload) => {
       if (payload?.contestId !== contestId) return;
+      
+      console.log("⚡ Leaderboard Update Signal Received");
 
-      // Simple debounce: cancel previous, wait 1s
+      // Debounce to prevent spamming the server if 10 users submit at once
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        get().fetchLeaderboard(contestId);
-      }, 1000);
-    });
-  },
-
-  // optional
-  bindTimer: (contestId, onTick) => {
-    const socket = getSocket();
-    joinContestRoom(contestId);
-
-    socket.off("contest:timer");
-    socket.on("contest:timer", (payload) => {
-      if (payload?.contestId !== contestId) return;
-      if (typeof onTick === "function") onTick(payload);
+        get().refreshLeaderboard(contestId);
+      }, 1000); 
     });
   },
 
   unbindRealtime: () => {
     const socket = getSocket();
     socket.off("leaderboard:update");
-    socket.off("contest:timer");
   },
 }));
