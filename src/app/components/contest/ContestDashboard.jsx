@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useMemo } from "react";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
@@ -7,12 +6,14 @@ import CreateContestDialog from "@/app/components/contest/CreateContestDialog";
 import ManageContestsButton from "@/app/components/contest/ManageContestButton";
 import ContestGrid from "@/app/components/contest/ContestGrid";
 import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { Trophy, Calendar, Zap, LayoutGrid, Plus } from "lucide-react";
 
+// Ensure keys match the logic exactly
 const tabs = [
-  { key: "all", label: "All" },
-  { key: "RUNNING", label: "Running" },
-  { key: "UPCOMING", label: "Upcoming" },
-  { key: "PAST", label: "Past" },
+  { key: "ALL", label: "All", icon: LayoutGrid },
+  { key: "RUNNING", label: "Running", icon: Zap },
+  { key: "UPCOMING", label: "Upcoming", icon: Calendar },
+  { key: "PAST", label: "Past", icon: Trophy },
 ];
 
 export default function ContestDashboard({ initialContests }) {
@@ -20,26 +21,21 @@ export default function ContestDashboard({ initialContests }) {
   const { authUser } = useAuthStore();
   const isAdmin = authUser?.role === "ADMIN";
 
-  const [activeTab, setActiveTab] = useState("UPCOMING"); // Default to upcoming
+  // Use uppercase keys to stay consistent with the tab definition
+  const [activeTab, setActiveTab] = useState("UPCOMING");
   const [openCreate, setOpenCreate] = useState(false);
 
-  // 1. Hydrate Store
+  // 1. Hydrate Store once
   useEffect(() => {
-    setContests(initialContests);
+    if (initialContests) setContests(initialContests);
   }, [initialContests, setContests]);
 
-  // 2. Socket Logic (Join rooms for active contests)
+  // 2. Socket Logic
   useEffect(() => {
     const socket = getSocket();
-    const now = new Date();
-
-    // Only join Running or Upcoming contests
-    const activeContests = contests.filter(c => new Date(c.endsAt) > now);
-    
-    activeContests.forEach((c) => joinContestRoom(c.id));
+    contests.forEach((c) => joinContestRoom(c.id));
 
     const onStatus = ({ contestId, newStatus }) => {
-      console.log("⚡ [Socket] Status Update:", contestId, newStatus);
       updateContestStatus(contestId, newStatus);
     };
 
@@ -47,87 +43,77 @@ export default function ContestDashboard({ initialContests }) {
     return () => socket.off("contestStatusUpdated", onStatus);
   }, [contests, updateContestStatus]);
 
-  // 3. ✅ FIXED: TIME-BASED FILTERING
-  // This ensures a newly created contest (with future date) ALWAYS shows in Upcoming
+  // 3. FIXED: Responsive Filtering Logic
+  // This recalculates immediately whenever activeTab or contests change
   const filteredContests = useMemo(() => {
-    // Force a re-calculation based on current time
     const now = new Date(); 
 
-    if (activeTab === "all") return contests;
+    if (activeTab === "ALL") return contests;
 
     return contests.filter((c) => {
       const start = new Date(c.startsAt);
       const end = new Date(c.endsAt);
 
-      if (activeTab === "UPCOMING") {
-        // It's upcoming if Start Time is in the future
-        return start > now;
-      }
-      if (activeTab === "RUNNING") {
-        // It's running if we are strictly between Start and End
-        return start <= now && now < end;
-      }
-      if (activeTab === "PAST") {
-        // It's past if End Time has passed
-        return now >= end;
-      }
+      if (activeTab === "UPCOMING") return start > now;
+      if (activeTab === "RUNNING") return start <= now && now < end;
+      if (activeTab === "PAST") return end <= now;
+      
       return true;
     });
-  }, [contests, activeTab]);
+  }, [contests, activeTab]); // Dependencies are correct: triggers on tab click
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 font-sans">
+    <div className="min-h-screen bg-base-100 text-base-content font-sans">
       {/* Hero Section */}
-      <div className="pb-6 mb-15 border-b border-white/10">
-        <header className="relative text-center py-10 md:py-28 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_50%_50%,_rgba(37,99,235,0.5),transparent)] p-6 text-white shadow-xl" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_2px,transparent_2px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_2px,transparent_4px)] bg-[size:1.5rem_1.5rem] opacity-50" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[120px] bg-[radial-gradient(circle,rgba(96,165,250,0.15)_0%,transparent_60%)]" />
-
-          <div className="relative z-10 flex flex-col items-center">
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">
-              <span className="font-mono bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
-                CodeIU
-              </span>{" "}
-              X Contest
-            </h1>
-            <div className="w-32 h-0.5 bg-blue-500/50 mt-6 mb-4 rounded-full" />
-            <p className="text-md md:text-lg text-gray-300 max-w-2xl">
-              A space where learning meets competition every week.
-            </p>
-          </div>
+      <div className="relative border-b border-base-content/5 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+        
+        <header className="relative z-10 max-w-7xl mx-auto px-6 py-20 md:py-28 text-center">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-400">CodeIU</span>
+            <span className="ml-3 text-transparent bg-clip-text bg-gradient-to-l from-primary/50 to-sky-100 ">X</span>
+            <span className="ml-3 ml-3 text-transparent bg-clip-text bg-gradient-to-l from-primary to-sky-100">Contests</span>
+          </h1>
+          <p className="text-lg text-base-content/60 max-w-xl mx-auto leading-relaxed">
+            The arena where logic meets speed. Competitive programming at its finest.
+          </p>
         </header>
       </div>
 
-      {/* Toolbar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 mb-6 flex items-center justify-between">
-        <div className="flex gap-2">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
-              className={`px-3 py-1.5 rounded-full border transition
-                ${
-                  activeTab === t.key
-                    ? "font-semibold bg-gradient-to-t from-blue-900 via-black to-blue-900 text-white border-blue-500"
-                    : "font-semibold bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800"
-                }`}
-            >
-              {t.label}
-            </button>
-          ))}
+      {/* Toolbar - Floating Style */}
+      <div className="max-w-7xl mx-auto px-6 -mt-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        {/* Tab Controls */}
+        <div className="flex p-1.5 bg-base-300/80 backdrop-blur-xl rounded-2xl border border-base-content/10 shadow-2xl">
+          {tabs.map((t) => {
+             const Icon = t.icon;
+             const isActive = activeTab === t.key;
+             return (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)} // THIS updates activeTab state
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                    isActive
+                      ? "bg-primary text-primary-content shadow-lg shadow-primary/30 scale-105"
+                      : "text-base-content/50 hover:bg-base-content/5 hover:text-base-content"
+                  }`}
+                >
+                  <Icon size={16} /> {t.label}
+                </button>
+             )
+          })}
         </div>
 
-        <div className="flex gap-2">
+        {/* Admin Controls */}
+        <div className="flex gap-3">
           {isAdmin && (
             <>
               <button
                 onClick={() => setOpenCreate(true)}
-                className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+                className="btn btn-primary btn-md rounded-2xl px-6 flex items-center gap-2 shadow-lg shadow-primary/20"
               >
-                Create Contest
+                <Plus size={18} /> Create Contest
               </button>
-
               {openCreate && <CreateContestDialog setOpen={setOpenCreate} />}
               <ManageContestsButton />
             </>
@@ -135,21 +121,27 @@ export default function ContestDashboard({ initialContests }) {
         </div>
       </div>
 
-      {/* Grid */}
-      <main className="px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            {tabs.find((t) => t.key === activeTab)?.label} Contests
-          </h2>
-
-          {filteredContests.length > 0 ? (
-            <ContestGrid items={filteredContests} />
-          ) : (
-            <div className="text-gray-400 border border-gray-800 rounded-lg p-8 bg-[#0e0e0e] text-center">
-              No contests found in {tabs.find((t) => t.key === activeTab)?.label} category.
-            </div>
-          )}
+      {/* Main Grid */}
+      <main className="max-w-7xl mx-auto px-6 pb-24">
+        <div className="flex items-center gap-4 mb-10">
+            <div className="h-10 w-1.5 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--p),0.5)]" />
+            <h2 className="text-3xl font-black tracking-tight uppercase">
+                {tabs.find((t) => t.key === activeTab)?.label} <span className="opacity-30">Series</span>
+            </h2>
         </div>
+
+        {filteredContests.length > 0 ? (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <ContestGrid items={filteredContests} />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-32 bg-base-200/30 rounded-[3rem] border-2 border-dashed border-base-content/5">
+            <div className="opacity-10 mb-6 scale-150"><Trophy size={64} /></div>
+            <p className="text-xl text-base-content/30 font-bold uppercase tracking-widest italic">
+              No {activeTab.toLowerCase()} contests
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );
