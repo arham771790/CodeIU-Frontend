@@ -80,7 +80,7 @@ export const useSubmissionStore = create((set, get) => ({
             }));
         });
 
-        newSocket.on("leaderboard-update", (leaderboardData) => {
+        newSocket.on("leaderboard:update", (leaderboardData) => {
             console.log('Received leaderboard update:', leaderboardData);
             set({ leaderboard: leaderboardData });
         });

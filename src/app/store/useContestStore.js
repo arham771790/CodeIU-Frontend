@@ -1,54 +1,33 @@
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/app/lib/axios";
-import { useAuthStore } from "./useAuthStore";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast"; 
 
 export const useContestStore = create((set, get) => ({
   contests: [],
-  contest: null,
+  contest: null, // ✅ Added this (needed for the Detail Page)
   isLoading: false,
   error: null,
 
-  /* ---------- Fetch All Contests ---------- */
-  fetchContests: async (type = "") => {
-    set({ isLoading: true, error: null });
-    try {
-      const res = await axiosInstanceContestService.get(
-        `/contest/contests${type ? `?type=${type}` : ""}`
-      );
-      console.log(res)
-      if (res?.data?.ok) set({ contests: res.data.contests });
-      else toast.error(res?.data?.error || "Failed to fetch contests");
-    } catch (err) {
-      console.error("[fetchContests error]", err);
-      toast.error("Error fetching contests");
-      set({ error: err.message });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+  // ✅ Hydrate store from Server Data (List)
+  setContests: (data) => set({ contests: data }),
 
-  /* ---------- Fetch One Contest by ID ---------- */
+  // ✅ Hydrate store from Server Data (Single Contest)
+  setContest: (data) => set({ contest: data }),
+
+  // ✅ Re-fetch Single Contest (Needed for Socket updates on the Detail Page)
   fetchContestById: async (id) => {
-    if (!id) return;
-    set({ isLoading: true, error: null });
     try {
       const res = await axiosInstanceContestService.get(`/contest/contests/${id}`, {
-        withCredentials: true,
-        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        withCredentials: true, // Need cookies to see registered status properly
       });
-      if (res?.data?.ok) set({ contest: res.data.contest });
-      else toast.error(res?.data?.error || "Contest not found");
-    } catch (e) {
-      console.error("[fetchContest]", e);
-      toast.error("Error loading contest");
-      set({ error: e.message });
-    } finally {
-      set({ isLoading: false });
+      if (res?.data?.ok) {
+        set({ contest: res.data.contest });
+      }
+    } catch (err) {
+      console.error("Refetch Error:", err);
     }
   },
 
-  /* ---------- Create Contest ---------- */
   createContest: async (data) => {
     set({ isLoading: true, error: null });
     try {
@@ -57,6 +36,7 @@ export const useContestStore = create((set, get) => ({
       });
       if (res?.data?.ok) {
         toast.success("Contest created successfully");
+        // Add to the top of the list
         set({ contests: [res.data.contest, ...get().contests] });
         return true;
       }
@@ -72,78 +52,39 @@ export const useContestStore = create((set, get) => ({
     }
   },
 
-  /* ---------- Update Contest ---------- */
-  updateContest: async (id, data) => {
-    set({ isLoading: true, error: null });
-    try {
-      const res = await axiosInstanceContestService.patch(
-        `/contest/contests/${id}`,
-        data,
-        { withCredentials: true }
-      );
-      if (res?.data?.ok) {
-        toast.success("Contest updated successfully");
-        // Update in list
-        set({
-          contests: get().contests.map((c) =>
-            c.id === id ? res.data.contest : c
-          ),
-        });
-        // Update single contest if it's loaded
-        if (get().contest?.id === id) {
-          set({ contest: res.data.contest });
-        }
-        return true;
-      }
-      toast.error(res?.data?.error || "Failed to update contest");
-      return false;
-    } catch (err) {
-      console.error("[updateContest error]", err);
-      toast.error("Error updating contest");
-      set({ error: err.message });
-      return false;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  /* ---------- Delete Contest ---------- */
   deleteContest: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await axiosInstanceContestService.delete(
-        `/contest/contests/${id}`,
-        { withCredentials: true }
-      );
+      const res = await axiosInstanceContestService.delete(`/contest/contests/${id}`, {
+        withCredentials: true 
+      });
       if (res?.data?.ok) {
         toast.success("Contest deleted successfully");
-        // Remove from list
         set({ contests: get().contests.filter((c) => c.id !== id) });
-        // Clear single contest if it was the deleted one
-        if (get().contest?.id === id) {
-          set({ contest: null });
-        }
         return true;
       }
-      toast.error(res?.data?.error || "Failed to delete contest");
+      toast.error("Failed to delete");
       return false;
     } catch (err) {
-      console.error("[deleteContest error]", err);
-      toast.error("Error deleting contest");
-      set({ error: err.message });
-      return false;
+        toast.error("Error deleting");
+        set({ isLoading: false });
+        return false;
     } finally {
-      set({ isLoading: false });
+        set({ isLoading: false });
     }
   },
+
+  // ✅ Optimized Status Update (Updates both the list AND the single view)
   updateContestStatus: (contestId, newStatus) => {
-  set({
-    contests: get().contests.map((c) =>
-      c.id === contestId ? { ...c, status: newStatus } : c
-    ),
-    contest: get().contest?.id === contestId
-      ? { ...get().contest, status: newStatus }
-      : get().contest,
-  });
-},
+    set((state) => ({
+      // 1. Update the list
+      contests: state.contests.map((c) =>
+        c.id === contestId ? { ...c, status: newStatus } : c
+      ),
+      // 2. Update the single view (if currently viewing this contest)
+      contest: state.contest?.id === contestId 
+        ? { ...state.contest, status: newStatus }
+        : state.contest
+    }));
+  },
 }));
