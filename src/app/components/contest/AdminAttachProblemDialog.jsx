@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X, Plus, Search, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { 
+  X, Plus, Search, ChevronUp, ChevronDown, 
+  Trash2, Database, ListChecks, Hash, Settings2 
+} from "lucide-react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { toast } from "react-hot-toast";
-// ✅ Import the Server Actions
-import { fetchAllProblemsAction , fetchProblemDetailsAction } from "@/actions/problemBridge";
+// Server Actions
+import { fetchAllProblemsAction, fetchProblemDetailsAction } from "@/actions/problemBridge";
 
-// --- Helpers (Optimized & Minified) ---
+// --- Logic Helpers (Preserved) ---
 const tcRow = (row) => {
   if (!row) return { input: "1", output: "1" };
   if (typeof row === "string") {
@@ -28,14 +31,10 @@ const extractTC = (src) => {
 };
 
 const toInlineSnapshot = (p) => {
-  // Simple deep clone
   const norm = JSON.parse(JSON.stringify(p || {}));
-  
-  // Normalize C++ -> CPP
   ['codeSnippets', 'referenceSolutions', 'examples'].forEach(k => {
     if (norm[k]?.['C++']) { norm[k].CPP = norm[k]['C++']; delete norm[k]['C++']; }
   });
-
   const ensureEx = (e) => ({ input: e?.input ?? "1", output: e?.output ?? "1", explanation: e?.explanation ?? "" });
   const ensureStr = (s, def) => (typeof s === "string" && s.trim().length ? s : def);
 
@@ -67,8 +66,6 @@ const toInlineSnapshot = (p) => {
 export default function AdminAttachProblemsDialog({ contestId }) {
   const { authUser } = useAuthStore();
   const isAdmin = authUser?.role === "ADMIN";
-  
-  // ✅ Removed useProblemStore entirely!
   const { attachInlineProblems, fetchBundle, isLoading: isBundleLoading } = useBundleStore();
 
   const [open, setOpen] = useState(false);
@@ -78,7 +75,6 @@ export default function AdminAttachProblemsDialog({ contestId }) {
   const [selected, setSelected] = useState([]);
   const [pointsDefault, setPointsDefault] = useState(100);
 
-  // ✅ Fetch using Server Action when dialog opens
   useEffect(() => {
     if (open && problems.length === 0) {
       setLoadingProblems(true);
@@ -103,21 +99,16 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   const addProblem = async (p) => {
     if (alreadySelected.has(p.id)) return;
-    const toastId = toast.loading("Fetching details...");
-    
+    const toastId = toast.loading("Fetching problem details...");
     try {
-      // ✅ Fetch single details using Server Action
       const fullProblem = await fetchProblemDetailsAction(p.id);
-      
       if (!fullProblem) throw new Error("Not found");
-
       setSelected((prev) => [
         ...prev,
         { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
       ]);
-      toast.success("Added", { id: toastId });
+      toast.success("Problem added to queue", { id: toastId });
     } catch (error) {
-      console.error(error);
       toast.error("Error fetching details", { id: toastId });
     }
   };
@@ -144,19 +135,18 @@ export default function AdminAttachProblemsDialog({ contestId }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (selected.length === 0) return toast.error("Select at least one problem.");
-
     const payload = selected.map((s) => ({
       points: s.points,
       order: s.order,
       inline: toInlineSnapshot(s.fullProblem),
     }));
-
     const ok = await attachInlineProblems({ contestId, problems: payload });
     if (ok) {
       await fetchBundle?.({ contestId, userId: authUser.id });
       setOpen(false);
       setSelected([]);
       setQuery("");
+      toast.success("Contest updated successfully!");
     }
   };
 
@@ -164,89 +154,148 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="font-semibold inline-flex items-center gap-2 rounded-full text-white hover:text-blue-400 p-2 border border-white hover:border-blue-400 transition-colors">
-        <Plus className="w-5 h-5" /> Attach Problems
+      <button 
+        onClick={() => setOpen(true)} 
+        className="btn btn-outline border-base-content/20 hover:bg-primary hover:text-white hover:border-primary rounded-2xl px-6 gap-2 transition-all font-black text-xs uppercase tracking-widest"
+      >
+        <Plus className="w-4 h-4" /> Attach Problems
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-5xl mx-4 rounded-xl bg-[#111315] border border-gray-800 p-4">
-            <div className="flex items-center justify-between pb-2">
-              <h3 className="text-white font-semibold">Attach Problems to Contest</h3>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-base-100/80 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          
+          <div className="relative w-full max-w-6xl bg-base-200 border border-base-content/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            
+            {/* Header */}
+            <div className="px-8 py-6 border-b border-base-content/5 flex items-center justify-between bg-base-300/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Database size={20} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black tracking-tight">Attach Problem Library</h3>
+                  <p className="text-[10px] uppercase font-bold opacity-40 tracking-widest">Contest Builder</p>
+                </div>
+              </div>
+              <button onClick={() => setOpen(false)} className="p-2 hover:bg-base-content/10 rounded-full transition-colors opacity-50 hover:opacity-100">
+                <X size={20} />
+              </button>
             </div>
 
-            <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              {/* Left Column: Search & List */}
-              <div className="lg:col-span-3 space-y-3">
-                <div className="flex items-center gap-2 bg-black/40 border border-gray-700 rounded px-2 py-2">
-                  <Search className="w-4 h-4 text-gray-400" />
-                  <input placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} className="w-full bg-transparent text-gray-200 outline-none" />
+            <form onSubmit={onSubmit} className="p-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
+              
+              {/* Left Column: Problem Library */}
+              <div className="lg:col-span-3 space-y-6">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+                    <input 
+                      placeholder="Search problem library..." 
+                      value={query} 
+                      onChange={(e) => setQuery(e.target.value)} 
+                      className="w-full bg-base-300/50 border border-base-content/10 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" 
+                    />
+                  </div>
+                  <div className="flex items-center gap-3 bg-base-300/50 border border-base-content/10 rounded-xl px-4 py-2">
+                    <label className="text-[10px] font-black uppercase opacity-40 tracking-widest">Default Pts</label>
+                    <input 
+                      type="number" 
+                      min={1} 
+                      value={pointsDefault} 
+                      onChange={(e) => setPointsDefault(Math.max(1, Number(e.target.value) || 1))} 
+                      className="w-16 bg-transparent text-sm font-bold text-primary outline-none" 
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <label className="text-xs text-gray-400">Default Points</label>
-                  <input type="number" min={1} value={pointsDefault} onChange={(e) => setPointsDefault(Math.max(1, Number(e.target.value) || 1))} className="w-24 bg-black/40 border border-gray-700 rounded px-2 py-1 text-gray-200" />
-                </div>
-                <div className="h-[360px] overflow-auto rounded border border-gray-800">
+
+                <div className="h-[400px] overflow-auto rounded-2xl border border-base-content/10 bg-base-300/20">
                   {loadingProblems ? (
-                    <div className="p-4 text-gray-400 animate-pulse">Loading library...</div>
+                    <div className="flex items-center justify-center h-full gap-3 text-sm opacity-40 italic">
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      Syncing library...
+                    </div>
                   ) : filtered.length === 0 ? (
-                    <div className="p-4 text-gray-400">No problems found.</div>
+                    <div className="flex items-center justify-center h-full text-sm opacity-40 italic">No matches found.</div>
                   ) : (
-                    <ul className="divide-y divide-gray-800">
+                    <div className="divide-y divide-base-content/5">
                       {filtered.map((p) => (
-                        <li key={p.id} className="flex items-center justify-between gap-3 p-3 hover:bg-white/5">
+                        <div key={p.id} className="flex items-center justify-between gap-4 p-4 hover:bg-base-content/5 transition-colors group">
                           <div className="min-w-0">
-                            <div className="text-sm text-white truncate">{p.title}</div>
-                            <div className="text-[11px] text-gray-400 truncate">{p.difficulty} • {p.slug || "no-slug"}</div>
+                            <div className="text-sm font-bold group-hover:text-primary transition-colors truncate">{p.title}</div>
+                            <div className="text-[10px] uppercase font-bold opacity-30 flex items-center gap-2 mt-0.5">
+                              {p.difficulty} <span className="w-1 h-1 rounded-full bg-current opacity-50" /> {p.slug || "no-slug"}
+                            </div>
                           </div>
-                          <button type="button" disabled={alreadySelected.has(p.id)} onClick={() => addProblem(p)} className="px-2 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50">
+                          <button 
+                            type="button" 
+                            disabled={alreadySelected.has(p.id)} 
+                            onClick={() => addProblem(p)} 
+                            className={`btn btn-sm rounded-lg px-4 ${alreadySelected.has(p.id) ? 'btn-disabled opacity-30' : 'btn-primary shadow-lg shadow-primary/20'}`}
+                          >
                             {alreadySelected.has(p.id) ? "Added" : "Add"}
                           </button>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
               </div>
 
-              {/* Right Column: Selected */}
-              <div className="lg:col-span-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-sm">Selected ({selected.length})</div>
-                  <button type="button" onClick={() => setSelected([])} className="text-xs text-gray-400 hover:text-white">Clear</button>
+              {/* Right Column: Selected Queue */}
+              <div className="lg:col-span-2 space-y-6 flex flex-col">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <ListChecks size={16} className="text-primary" />
+                    <span className="text-sm font-black uppercase tracking-widest">Problem Queue</span>
+                    <span className="badge badge-primary badge-sm font-bold">{selected.length}</span>
+                  </div>
+                  <button type="button" onClick={() => setSelected([])} className="text-[10px] font-black uppercase tracking-widest opacity-40 hover:text-error hover:opacity-100 transition-all">Clear All</button>
                 </div>
-                <div className="h-[420px] overflow-auto rounded border border-gray-800">
+
+                <div className="flex-1 h-[360px] overflow-auto rounded-2xl border border-base-content/10 bg-base-300/20">
                   {selected.length === 0 ? (
-                    <div className="p-4 text-gray-400">No problems selected.</div>
+                    <div className="flex items-center justify-center h-full text-sm opacity-40 italic text-center px-8">Queue is empty. Select problems from the left.</div>
                   ) : (
-                    <ul className="divide-y divide-gray-800">
+                    <div className="divide-y divide-base-content/5">
                       {selected.map((s, idx) => (
-                        <li key={s.id} className="p-3">
+                        <div key={s.id} className="p-4 space-y-3 bg-base-200/50">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="min-w-0">
-                              <div className="text-sm text-white truncate">{String.fromCharCode(65 + idx)}. {s.title}</div>
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="w-6 h-6 flex items-center justify-center bg-primary text-primary-content text-xs font-black rounded-lg">{String.fromCharCode(65 + idx)}</span>
+                              <div className="text-sm font-bold truncate">{s.title}</div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button type="button" onClick={() => move(idx, -1)} className="p-1 rounded hover:bg-white/10"><ChevronUp className="w-4 h-4 text-gray-300" /></button>
-                              <button type="button" onClick={() => move(idx, 1)} className="p-1 rounded hover:bg-white/10"><ChevronDown className="w-4 h-4 text-gray-300" /></button>
-                              <button type="button" onClick={() => removeProblem(s.id)} className="p-1 rounded hover:bg-red-500/20"><Trash2 className="w-4 h-4 text-red-300" /></button>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button type="button" onClick={() => move(idx, -1)} className="p-1.5 rounded-lg hover:bg-base-content/10 opacity-50 hover:opacity-100 transition-all"><ChevronUp size={14} /></button>
+                              <button type="button" onClick={() => move(idx, 1)} className="p-1.5 rounded-lg hover:bg-base-content/10 opacity-50 hover:opacity-100 transition-all"><ChevronDown size={14} /></button>
+                              <button type="button" onClick={() => removeProblem(s.id)} className="p-1.5 rounded-lg hover:bg-error/10 text-error opacity-50 hover:opacity-100 transition-all"><Trash2 size={14} /></button>
                             </div>
                           </div>
-                          <div className="mt-2 flex items-center gap-2">
-                            <label className="text-[11px] text-gray-400">Points</label>
-                            <input type="number" min={1} value={s.points} onChange={(e) => setPoints(s.id, e.target.value)} className="w-24 bg-black/40 border border-gray-700 rounded px-2 py-1 text-gray-200" />
+                          <div className="flex items-center gap-3 pl-9">
+                            <label className="text-[10px] font-black uppercase opacity-40 tracking-widest"><Hash size={10} className="inline mr-1"/> Points</label>
+                            <input 
+                              type="number" 
+                              min={1} 
+                              value={s.points} 
+                              onChange={(e) => setPoints(s.id, e.target.value)} 
+                              className="w-20 bg-base-300/50 border border-base-content/10 rounded-lg px-2 py-1 text-xs font-bold outline-none text-primary" 
+                            />
                           </div>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
-                <div className="flex justify-end gap-2 pt-1">
-                  <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800">Cancel</button>
-                  <button type="submit" onClick={onSubmit} disabled={isBundleLoading || selected.length === 0} className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-60">
-                    {isBundleLoading ? "Attaching…" : "Attach"}
+
+                {/* Bottom Actions */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-base-content/5">
+                  <button type="button" onClick={() => setOpen(false)} className="px-6 py-2.5 rounded-xl text-sm font-bold opacity-50 hover:opacity-100 hover:bg-base-content/5 transition-all">Cancel</button>
+                  <button 
+                    type="submit" 
+                    disabled={isBundleLoading || selected.length === 0} 
+                    className="btn btn-primary rounded-xl px-8 h-12 shadow-xl shadow-primary/20 text-white font-black uppercase tracking-widest disabled:opacity-50"
+                  >
+                    {isBundleLoading ? "Updating..." : "Attach Problems"}
                   </button>
                 </div>
               </div>

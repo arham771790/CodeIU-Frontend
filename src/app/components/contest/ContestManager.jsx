@@ -55,73 +55,67 @@ export default function ContestManager({ initialContests }) {
             className="bg-gradient-to-b from-[#020d2e] via-black to-black text-white border border-gray-800 rounded-md px-3 py-2 text-sm w-64"
           />
         </div>
-
-        <div className="overflow-x-auto border border-gray-800 rounded-xl">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gradient-to-b from-[#020d2e] via-black to-black text-gray-300">
+        // Simplified styling for the Manager Table part
+        <div className="overflow-x-auto border border-base-content/10 rounded-2xl bg-base-200/50 backdrop-blur-sm">
+          <table className="table w-full">
+            <thead className="bg-base-300/80 text-base-content/60 uppercase text-[10px] tracking-widest font-bold">
               <tr>
-                <th className="text-left px-4 py-3">Title</th>
-                <th className="text-left px-4 py-3">Slug</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Starts</th>
-                <th className="text-left px-4 py-3">Ends</th>
-                <th className="text-right px-4 py-3">Actions</th>
+                <th className="px-6 py-4 border-none">Contest Details</th>
+                <th className="px-6 py-4 border-none">Status</th>
+                <th className="px-6 py-4 border-none">Timeline</th>
+                <th className="text-right px-6 py-4 border-none">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.length ? (
-                filtered.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="border-t border-gray-800 bg-gradient-to-b from-[#020d2e] via-black to-black"
-                  >
-                    <td className="px-4 py-3 text-gray-100">{c.title}</td>
-                    <td className="px-4 py-3 text-gray-400">{c.slug}</td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded px-2 py-1 text-xs ${
-                          c.status === "RUNNING" ? "bg-green-900/50 text-green-300" : "bg-gray-800 text-gray-300"
-                      }`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-300">
-                      {new Date(c.startsAt).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-gray-300">
-                      {new Date(c.endsAt).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setEditing(c)}
-                          className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => onDelete(c.id)}
-                          disabled={isLoading}
-                          className="px-3 py-1.5 rounded-md border border-red-700/60 bg-red-900/30 hover:bg-red-900/40 text-red-300"
-                        >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => router.push(`/contest/${c.id}`)}
-                          className="px-3 py-1.5 rounded-md border border-blue-700/60 bg-blue-900/30 hover:bg-blue-900/40 text-blue-300"
-                        >
-                          View
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
-                    No contests found.
+            <tbody className="divide-y divide-base-content/5">
+              {filtered.map((c) => (
+                <tr
+                  key={c.id}
+                  className="hover:bg-base-content/5 transition-colors group"
+                >
+                  <td className="px-6 py-4">
+                    <div className="font-bold text-base-content group-hover:text-primary transition-colors">
+                      {c.title}
+                    </div>
+                    <div className="text-[10px] opacity-40 font-mono">
+                      {c.slug}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        c.status === "RUNNING"
+                          ? "bg-success/10 text-success border border-success/20"
+                          : "bg-base-300 text-base-content/50"
+                      }`}
+                    >
+                      {c.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-medium text-base-content/60">
+                    <div>Starts: {new Date(c.startsAt).toLocaleString()}</div>
+                    <div className="opacity-40">
+                      Ends: {new Date(c.endsAt).toLocaleString()}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end gap-2">
+                      {/* Updated Button Styles */}
+                      <button
+                        onClick={() => setEditing(c)}
+                        className="btn btn-ghost btn-xs rounded-lg bg-base-300 hover:bg-primary hover:text-primary-content"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onDelete(c.id)}
+                        className="btn btn-ghost btn-xs rounded-lg text-error hover:bg-error hover:text-error-content"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
@@ -129,10 +123,7 @@ export default function ContestManager({ initialContests }) {
 
       {/* Edit dialog */}
       {editing && (
-        <EditContestDialog
-          contest={editing}
-          onClose={() => setEditing(null)}
-        />
+        <EditContestDialog contest={editing} onClose={() => setEditing(null)} />
       )}
     </div>
   );

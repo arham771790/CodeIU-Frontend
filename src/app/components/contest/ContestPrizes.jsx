@@ -1,6 +1,8 @@
 // src/app/components/contest/ContestPrizes.jsx
 "use client";
 
+import { Trophy } from "lucide-react";
+
 const items = [
   { place: "1st Place", amount: "5,000" },
   { place: "2nd Place", amount: "2,500" },
@@ -12,19 +14,17 @@ const items = [
 
 export default function ContestPrizes() {
   return (
-    <section className=" md:px-8 py-8">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-xl md:text-2xl font-semibold text-white mb-4">🏆 Prizes</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-           
-          {items.map((it) => (
-            <div key={it.place} className="bg-gradient-to-b from-[#020d2e] via-black to-black border border-gray-800 rounded-xl p-4">
-         
-              <p className="text-gray-300">{it.place}</p>
-              <p className="text-2xl font-bold text-white mt-1">{it.amount}</p>
-            </div>
-          ))}
-        </div>
+    <section>
+      <h2 className="text-2xl font-black uppercase tracking-tight mb-6 flex items-center gap-2">
+        <Trophy size={20} className="text-primary" /> Prizes
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {items.map((it) => (
+          <div key={it.place} className="bg-base-300/30 border border-base-content/5 rounded-2xl p-5 hover:bg-base-300/50 transition-colors">
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">{it.place}</p>
+            <p className="text-2xl font-black text-primary font-mono">{it.amount}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
