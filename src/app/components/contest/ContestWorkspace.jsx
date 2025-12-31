@@ -1,10 +1,10 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
-import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { joinContestRoom } from "@/app/lib/socket";
+import { Loader2, AlertCircle } from "lucide-react";
 
 import Contest_Problem_CodeEditor from "../contest_Problem/Contest_Problem_CodeEditor";
 import Contest_problem_Description from "../contest_Problem/Contest_problem_Description";
@@ -14,35 +14,29 @@ export default function ContestWorkspace({ contest }) {
   const { authUser } = useAuthStore();
   const { bundle, fetchBundle, isLoading } = useBundleStore();
   const { intializeSocket, closeSocketConnection } = useSubmissionStore();
-
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // 1. Fetch Bundle (Problems) on Mount
   useEffect(() => {
     if (contest?.id && authUser?.id) {
       fetchBundle({ contestId: contest.id, userId: authUser.id });
     }
   }, [contest?.id, authUser?.id, fetchBundle]);
 
-  // 2. Initialize Socket (Persistent for the whole session)
   useEffect(() => {
     if (authUser?.id && contest?.id) {
-      // Connect to Submission Service
       intializeSocket(authUser.id);
-      // Join Contest Room for Notifications
       joinContestRoom(contest.id);
     }
-    // Cleanup on unmount (leaving the page)
-    return () => {
-      closeSocketConnection();
-    };
+    return () => { closeSocketConnection(); };
   }, [authUser?.id, contest?.id, intializeSocket, closeSocketConnection]);
 
-  // Handle Loading State
   if (isLoading || !bundle) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center text-gray-400 font-mono animate-pulse">
-        Loading Contest Environment...
+      <div className="min-h-screen bg-base-100 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-xs font-black uppercase tracking-[0.3em] opacity-40 animate-pulse">
+          Syncing Arena Environment...
+        </p>
       </div>
     );
   }
@@ -50,14 +44,21 @@ export default function ContestWorkspace({ contest }) {
   const problems = bundle.problems || [];
   const activeProblem = problems[activeIndex];
 
-  // Safety check if bundle is empty
-  if (!activeProblem) return <div className="text-white p-10">No problems found in this contest.</div>;
+  if (!activeProblem) {
+    return (
+      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+        <div className="flex items-center gap-3 bg-error/10 border border-error/20 p-6 rounded-3xl text-error">
+          <AlertCircle size={24} />
+          <span className="font-bold uppercase tracking-tight">No problems assigned to this sector.</span>
+        </div>
+      </div>
+    );
+  }
 
   const snapshot = activeProblem.snapshot;
 
   return (
-    <div className="bg-[#080808] flex flex-col h-screen font-sans text-white overflow-hidden">
-      {/* 3. Navigation Bar */}
+    <div className="bg-base-100 flex flex-col h-screen font-sans text-base-content overflow-hidden">
       <Contest_Problem_TopNav
         problems={problems}
         activeIndex={activeIndex}
@@ -67,9 +68,7 @@ export default function ContestWorkspace({ contest }) {
         endsAt={contest.endsAt}
       />
 
-      {/* 4. Main Content (Description + Editor) */}
-      <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
+      <main className="flex-1 overflow-hidden p-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Left Panel: Description */}
         <Contest_problem_Description
           title={snapshot.title}
@@ -80,7 +79,7 @@ export default function ContestWorkspace({ contest }) {
 
         {/* Right Panel: Editor */}
         <Contest_Problem_CodeEditor
-          key={snapshot.id} // Forces reset when switching problems
+          key={snapshot.id} 
           problemId={snapshot.id}
           description={snapshot.description}
           codeSnippets={snapshot.codeSnippets}
