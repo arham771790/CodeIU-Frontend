@@ -4,7 +4,7 @@ import { Github, Linkedin, Twitter, Play, Pause } from 'lucide-react';
 
 const developers = [
   {
-    name: "Mohd Arhan",
+    name: "Mohd Arhamgit ",
     role: "Full Stack Developer",
     description: "Arhan is a passionate developer with expertise in building scalable web applications. He excels at turning complex problems into elegant, efficient code, focusing on both frontend and backend development to deliver complete and robust solutions.",
     imageUrl: "./arham.jpg",
