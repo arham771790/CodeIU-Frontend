@@ -36,6 +36,26 @@ export const useProblemStore = create((set) => ({
         set({ isCreatingProblem : false })
     }
   } ,
+  getAllProblems : async() => {
+
+    try {
+
+        set({ isProblemsLoading : true });
+        const result = await axiosInstanceProblemService.get("/problem/getAllProblem")
+         console.log(result)
+        set({ problems : result.data.problems })
+        
+    } catch (error) {
+
+        console.log("error occured while fteching problem", error)
+        toast.error("erro occured while fetching all problems")
+        
+    }
+    finally{
+        set({isProblemsLoading : false })
+    }
+
+  } ,
 
   getProblemById : async(ProblemID) => {
      try {

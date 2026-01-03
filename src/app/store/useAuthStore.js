@@ -51,6 +51,7 @@ export const useAuthStore = create((set) => ({
         withCredentials: true,
         headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
       });
+      console.log("checkAuth response:", res);
       if (res?.data?.success && res?.data?.user) {
         set({ authUser: res.data.user, isAuthenticated: true });
       } else {
