@@ -25,9 +25,9 @@ const TopNav = ({ problem, problems }) => {
     <nav className="bg-base-200 text-base-content px-4 py-2 flex items-center justify-between border-b border-base-content/10">
       <div className="flex items-center space-x-4">
         <Link href="/">
-          <span className="inline-flex items-center text-xl font-bold text-primary cursor-pointer">
-            🌊ode<span className="text-base-content ml-0.5">IU</span>
-          </span>
+           <span className="text-xl font-bold text-blue-400 ml-3">
+              🌊ode<span className="font-bold text-base-content">IU</span>
+            </span>
         </Link>
         
         <div className="relative">
