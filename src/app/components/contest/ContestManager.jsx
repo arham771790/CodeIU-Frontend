@@ -55,7 +55,6 @@ export default function ContestManager({ initialContests }) {
             className="bg-gradient-to-b from-[#020d2e] via-black to-black text-white border border-gray-800 rounded-md px-3 py-2 text-sm w-64"
           />
         </div>
-        // Simplified styling for the Manager Table part
         <div className="overflow-x-auto border border-base-content/10 rounded-2xl bg-base-200/50 backdrop-blur-sm">
           <table className="table w-full">
             <thead className="bg-base-300/80 text-base-content/60 uppercase text-[10px] tracking-widest font-bold">
