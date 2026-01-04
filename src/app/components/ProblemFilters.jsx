@@ -6,7 +6,7 @@ import { useDebouncedCallback } from "use-debounce"; // npm install use-debounce
 
 export default function ProblemFilters({ isAdmin }) {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const navigate=useRouter();
 
   // This function updates the URL when you type
   // e.g. /problems -> /problems?q=two+sum
@@ -22,6 +22,12 @@ export default function ProblemFilters({ isAdmin }) {
     // replace() updates the URL without reloading the page
     router.replace(`?${params.toString()}`);
   }, 300); // Wait 300ms after typing stops
+
+
+  const handleCreateProblem = () => {
+    navigate.push(`/problems/CreateProblem`);
+  };
+
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
@@ -39,7 +45,7 @@ export default function ProblemFilters({ isAdmin }) {
 
       <div className="flex items-center gap-3">
         {isAdmin && (
-           <button className="btn btn-circle btn-ghost border border-base-content/10 bg-base-200 hover:bg-base-300">
+           <button onClick={handleCreateProblem} className="btn btn-circle btn-ghost border border-base-content/10 bg-base-200 hover:bg-base-300">
              <Plus className="w-5 h-5 opacity-70" />
            </button>
         )}

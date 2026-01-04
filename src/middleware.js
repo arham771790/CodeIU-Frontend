@@ -38,7 +38,7 @@ export async function middleware(request) {
     // Add any other pages that require login
   ];
 
-  const adminPaths = ['/Admin', '/CreateProblem'];
+  const adminPaths = ['/Admin', '/problems/CreateProblem'];
 
   // 4. Define pages for logged-in users to avoid
   const authPaths = ['/login', '/signup'];
@@ -61,7 +61,7 @@ export async function middleware(request) {
     console.log('User :', user)
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL('/Unauthorized', request.url));
     }
     return NextResponse.next();
   }
