@@ -79,11 +79,11 @@ export default async function ProblemsPage({ searchParams }) {
           </div>
 
           {problems.length > 0 ? (
-            problems.map((problem) => (
+            problems.map((problem , idx) => (
               <Link href={`/Each-problem/${problem.id}`} key={problem.id}>
                 <div className="grid grid-cols-12 items-center px-6 py-5 bg-base-100 border-b border-base-content/5 last:border-b-0 hover:bg-base-300/30 transition-colors cursor-pointer">
                   <div className="col-span-6">
-                    <p className="text-base-content font-medium">{problem.title}</p>
+                    <p className="text-base-content font-medium">{`${idx + 1}. ${problem.title}`}</p>
                   </div>
                   <div className="col-span-3 text-center">
                     <DifficultyChip difficulty={problem.difficulty} />

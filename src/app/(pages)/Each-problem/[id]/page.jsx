@@ -27,7 +27,7 @@ export default async function EachProblemPage({ params }) {
         <ProblemDescription 
           title={problem.title}
           description={problem.description}
-          testcases={problem.visibleTestcases}
+          examples={problem.examples}
           constraints={problem.constraints}
         />
         
