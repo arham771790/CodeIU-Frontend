@@ -10,27 +10,27 @@ export const useAuthStore = create((set) => ({
   isCheckingAuth: true,     // <-- start TRUE
   isLoggingIn: false,
   isSigninUp: false,
-  isLoggingOut : false ,
+  isLoggingOut: false,
 
-  GoogleLoginCall:async()=>{
-    set({isLoggingIn:true})
-try {
-  const res = await axiosInstanceAuthService.get("/auth/google/redirect");
+  GoogleLoginCall: async () => {
+    set({ isLoggingIn: true })
+    try {
+      const res = await axiosInstanceAuthService.get("/auth/google/redirect");
 
-window.location.href = res.data.url;
-set({isLoggingIn:false})
-  
-  
-} catch (error) {
-   toast.error('Error while logging in with Google')
-}
+      window.location.href = res.data.url;
+      set({ isLoggingIn: false })
+
+
+    } catch (error) {
+      toast.error('Error while logging in with Google')
+    }
   },
-   signup: async (payload) => {
+  signup: async (payload) => {
     set({ isSigninUp: true });
     try {
       const res = await axiosInstanceAuthService.post("/auth/register", payload, { withCredentials: true });
-     console.log("signup response:", res);
-      if (res?.status === 200 && res?.data?.status === true && res?.data?.user) {
+      console.log("signup response:", res);
+      if (res?.status === 200) {
         set({ authUser: res.data.user, isAuthenticated: true });
         toast.success(res?.data?.message || "Signup successful");
         return true;
@@ -60,6 +60,42 @@ set({isLoggingIn:false})
       set({ authUser: null, isAuthenticated: false });
     } finally {
       set({ isCheckingAuth: false }); // <-- guard now knows check is done
+    }
+  },
+
+
+  passwordChange: async (payload) => {
+    try {
+      const res = await axiosInstanceAuthService.post("/auth/reset-password", payload, {
+        withCredentials: true,
+      });
+      if (res?.status === 200 && res?.data?.status === true) {
+        toast.success(res?.data?.message || "Password changed successfully");
+        return true;
+      }
+      toast.error(res?.data?.message || "Failed to change password");
+      return false;
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Error changing password");
+      return false;
+    }
+  },
+
+
+  forgetPasswordRequest: async (payload) => {
+    try {
+      const res = await axiosInstanceAuthService.post("/auth/password-change", payload, {
+        withCredentials: true,
+      });
+      if (res?.status === 200 && res?.data?.status === true) {
+        toast.success(res?.data?.message || "Password reset link sent to your email");
+        return true;
+      }
+      toast.error(res?.data?.message || "Failed to send reset link");
+      return false;
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Error sending reset link");
+      return false;
     }
   },
 
@@ -96,6 +132,24 @@ set({isLoggingIn:false})
       return false;
     } finally {
       set({ isLoggingOut: false });
+    }
+  },
+
+
+  verifyEmail: async (verificationToken) => {
+    try {
+      const res = await axiosInstanceAuthService.get(`/auth/verify-email/${verificationToken}`);
+      if (res?.status === 200) {
+        toast.success(res?.data?.message || "Email verified successfully");
+        return true;
+      }
+      toast.error(res?.data?.message || "Email verification failed");
+      return false;
+    } catch (e) {
+      console.log(e);
+      
+      toast.error(e?.response?.data?.message || "Error verifying email");
+      return false;
     }
   },
 }));
