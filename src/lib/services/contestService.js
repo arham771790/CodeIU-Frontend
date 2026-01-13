@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 const DIRECT_ALB_URL = "http://codeiu-314732537.ap-south-1.elb.amazonaws.com";
 
 const getBaseUrl = () => {
-  return `${DIRECT_ALB_URL}/contest/api/v1`;
+  return `${DIRECT_ALB_URL}/contest/api/v1/contest`;
 };
 
 export async function getContests() {

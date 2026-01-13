@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://codeiu-314732537.ap-south-1.elb.amazonaws.com";
+const BASE_URL = "/api/v1";
 
 /**
  * =========================
@@ -8,7 +8,7 @@ const BASE_URL = "http://codeiu-314732537.ap-south-1.elb.amazonaws.com";
  * =========================
  */
 export const axiosInstanceAuthService = axios.create({
-  baseURL: `${BASE_URL}/auth/api/v1`,
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
@@ -18,7 +18,7 @@ export const axiosInstanceAuthService = axios.create({
  * =========================
  */
 export const axiosInstanceProblemService = axios.create({
-  baseURL: `${BASE_URL}/problem/api/v1`,
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
@@ -28,7 +28,7 @@ export const axiosInstanceProblemService = axios.create({
  * =========================
  */
 export const axiosInstanceContestService = axios.create({
-  baseURL: `${BASE_URL}/contest/api/v1`,
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
@@ -38,6 +38,6 @@ export const axiosInstanceContestService = axios.create({
  * =========================
  */
 export const axiosInstanceSubmissionService = axios.create({
-  baseURL: `${BASE_URL}/submission/api/v1`,
+  baseURL: `${BASE_URL}/submission`,
   withCredentials: true,
 });
