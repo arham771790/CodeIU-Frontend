@@ -6,7 +6,7 @@ let socket;
 export const getSocket = () => {
   if (!socket) {
     const url =
-      process.env.NEXT_PUBLIC_CONTEST_SERVICE_URL || "http://localhost:8090";
+      process.env.NEXT_PUBLIC_API_BASE_URL + "/contest" || "http://localhost:8090";
     socket = io(url, {
       path: "/realtime",
       transports: ["websocket"],

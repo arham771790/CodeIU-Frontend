@@ -1,35 +1,65 @@
 import axios from "axios";
 
+/**
+ * Environment check
+ * NEXT_PUBLIC_MODE = "development" | "production"
+ */
+const isDev = process.env.NEXT_PUBLIC_MODE === "development";
 
-export const axiosInstanceAuthService = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MODE === "development"
-      ? "http://localhost:8020/api/v1"
-      : "/api/v1",
+/**
+ * Production base URL (ALB / Domain)
+ * Example: https://api.codeiu.com
+ */
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+/**
+ * =========================
+ * AUTH SERVICE
+ * ALB path: /auth/*
+ * =========================
+ */
+export const authApi = axios.create({
+  baseURL: isDev
+    ? "http://localhost:8020/api/v1"
+    : `${API_BASE_URL}/auth/api/v1`,
   withCredentials: true,
 });
 
-export const axiosInstanceProblemService = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MODE === "development"
-      ? "http://localhost:8000/api/v1"
-      : "/api/v1",
+/**
+ * =========================
+ * PROBLEM SERVICE
+ * ALB path: /problems/*
+ * =========================
+ */
+export const problemApi = axios.create({
+  baseURL: isDev
+    ? "http://localhost:8000/api/v1"
+    : `${API_BASE_URL}/problem/api/v1`,
   withCredentials: true,
 });
 
-export const axiosInstanceSubmissionService = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MODE === "development"
-      ? "http://localhost:8080/api/v1"
-      : "/api/v1",
+/**
+ * =========================
+ * CONTEST SERVICE
+ * ALB path: /contests/*
+ * =========================
+ */
+export const contestApi = axios.create({
+  baseURL: isDev
+    ? "http://localhost:8090/api/v1"
+    : `${API_BASE_URL}/contest/api/v1`,
   withCredentials: true,
 });
 
-export const axiosInstanceContestService = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MODE === "development"
-      ? "http://localhost:8090/api/v1"
-      : "/api/v1",
+/**
+ * =========================
+ * SUBMISSION SERVICE
+ * ALB path: /submissions/*
+ * =========================
+ */
+export const submissionApi = axios.create({
+  baseURL: isDev
+    ? "http://localhost:8080/api/v1"
+    : `${API_BASE_URL}/submission/api/v1`,
   withCredentials: true,
 });
-
