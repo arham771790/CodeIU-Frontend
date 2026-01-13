@@ -6,18 +6,7 @@ import axios from "axios";
  */
 const isDev = process.env.NEXT_PUBLIC_MODE === "development";
 
-/**
- * Helper to normalize the Base URL.
- * Ensures the URL begins with a protocol (http/https) to prevent relative pathing bugs in the browser.
- */
-const normalizeBaseUrl = (url) => {
-  if (!url) return "";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  // If no protocol, default to https for security (standard for ALB/Production)
-  return `https://${url}`;
-};
-
-const BASE_URL = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+const BASE_URL = "https://codeiu-314732537.ap-south-1.elb.amazonaws.com";
 
 /**
  * =========================

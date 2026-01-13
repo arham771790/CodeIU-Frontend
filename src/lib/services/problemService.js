@@ -1,15 +1,14 @@
 // lib/services/problemService.js
 import { cookies } from "next/headers";
 
+const DIRECT_ALB_URL = "https://codeiu-314732537.ap-south-1.elb.amazonaws.com";
+
 // Helper to get Base URL
 const getBaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
   const isDev = process.env.NEXT_PUBLIC_MODE === "development";
-  const normalized = (url?.startsWith("http") ? url : `https://${url}`) || "";
-
   return isDev
     ? "http://localhost:8000/api/v1"
-    : `${normalized}/problem/api/v1`;
+    : `${DIRECT_ALB_URL}/problem/api/v1`;
 };
 
 // 1. Fetch ALL Problems (for the list/dropdown)

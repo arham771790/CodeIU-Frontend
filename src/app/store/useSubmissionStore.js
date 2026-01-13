@@ -46,7 +46,7 @@ export const useSubmissionStore = create((set, get) => ({
     },
 
     intializeSocket: async (userId) => {
-        const { socket } = get();
+        let { socket } = get();
 
         // ✅ 1. SINGLETON CHECK: If socket exists and is connected, do nothing.
         if (socket && socket.connected) {
@@ -55,11 +55,9 @@ export const useSubmissionStore = create((set, get) => ({
             return;
         }
 
-        // 2. Initialize new socket
-        const newSocket = io("http://localhost:8080", {
-            withCredentials: true,
-            transports: ['websocket'] // Optimization: Force websocket
-        });
+        // 2. Initialize using centralized helper
+        const { getSocket } = await import('@/app/lib/socket');
+        const newSocket = getSocket();
 
         newSocket.on('connect', () => {
             console.log("✅ Socket connected:", newSocket.id);
