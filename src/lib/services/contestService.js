@@ -21,6 +21,7 @@ export async function getContests() {
     const data = await res.json();
     return data.contests || [];
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Server Fetch Error:", error);
     return [];
   }
@@ -45,6 +46,7 @@ export async function getContestById(id) {
     const data = await res.json();
     return data.contest || null;
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error(`Fetch Contest ${id} Error:`, error);
     return null;
   }

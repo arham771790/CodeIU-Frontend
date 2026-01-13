@@ -1,5 +1,7 @@
+import ContestManager from "@/app/components/contest/ContestManager";
 import { getContests } from "@/lib/services/contestService";
-import ContestManager from "@/app/components/contest/ContestManager"; // We will create this next
+
+export const dynamic = 'force-dynamic';
 
 export default async function ManageContestsPage() {
   // 1. Fetch on Server

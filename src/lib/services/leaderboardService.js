@@ -29,6 +29,7 @@ export async function getLeaderboardService(contestId, limit = 100) {
     };
 
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Leaderboard Fetch Error:", error);
     return { ok: false, rows: [] };
   }

@@ -30,6 +30,7 @@ export async function attachInlineProblemsService(contestId, problems) {
     
     return { ok: true };
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Service Error (Attach):", error);
     return { ok: false, error: "Network error" };
   }
@@ -54,6 +55,7 @@ export async function fetchBundleService(contestId, userId) {
     const data = await res.json();
     return { ok: true, data: data.data };
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Service Error (Fetch Bundle):", error);
     return { ok: false, error: "Network error" };
   }
@@ -74,6 +76,7 @@ export async function getContestProblemService(contestId, problemId, userId) {
     const data = await res.json();
     return { ok: true, data: data.data };
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     return { ok: false };
   }
 }

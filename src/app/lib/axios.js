@@ -18,7 +18,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  * ALB path: /auth/*
  * =========================
  */
-export const authApi = axios.create({
+export const axiosInstanceAuthService = axios.create({
   baseURL: isDev
     ? "http://localhost:8020/api/v1"
     : `${API_BASE_URL}/auth/api/v1`,
@@ -31,7 +31,7 @@ export const authApi = axios.create({
  * ALB path: /problems/*
  * =========================
  */
-export const problemApi = axios.create({
+export const axiosInstanceProblemService = axios.create({
   baseURL: isDev
     ? "http://localhost:8000/api/v1"
     : `${API_BASE_URL}/problem/api/v1`,
@@ -44,7 +44,7 @@ export const problemApi = axios.create({
  * ALB path: /contests/*
  * =========================
  */
-export const contestApi = axios.create({
+export const axiosInstanceContestService = axios.create({
   baseURL: isDev
     ? "http://localhost:8090/api/v1"
     : `${API_BASE_URL}/contest/api/v1`,
@@ -57,7 +57,7 @@ export const contestApi = axios.create({
  * ALB path: /submissions/*
  * =========================
  */
-export const submissionApi = axios.create({
+export const axiosInstanceSubmissionService = axios.create({
   baseURL: isDev
     ? "http://localhost:8080/api/v1"
     : `${API_BASE_URL}/submission/api/v1`,

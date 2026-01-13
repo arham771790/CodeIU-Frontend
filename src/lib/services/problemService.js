@@ -31,6 +31,7 @@ export async function getProblems(searchQuery = '', difficulty = '') {
 
     return problems;
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Server Fetch Error:", error.message);
     return [];
   }
@@ -58,6 +59,7 @@ export async function getProblemById(id) {
     return data.problem || null;
 
   } catch (error) {
+    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Server Fetch Error (Single Problem):", error.message);
     return null;
   }
