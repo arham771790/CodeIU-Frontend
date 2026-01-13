@@ -1,7 +1,15 @@
 // lib/services/bundleService.js
 import { cookies } from "next/headers";
 
-const getBaseUrl = () => process.env.NEXT_PUBLIC_API_BASE_URL + "/contest" ;
+const getBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const isDev = process.env.NEXT_PUBLIC_MODE === "development";
+  const normalized = (url?.startsWith("http") ? url : `https://${url}`) || "";
+
+  return isDev
+    ? "http://localhost:8090/api/v1"
+    : `${normalized}/contest/api/v1`;
+};
 
 // Helper to get headers with cookies
 const getHeaders = async () => {

@@ -3,9 +3,13 @@ import { cookies } from "next/headers";
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_MODE === "development"
-    ? process.env.NEXT_PUBLIC_API_BASE_URL + "/problem"
-    : "/api/v1";
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const isDev = process.env.NEXT_PUBLIC_MODE === "development";
+  const normalized = (url?.startsWith("http") ? url : `https://${url}`) || "";
+
+  return isDev
+    ? "http://localhost:8000/api/v1"
+    : `${normalized}/problem/api/v1`;
 };
 
 // 1. Fetch ALL Problems (for the list/dropdown)
