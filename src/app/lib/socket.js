@@ -3,14 +3,25 @@ import { io } from "socket.io-client";
 
 let socket;
 
+const normalizeBaseUrl = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+};
+
 export const getSocket = () => {
   if (!socket) {
-    const url =
-      process.env.NEXT_PUBLIC_API_BASE_URL + "/contest" || "http://localhost:8090";
+    const isDev = process.env.NEXT_PUBLIC_MODE === "development";
+    const base = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+    
+    // Production: Always route through /submission/socket.io
+    // Development: Direct to local port
+    const url = isDev ? "http://localhost:8080" : `${base}/submission`;
+
     socket = io(url, {
-      path: "/realtime",
+      path: "/socket.io",
       transports: ["websocket"],
-      withCredentials: false,
+      withCredentials: true,
     });
 
     socket.on("connect", () => {
