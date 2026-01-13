@@ -7,10 +7,8 @@ const BASE_URL = "https://codeiu-314732537.ap-south-1.elb.amazonaws.com";
 
 export const getSocket = () => {
   if (!socket) {
-    const isDev = process.env.NEXT_PUBLIC_MODE === "development";
     // Production: Always route through /submission/socket.io
-    // Development: Direct to local port 8080 (Submission Service)
-    const url = isDev ? "http://localhost:8080" : `${BASE_URL}/submission`;
+    const url = `${BASE_URL}/submission`;
 
     socket = io(url, {
       path: "/socket.io",

@@ -5,10 +5,7 @@ const DIRECT_ALB_URL = "https://codeiu-314732537.ap-south-1.elb.amazonaws.com";
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  const isDev = process.env.NEXT_PUBLIC_MODE === "development";
-  return isDev
-    ? "http://localhost:8000/api/v1"
-    : `${DIRECT_ALB_URL}/problem/api/v1`;
+  return `${DIRECT_ALB_URL}/problem/api/v1`;
 };
 
 // 1. Fetch ALL Problems (for the list/dropdown)

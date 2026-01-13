@@ -4,10 +4,7 @@ import { cookies } from "next/headers";
 const DIRECT_ALB_URL = "https://codeiu-314732537.ap-south-1.elb.amazonaws.com";
 
 const getBaseUrl = () => {
-  const isDev = process.env.NEXT_PUBLIC_MODE === "development";
-  return isDev
-    ? "http://localhost:8090/api/v1"
-    : `${DIRECT_ALB_URL}/contest/api/v1`;
+  return `${DIRECT_ALB_URL}/contest/api/v1`;
 };
 
 // Helper to get headers with cookies
