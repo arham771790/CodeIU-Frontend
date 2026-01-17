@@ -8,7 +8,7 @@ export default function Header() {
     { name: "Explore", link: "/Explore" },
     { name: "Problems", link: "/problems" },
     { name: "Contest", link: "/contest" },
-    { name: "Devloper", link: "/Devloper" },
+    { name: "Developer", link: "/Developer" },
     
   ];
 

@@ -22,6 +22,7 @@ const Structure = ({children}) => {
     return (
       <IsClient>
         {/* SENIOR FIX: 
+            Yeah, I noticed the background issue too.
            1. Added 'bg-base-100' (The theme's primary background)
            2. Added 'text-base-content' (The theme's primary text color)
            3. Added 'min-h-screen' to ensure the background covers the whole page
