@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
-
-
+// Helper to verify token locally without calling backend
 async function verifyToken(token) {
   if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable is not set');
+    console.error('JWT_SECRET environment variable is not set');
+    return null;
   }
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
   try {
@@ -14,115 +13,67 @@ async function verifyToken(token) {
     return payload; 
   } catch (e) {
     console.error('Token verification failed:', e.message);
-    return null; // Token is invalid, expired, or malformed
+    return null; 
   }
 }
 
 export async function middleware(request) {
-  // 1. Get the auth token from the user's cookies
   const token = request.cookies.get('token')?.value;
-
-  // 2. Get the URL the user is trying to visit
   const { pathname } = request.nextUrl;
 
-  // 3. Define your protected pages
+  // 1. DEFINITION: Protected Paths (Require Login)
+  // We REMOVED: /contest, /problem, /Each-problem, /Leaderboard (Now Public)
   const protectedPaths = [
-    '/contest',
-    '/problem',
-    '/profile',
-    '/Each-problem',
+     '/profile',
     '/Contest_ProblemPage',
     '/CreateProblem' ,
     '/Leaderboard' ,
     
-    // Add any other pages that require login
+    // Add other sensitive user-specific routes here
   ];
 
-  const adminPaths = ['/Admin', '/problems/CreateProblem'];
-
-  // 4. Define pages for logged-in users to avoid
+  const adminPaths = ['/Admin']; // /problems/CreateProblem is already in protectedPaths but admin check handles role
   const authPaths = ['/login', '/signup'];
 
-  const isAccessingAdminPath = adminPaths.some((path) =>
-    pathname.startsWith(path)
-  );
-
+  // 2. CHECK: Admin Access
+  const isAccessingAdminPath = adminPaths.some((path) => pathname.startsWith(path));
+  
   if (isAccessingAdminPath) {
     if (!token) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-
     const user = await verifyToken(token);
-
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-
-    console.log('User :', user)
-
     if (user.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/Unauthorized', request.url));
+      // Redirect to unauthorized or home if they are just a normal user
+      return NextResponse.redirect(new URL('/', request.url)); 
     }
     return NextResponse.next();
   }
 
-  // 5. Check if the user is trying to access a protected page
-  const isAccessingProtectedPath = protectedPaths.some((path) =>
-    pathname.startsWith(path)
-  );
-
-  // 6. The main redirect logic
+  // 3. CHECK: General Protected Access
+  const isAccessingProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
   if (isAccessingProtectedPath) {
     if (!token) {
-      // If no token and trying to access a protected page, redirect to login
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
-  // 7. (Optional but good) If user IS logged in, don't let them see login/register
+  // 4. CHECK: Auth Pages (Login/Signup)
+  // If user is already logged in, kick them to dashboard
   if (authPaths.includes(pathname)) {
     if (token) {
-      // If they have a token, redirect them to the home page
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
-  // 8. If all checks pass, let the user continue
   return NextResponse.next();
 }
 
-// 9. The Matcher: This tells the middleware WHICH routes to run on.
-// This is more efficient than running it on every single request.
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - api (YOUR API ROUTES - let your backend middleware handle these)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
-
-
-{/* ........................NOTE.............................. 
-  
-  
-  HERE THEIR WILL BE A FIX AS THEIR IS A SECURITY BUG HERE
-
-  => problem is when i am login and changin role in the 
-  data base it remain the previous role for example i loged 
-  in as admin and then when to database and changed ther role
-   to user but not loged out so i can accesss it aFter logout
-    when i am logigng then i cant access the admin page so
-     this is a bug  so this is called STALE SESSION OR STALE TOKEN  means my middleware 
-     checking the previous data as it only ckecks the data when compiled.
-     
-     
-HOW I CAN SOLVE IT :  i have to make a checkadmin controller in auth service  which will
-                      directly check the role from database not from token this is the only way.
-
-  
-*/}

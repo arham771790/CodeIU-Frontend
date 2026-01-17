@@ -21,8 +21,7 @@ export default async function EachProblemPage({ params }) {
 
   return (
     <div className="bg-base-100 flex flex-col min-h-screen font-sans text-base-content transition-colors duration-300">
-      <TopNav problem={problem} problems={allProblems} />
-      
+      <TopNav problem={problem} problems={allProblems} />  
       <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ProblemDescription 
           title={problem.title}

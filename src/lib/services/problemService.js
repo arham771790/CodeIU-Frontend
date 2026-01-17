@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 // Helper to get Base URL
 const getBaseUrl = () => {
   return process.env.NEXT_PUBLIC_MODE === "development"
-    ? process.env.NEXT_PROBLEMSERVICE_URL
+    ? process.env.NEXT_PUBLIC_PROBLEMSERVICE_URL
     : "/api/v1";
 };
 
