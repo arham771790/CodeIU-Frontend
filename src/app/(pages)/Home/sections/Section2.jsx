@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Section2() {
   return (
-    <div className="min-h-screen w-screen bg-base-100 transition-colors">
+    <div className="min-h-screen w-screen bg-base-300 transition-colors">
       {/* Header */}
       <div className="text-center pt-12 pb-20">
         <h1 className="text-5xl md:text-6xl font-light tracking-tight text-base-content">
