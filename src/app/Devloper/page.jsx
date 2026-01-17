@@ -10,6 +10,8 @@ import {
   Braces,
 } from "lucide-react";
 
+import GridHighlights from "../components/GridHighlights";
+
 const developers = [
   {
     name: "Syed Wasif Hussain",
@@ -40,16 +42,19 @@ const developers = [
       "Shahain specializes in crafting beautiful and intuitive user interfaces. With a keen eye for design and a mastery of modern frontend technologies, he ensures a seamless and engaging user experience across all devices.",
     imageUrl: "./shahain_pic.jpg",
     social: {
-      github: "#",
-      linkedin: "#",
+      github: "https://github.com/blaackstring",
+      linkedin: "https://www.linkedin.com/in/mohd-shahan-siddiqui-669a16253",
     },
   },
 ];
 
+// 3. UPDATED: Reduced padding here (py-20 -> py-10) to pull content closer to header
 const DeveloperProfile = ({ developer, reverse = false }) => (
-  <section className="container mx-auto px-6 py-20 lg:py-32 relative">
+  <section className="container mx-auto px-6 py-10 lg:py-24 relative">
     <div
-      className={`flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-24 ${reverse ? "md:flex-row-reverse" : ""}`}
+      className={`flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-24 ${
+        reverse ? "md:flex-row-reverse" : ""
+      }`}
     >
       {/* --- Text Content --- */}
       <div className="md:w-1/2 text-center md:text-left z-10">
@@ -97,18 +102,13 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
         </div>
       </div>
 
-      {/* --- Image Content with Constant Neon Glow & Orbits --- */}
+      {/* --- Image Content --- */}
       <div className="md:w-1/2 w-full mt-16 md:mt-0 flex justify-center relative">
         <div className="relative w-[300px] h-[300px] sm:w-[420px] sm:h-[420px]">
-          {/* 1. Constant Pulsing Background Glow */}
           <div className="absolute inset-0 bg-primary blur-[80px] rounded-full animate-pulse pointer-events-none" />
-
-          {/* 2. Rotating Dashed Orbit (New Interesting Element) */}
           <div className="absolute inset-0 border-2 border-dashed border-[#2AB065]/40 rounded-full animate-[spin_20s_linear_infinite] opacity-50" />
-
           <div className="absolute w-full h-full bg-base-300 rounded-[2.5rem] transform rotate-12 transition-transform hover:rotate-6 duration-700 shadow-[0_0_50px_rgba(42,176,101,0.25)]" />
 
-          {/* 4. Floating Particles (New Interesting Elements) */}
           <div className="absolute -top-4 -right-4 w-12 h-12 bg-base-200 rounded-2xl flex items-center justify-center shadow-xl animate-bounce z-20">
             <Terminal size={20} className="text-primary" />
           </div>
@@ -116,7 +116,6 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
             <Braces size={18} className="text-primary" />
           </div>
 
-          {/* 5. Main Profile Image Circle */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-[82%] h-[82%] rounded-full overflow-hidden shadow-2xl relative z-10 bg-base-300 border-4 border-[#2AB065]/30">
               <img
@@ -127,7 +126,6 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
             </div>
           </div>
 
-          {/* Floating UI Decorative Elements */}
           <div className="absolute top-1/3 -left-12 bg-white p-3 rounded-full shadow-2xl transition-transform hover:scale-110 z-20 border-4 border-base-100">
             <Pause className="text-gray-900 w-5 h-5 sm:w-6 sm:h-6 fill-current" />
           </div>
@@ -152,29 +150,45 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
 
 const DeveloperPage = () => {
   return (
-    <div className="min-h-screen bg-base-300 text-base-content font-sans overflow-hidden">
-      {/* Background Grid Removed as per request */}
+    <div className="bg-base-300 text-base-content font-sans overflow-hidden relative">
+      {/* 1. MOVED GRID HERE: 
+        Moved the grid out of the header wrapper. 
+        It is now absolute to the main page container so it sits behind everything properly.
+      */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-20 pointer-events-none" />
+      
+      <div className="absolute top-0 left-0 w-full h-[100vh] 
+        [mask-image:linear-gradient(to_bottom,black_40%,transparent)]
+        pointer-events-none z-0">
+        <div className="absolute inset-0 
+          bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] 
+          bg-[size:24px_24px]"
+        />
+        <GridHighlights />
+      </div>
 
-      <div className="relative border-b border-base-content/5 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-        
-        <header className="relative z-10 max-w-7xl mx-auto px-6 py-20 md:py-28 text-center">
+      {/* 2. UPDATED HEADER WRAPPER: 
+        Removed 'min-h-screen'. Changed to 'relative' so it only takes up the space of the text.
+      */}
+      <div className="relative"> 
+        {/* 3. UPDATED HEADER PADDING: 
+          Reduced py-20 to py-12 to tighten the vertical space.
+        */}
+        <header className="relative z-10 max-w-7xl mx-auto px-6 py-12 md:py-16 text-center">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4">
-            
-             <span className="relative inline-block mx-2">
-            The <span className="text-primary">Engineers</span>
+            <span className="relative inline-block mx-2">
+              The <span className="text-primary">Engineers</span>
               <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-white via-primary to-primary/60 mx-2">
                 X
               </span>
             </span>
           </h1>
-           <div className=" h-1 w-20 bg-primary mt-6 rounded-full shadow-[0_0_15px_rgba(var(--p),0.5)] mx-auto" />
+          <div className="h-1 w-20 bg-primary mt-6 rounded-full shadow-[0_0_15px_rgba(var(--p),0.5)] mx-auto" />
         </header>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto  ">
-
+      {/* Developer Profiles */}
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="space-y-5">
           {developers.map((dev, index) => (
             <DeveloperProfile
