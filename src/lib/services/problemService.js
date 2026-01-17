@@ -1,8 +1,6 @@
 // lib/services/problemService.js
 import { cookies } from "next/headers";
 
-const DIRECT_ALB_URL = "http://codeiu-314732537.ap-south-1.elb.amazonaws.com";
-
 // Helper to get Base URL
 const getBaseUrl = () => {
   return `${DIRECT_ALB_URL}/problem/api/v1`;

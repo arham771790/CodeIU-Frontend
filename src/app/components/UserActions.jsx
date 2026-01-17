@@ -6,22 +6,13 @@ import axios from "axios";
 import ThemeController from "./ThemeController";
 import Profile from "./smallcomponents/Profile";
 import Image from "next/image";
-import { Flame } from "lucide-react";
+import { Flame , User2} from "lucide-react";
 import Link from "next/link";
 
 export default function UserActions() {
   const { authUser, logout, isLoggingOut } = useAuthStore();
   const [image, setImage] = useState("https://randomuser.me/api/portraits/med/men/31.jpg");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  useEffect(() => {
-    (async function fetchimage() {
-      try {
-        const res = await axios.get("https://randomuser.me/api?gender=male");
-        setImage(res.data.results[0].picture?.medium);
-      } catch (e) {}
-    })();
-  }, []);
 
   return (
     <div className="flex items-center gap-4">
@@ -30,11 +21,9 @@ export default function UserActions() {
         <div className="flex items-center gap-4">
           <Flame className="text-orange-500" />
           <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="cursor-pointer relative">
-            <Image 
-              src={image} 
-              alt="Profile" 
-              width={40} 
-              height={40} 
+            <User2 
+              width={30} 
+              height={30} 
               className="rounded-full border-2 border-primary/20 hover:border-primary transition-colors" 
             />
             
