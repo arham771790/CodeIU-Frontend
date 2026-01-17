@@ -10,7 +10,6 @@ import Link from "next/link";
 
 export default function UserActions() {
   const { authUser, logout, isLoggingOut } = useAuthStore();
-  const [image, setImage] = useState("https://randomuser.me/api/portraits/med/men/31.jpg");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
