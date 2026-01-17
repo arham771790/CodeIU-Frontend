@@ -5,19 +5,19 @@ const nextConfig = {
   images: {
     domains: ["randomuser.me", "cdn.prod.website-files.com"],
   },
+
   async rewrites() {
     return [
-      // Submission Service: /{service}/api/v1/{path}
+      // ---------- HEALTH ROUTES ----------
       {
-        source: "/api/v1/submission/:path*",
-        destination:
-          `${ALB_URL}/submission/api/v1/:path*`,
+        source: "/api/:service/health",
+        destination: `${ALB_URL}/:service/health`,
       },
-      // Other Services: /{service}/api/v1/{service}/{path}
+
+      // ---------- API v1 ROUTES ----------
       {
         source: "/api/v1/:service/:path*",
-        destination:
-          `${ALB_URL}/:service/api/v1/:service/:path*`,
+        destination: `${ALB_URL}/:service/api/v1/:service/:path*`,
       },
     ];
   },
