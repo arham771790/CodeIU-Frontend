@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 let socket;
 
-const BASE_URL = "http://codeiu-314732537.ap-south-1.elb.amazonaws.com";
+const BASE_URL = "https://api.codeiu.in";
 
 export const getSocket = () => {
   if (!socket) {
