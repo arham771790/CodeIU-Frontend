@@ -6,18 +6,22 @@ const BASE_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.i
 let submissionSocket;
 let contestSocket;
 
-// ✅ Submission Service Socket (Default)
+// ✅ Submission Service Socket
 export const getSocket = () => {
   if (!submissionSocket) {
-    const url = `${BASE_URL}/submission`;
-    submissionSocket = io(url, {
-      path: "/socket.io",
+    // Connect to BASE_URL, path includes service prefix for ALB routing
+    submissionSocket = io(BASE_URL, {
+      path: "/submission/socket.io",
       transports: ["websocket"],
       withCredentials: true,
     });
 
     submissionSocket.on("connect", () => {
       console.log("✅ Connected to Submission Service:", submissionSocket.id);
+    });
+
+    submissionSocket.on("connect_error", (err) => {
+      console.error("❌ Submission Socket error:", err.message);
     });
   }
   return submissionSocket;
@@ -26,9 +30,9 @@ export const getSocket = () => {
 // ✅ Contest Service Socket (Realtime)
 export const getContestSocket = () => {
   if (!contestSocket) {
-    // path matches ContestService's path: "/realtime"
+    // Connect to BASE_URL, path includes service prefix for ALB routing
     contestSocket = io(BASE_URL, {
-      path: "/realtime",
+      path: "/contest/realtime",
       transports: ["websocket"],
       withCredentials: true,
     });

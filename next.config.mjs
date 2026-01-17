@@ -14,7 +14,19 @@ const nextConfig = {
         destination: `${ALB_URL}/:service/health`,
       },
 
-      // ---------- API v1 ROUTES ----------
+      // ---------- ADMIN OVERRIDE ----------
+      {
+        source: "/api/v1/admin/:path*",
+        destination: `${ALB_URL}/auth/api/v1/admin/:path*`,
+      },
+
+      // ---------- SUBMISSION EXECUTE OVERRIDE ----------
+      {
+        source: "/api/v1/submission/execute/:path*",
+        destination: `${ALB_URL}/submission/api/v1/execute/:path*`,
+      },
+
+      // ---------- API v1 ROUTES (Generic) ----------
       {
         source: "/api/v1/:service/:path*",
         destination: `${ALB_URL}/:service/api/v1/:service/:path*`,
