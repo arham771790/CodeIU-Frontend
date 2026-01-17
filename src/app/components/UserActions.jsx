@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ThemeController from "./ThemeController";
 import Profile from "./smallcomponents/Profile";
-import Image from "next/image";
 import { Flame , User2} from "lucide-react";
 import Link from "next/link";
 
