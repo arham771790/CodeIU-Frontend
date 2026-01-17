@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getSocket } from "@/app/lib/socket";
+import { getContestSocket } from "@/app/lib/socket";
 
 function pad2(n) {
   return String(Math.max(0, n)).padStart(2, "0");
@@ -24,7 +24,7 @@ export function useContestTimer(contest) {
   const requestRef = useRef();
 
   useEffect(() => {
-    const socket = getSocket();
+    const socket = getContestSocket();
 
     // 1. Listen for sync response
     const onSync = ({ serverTime }) => {

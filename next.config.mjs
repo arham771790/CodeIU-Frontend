@@ -1,3 +1,5 @@
+const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -9,13 +11,13 @@ const nextConfig = {
       {
         source: "/api/v1/submission/:path*",
         destination:
-          "https://api.codeiu.in/submission/api/v1/:path*",
+          `${ALB_URL}/submission/api/v1/:path*`,
       },
       // Other Services: /{service}/api/v1/{service}/{path}
       {
         source: "/api/v1/:service/:path*",
         destination:
-          "https://api.codeiu.in/:service/api/v1/:service/:path*",
+          `${ALB_URL}/:service/api/v1/:service/:path*`,
       },
     ];
   },

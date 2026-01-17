@@ -1,5 +1,6 @@
-// lib/services/problemService.js
 import { cookies } from "next/headers";
+
+const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 
 // Helper to get Base URL
 const getBaseUrl = () => {

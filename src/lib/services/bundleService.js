@@ -1,7 +1,7 @@
 // lib/services/bundleService.js
 import { cookies } from "next/headers";
 
-const DIRECT_ALB_URL = "https://api.codeiu.in";
+const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 
 const getBaseUrl = () => {
   return `${DIRECT_ALB_URL}/contest/api/v1/contest`;
@@ -20,7 +20,7 @@ const getHeaders = async () => {
 export async function attachInlineProblemsService(contestId, problems) {
   try {
     const headers = await getHeaders();
-    const res = await fetch(`${getBaseUrl()}/contest/contests/${contestId}/bundle/attach-inline`, {
+    const res = await fetch(`${getBaseUrl()}/contests/${contestId}/bundle/attach-inline`, {
       method: "POST",
       headers,
       body: JSON.stringify({ problems }),
@@ -45,7 +45,7 @@ export async function fetchBundleService(contestId, userId) {
   try {
     const headers = await getHeaders();
     // We encode the userId to be safe
-    const res = await fetch(`${getBaseUrl()}/contest/contests/${contestId}/bundle?userId=${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${getBaseUrl()}/contests/${contestId}/bundle?userId=${encodeURIComponent(userId)}`, {
       method: "GET",
       headers,
       cache: 'no-store' // Bundles change (e.g. registration status), so don't cache too aggressively
@@ -69,7 +69,7 @@ export async function fetchBundleService(contestId, userId) {
 export async function getContestProblemService(contestId, problemId, userId) {
   try {
     const headers = await getHeaders();
-    const res = await fetch(`${getBaseUrl()}/contest/contests/${contestId}/problems/${problemId}?userId=${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${getBaseUrl()}/contests/${contestId}/problems/${problemId}?userId=${encodeURIComponent(userId)}`, {
       method: "GET",
       headers,
       cache: 'no-store'

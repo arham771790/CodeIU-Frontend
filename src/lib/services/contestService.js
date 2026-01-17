@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const DIRECT_ALB_URL = "https://api.codeiu.in";
+const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 
 const getBaseUrl = () => {
   return `${DIRECT_ALB_URL}/contest/api/v1/contest`;
@@ -12,7 +12,7 @@ export async function getContests() {
     const cookieHeader = cookieStore.toString();
     
     // Server-side fetch with cookies (so Admin sees hidden contests too)
-    const res = await fetch(`${getBaseUrl()}/contest/contests`, {
+    const res = await fetch(`${getBaseUrl()}/contests`, {
       cache: 'no-store', // Admin needs fresh data always
       headers: { 
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ export async function getContestById(id) {
 
     // Cache: Revalidate every 60s. 
     // We don't need real-time data here because the Socket handles updates!
-    const res = await fetch(`${getBaseUrl()}/contest/contests/${id}`, {
+    const res = await fetch(`${getBaseUrl()}/contests/${id}`, {
       next: { revalidate: 60, tags: [`contest-${id}`] }, 
       headers: { 
         "Content-Type": "application/json",

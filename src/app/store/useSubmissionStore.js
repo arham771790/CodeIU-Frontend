@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { axiosInstanceSubmissionService } from '../lib/axios';
 import { toast } from 'react-hot-toast';
-import { io } from 'socket.io-client';
 import { getLanguageId } from '../lib/lang';
 
 export const useSubmissionStore = create((set, get) => ({
@@ -56,19 +55,24 @@ export const useSubmissionStore = create((set, get) => ({
         }
 
         // 2. Initialize using centralized helper
-        const { getSocket } = await import('@/app/lib/socket');
+        const { getSocket, getContestSocket } = await import('@/app/lib/socket');
         const newSocket = getSocket();
+        const cSocket = getContestSocket();
 
         newSocket.on('connect', () => {
-            console.log("✅ Socket connected:", newSocket.id);
+            console.log("✅ Submission Socket connected:", newSocket.id);
             if (userId) {
                 newSocket.emit('join-room', userId);
             }
         });
 
+        cSocket.on('connect', () => {
+            console.log("✅ Contest Socket connected:", cSocket.id);
+        });
+
         set({ socket: newSocket });
 
-        // Listeners
+        // Listeners for Submission Socket
         newSocket.on("submission-update", (finalSubmission) => {
             console.log('Received submission update:', finalSubmission);
             set((state) => ({
@@ -78,7 +82,8 @@ export const useSubmissionStore = create((set, get) => ({
             }));
         });
 
-        newSocket.on("leaderboard:update", (leaderboardData) => {
+        // Listeners for Contest Socket
+        cSocket.on("leaderboard:update", (leaderboardData) => {
             console.log('Received leaderboard update:', leaderboardData);
             set({ leaderboard: leaderboardData });
         });

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { getContestSocket, joinContestRoom } from "@/app/lib/socket";
 import { refreshLeaderboardAction } from "@/actions/leaderboardBridge";
 
 export const useLeaderboardStore = create((set, get) => ({
@@ -39,7 +39,7 @@ export const useLeaderboardStore = create((set, get) => ({
 
   bindRealtime: (contestId) => {
     if (!contestId) return;
-    const socket = getSocket();
+    const socket = getContestSocket();
     joinContestRoom(contestId);
 
     socket.off("leaderboard:update");
@@ -59,7 +59,7 @@ export const useLeaderboardStore = create((set, get) => ({
   },
 
   unbindRealtime: () => {
-    const socket = getSocket();
+    const socket = getContestSocket();
     socket.off("leaderboard:update");
   },
 }));

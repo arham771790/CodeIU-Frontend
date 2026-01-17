@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const DIRECT_ALB_URL = "https://api.codeiu.in";
+const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 
 const getBaseUrl = () => {
   return `${DIRECT_ALB_URL}/contest/api/v1/contest`;
@@ -14,7 +14,7 @@ export async function getLeaderboardService(contestId, limit = 100) {
     // Cache Strategy: 
     // We use 'no-store' because leaderboards change constantly.
     // If your traffic is huge, you can change this to: next: { revalidate: 5 }
-    const res = await fetch(`${getBaseUrl()}/contest/contests/${contestId}/leaderboard?limit=${limit}`, {
+    const res = await fetch(`${getBaseUrl()}/contests/${contestId}/leaderboard?limit=${limit}`, {
       cache: 'no-store', 
       headers: {
         "Content-Type": "application/json",
