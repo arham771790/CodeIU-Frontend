@@ -1,13 +1,11 @@
 // src/components/UserActions.jsx
 "use client";
 import { useAuthStore } from "../store/useAuthStore";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import ThemeController from "./ThemeController";
 import Profile from "./smallcomponents/Profile";
 import { Flame , User2} from "lucide-react";
 import Link from "next/link";
-
 export default function UserActions() {
   const { authUser, logout, isLoggingOut } = useAuthStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
