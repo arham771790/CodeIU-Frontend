@@ -3,16 +3,25 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { Loader2, LogOut, User, Settings, UserStar } from "lucide-react";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const { authUser, logout, isLoggingOut } = useAuthStore();
 
+  const navigate = useRouter();
+
+  const handleLogout = async () => {
+    await logout(); 
+    navigate.push("/"); 
+  };
+
   const LogoutButton = () => {
+
     return (
       <button
         /* SENIOR FIX: Removed bg-black. Used btn-error with ghost style for transparency */
         className="btn btn-ghost btn-sm w-full hover:bg-error hover:text-error-content transition-all duration-300 mt-2 hover:rounded-lg"
-        onClick={logout}
+        onClick={handleLogout}
         disabled={isLoggingOut}
       >
         {isLoggingOut ? (
