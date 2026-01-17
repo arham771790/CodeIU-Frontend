@@ -3,7 +3,7 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { Loader2, LogOut, User, Settings, UserStar } from "lucide-react";
 import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const { authUser, logout, isLoggingOut } = useAuthStore();
