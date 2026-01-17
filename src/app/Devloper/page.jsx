@@ -34,7 +34,7 @@ const developers = [
     },
   },
   {
-    name: "Shahain Siddiquie",
+    name: "Shahan Siddiqui",
     role: "Full Stack Developer",
     description:
       "Shahain specializes in crafting beautiful and intuitive user interfaces. With a keen eye for design and a mastery of modern frontend technologies, he ensures a seamless and engaging user experience across all devices.",
