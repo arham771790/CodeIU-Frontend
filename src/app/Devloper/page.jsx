@@ -26,7 +26,7 @@ const developers = [
   },
   {
     name: "Mohd Arham",
-    role: "Full Stack Developer",
+    role: "Full Stack Developer + Devops",
     description:
       "Arham is a passionate developer with expertise in building scalable web applications. He excels at turning complex problems into elegant, efficient code, focusing on both frontend and backend development to deliver complete and robust solutions.",
     imageUrl: "./arham.jpg",
