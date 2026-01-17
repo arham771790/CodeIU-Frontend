@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { TextFlip } from "./smallcomponents/TextFlip";
 
@@ -19,11 +20,14 @@ const Landingpage = () => {
   }, []);
 
   return (
+
+    
    
-    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-base-300 transition-colors duration-500">
-      
+    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden  transition-colors duration-500">
+     
       {/* Dynamic Background Glow that follows the theme's primary color */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-from)_0%,transparent_70%)] from-primary/10 to-transparent pointer-events-none" />
+      
 
       <div className="flex flex-col items-center justify-around mb-15 z-10">
         <div className="text-center">
