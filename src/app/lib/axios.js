@@ -38,6 +38,6 @@ export const axiosInstanceContestService = axios.create({
  * =========================
  */
 export const axiosInstanceSubmissionService = axios.create({
-  baseURL: `${BASE_URL}/submission`,
+  baseURL: BASE_URL,
   withCredentials: true,
 });

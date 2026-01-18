@@ -111,11 +111,10 @@ export const useSubmissionStore = create((set, get) => ({
         try {
             set({ isSubmittingCode: true });
 
-            // ✅ 3. DYNAMIC URL: Handle missing contestId
-            // If contestId is null/undefined, use the standard submission route
+            // Ensure explicitly choosing the /execute service prefix
             const endpoint = contestId 
                 ? `/execute/submit-code/${contestId}` 
-                : `/execute/submit-code`; // Adjust this if your backend expects a different route for normal problems
+                : `/execute/submit-code`;
 
             // If your backend handles `undefined` in the param, you can revert this, 
             // but explicitly checking is safer.

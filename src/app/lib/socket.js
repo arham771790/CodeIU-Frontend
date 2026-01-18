@@ -2,6 +2,7 @@
 import { io } from "socket.io-client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+console.log("ENV:", process.env.NEXT_PUBLIC_DIRECT_ALB_URL);
 
 let submissionSocket;
 let contestSocket;
