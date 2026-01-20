@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TextFlip } from "./smallcomponents/TextFlip";
+import Link from "next/link";
 
 const Landingpage = () => {
   const words = ["CodeIU", "CodeBetter", "CodeFast", "CodeSmart"];
@@ -57,14 +58,18 @@ const Landingpage = () => {
 
         {/* SENIOR FIX: Replaced hardcoded buttons with DaisyUI semantic buttons */}
         <div className="mt-12 flex flex-col sm:flex-row gap-6">
+          <Link href="/problems">
           <button className="bg-transparent btn btn-outline btn-primary px-8 h-auto py-4 text-lg hover:scale-105 transition-transform rounded-lg">
             <span>Start Coding</span>
             <div className="badge badge-primary ml-2 p-3">{"</>"}</div>
           </button>
+          </Link>
 
+          <Link href="/contest">
           <button className="btn btn-primary px-8 h-auto py-4 text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform rounded-lg">
             Join a Contest
           </button>
+          </Link>
         </div>
       </div>
     </div>
