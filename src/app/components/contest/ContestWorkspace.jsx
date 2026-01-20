@@ -1,5 +1,6 @@
+
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
@@ -68,7 +69,7 @@ export default function ContestWorkspace({ contest }) {
         endsAt={contest.endsAt}
       />
 
-      <main className="flex-1 overflow-hidden p-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <main className="flex-1 overflow-y-auto p-3 grid grid-cols-1 lg:grid-cols-2 gap-3 custom-scrollbar">
         {/* Left Panel: Description */}
         <Contest_problem_Description
           title={snapshot.title}

@@ -1,3 +1,4 @@
+
 // src/app/components/Header.jsx
 import Link from "next/link";
 import NavLinks from "./NavLinks";
@@ -8,12 +9,11 @@ export default function Header() {
     { name: "Explore", link: "/Explore" },
     { name: "Problems", link: "/problems" },
     { name: "Contest", link: "/contest" },
-    { name: "Developer", link: "/Developer" },
     
   ];
 
   return (
-    <header className="backdrop-blur-md shadow-lg p-2 flex justify-between items-center sticky top-0 z-50 border-b border-white/10 bg-base-100/80">
+    <header className="backdrop-blur-md shadow-lg p-2 flex justify-between items-center sticky top-0 z-50 border-b border-white/10 bg-base-300/80">
       <div className="flex justify-between w-full px-2 items-center">
         {/* Logo (Static - Server Rendered) */}
         <div>

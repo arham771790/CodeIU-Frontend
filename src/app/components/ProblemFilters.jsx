@@ -3,10 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, Plus } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce"; // npm install use-debounce
+import { useAuthStore } from "../store/useAuthStore";
 
-export default function ProblemFilters({ isAdmin }) {
+export default function ProblemFilters() {
   const searchParams = useSearchParams();
   const navigate=useRouter();
+  const { authUser } = useAuthStore();
+
 
   // This function updates the URL when you type
   // e.g. /problems -> /problems?q=two+sum
@@ -44,7 +47,7 @@ export default function ProblemFilters({ isAdmin }) {
       </div>
 
       <div className="flex items-center gap-3">
-        {isAdmin && (
+        {authUser?.role === "ADMIN" && (
            <button onClick={handleCreateProblem} className="btn btn-circle btn-ghost border border-base-content/10 bg-base-200 hover:bg-base-300">
              <Plus className="w-5 h-5 opacity-70" />
            </button>
