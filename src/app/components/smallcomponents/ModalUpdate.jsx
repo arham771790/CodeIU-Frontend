@@ -60,5 +60,5 @@ const onclose=()=>{
     </Portal>
   );
 };
-
+  
 export default Modal;
