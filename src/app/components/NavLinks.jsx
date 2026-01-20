@@ -44,7 +44,7 @@ export default function NavLinks({ pages }) {
       </li>
       <li>
         <Link className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg"
-          href="/Devloper">
+          href="/Developer">
             Developers
           </Link>
       </li>
