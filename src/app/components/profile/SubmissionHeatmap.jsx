@@ -22,7 +22,7 @@ const SubmissionHeatmap = ({ data = [] }) => {
           <p>Total: <span className="text-base-content">0</span></p>
           <p>Max Streak: <span className="text-base-content text-primary">0</span></p>
           <button className="flex items-center gap-2 bg-base-300 border border-base-content/10 text-base-content px-3 py-1.5 rounded-xl hover:text-primary transition-colors">
-            Year 2024 <ChevronDown className="w-3 h-3" />
+            Year 2025 <ChevronDown className="w-3 h-3" />
           </button>
         </div>
       </div>
