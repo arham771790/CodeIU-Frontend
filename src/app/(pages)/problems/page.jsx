@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProblems } from "@/lib/services/problemService";
 import ProblemFilters from "@/app/components/ProblemFilters";
+<<<<<<< HEAD
 import GridHighlights from "@/app/components/GridHighlights";
 import { Terminal } from "lucide-react";
 
@@ -10,6 +11,24 @@ const DifficultyChip = ({ difficulty }) => {
       ? "bg-green-500/10 text-green-600 dark:text-green-400"
       : difficulty === "MEDIUM"
         ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+=======
+
+export const metadata = {
+  title: "Coding Problems",
+  description: "Browse and solve a wide range of coding problems, from easy to hard. Enhance your algorithmic thinking and coding skills.",
+};
+
+const problemSets = [
+  { title: "Master Interview", progress: "0/25", author: "By CodeIU" },
+  { title: "Array Mastery", progress: "0/15", author: "By CodeIU" },
+  { title: "Master Google Prep", progress: "0/15", author: "By CodeIU" },
+];
+
+const DifficultyChip = ({ difficulty }) => {
+  const styles =
+    difficulty === "EASY" ? "bg-green-500/10 text-green-600 dark:text-green-400"
+      : difficulty === "MEDIUM" ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+>>>>>>> a2dcbee15667a99e7abf68a51c10c6f8081bbf7e
         : "bg-red-500/10 text-red-600 dark:text-red-400";
 
   return (
@@ -103,6 +122,7 @@ export default async function ProblemsPage({ searchParams }) {
             <div className="col-span-3 text-right">Acceptance</div>
           </div>
 
+<<<<<<< HEAD
           {/* Table Body with Alternate Row Logic */}
           <div className="divide-y divide-base-content/5">
             {problems.length > 0 ? (
@@ -135,6 +155,14 @@ export default async function ProblemsPage({ searchParams }) {
                         {problem.acceptance}
                       </p>
                     </div>
+=======
+          {problems.length > 0 ? (
+            problems.map((problem, idx) => (
+              <Link href={`/Each-problem/${problem.id}`} key={problem.id}>
+                <div className="grid grid-cols-12 items-center px-6 py-5 bg-base-100 border-b border-base-content/5 last:border-b-0 hover:bg-base-300/30 transition-colors cursor-pointer">
+                  <div className="col-span-6">
+                    <p className="text-base-content font-medium">{`${idx + 1}. ${problem.title}`}</p>
+>>>>>>> a2dcbee15667a99e7abf68a51c10c6f8081bbf7e
                   </div>
                 </Link>
               ))
