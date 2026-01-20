@@ -152,7 +152,7 @@ const DeveloperPage = () => {
   return (
     <div className="bg-base-300 text-base-content font-sans overflow-hidden relative">
       {/* 1. MOVED GRID HERE: 
-        Moved the grid out of the header wrapper. 
+        Moved the grid out of the  header wrapper. 
         It is now absolute to the main page container so it sits behind everything properly.
       */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-20 pointer-events-none" />
