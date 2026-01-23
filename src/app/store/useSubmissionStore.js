@@ -1,148 +1,172 @@
-import { create } from 'zustand';
-import { axiosInstanceSubmissionService } from '../lib/axios';
-import { toast } from 'react-hot-toast';
-import { getLanguageId } from '../lib/lang';
+import { create } from "zustand";
+import { axiosInstanceSubmissionService } from "../lib/axios";
+import { toast } from "react-hot-toast";
+import { getLanguageId } from "../lib/lang";
 
 export const useSubmissionStore = create((set, get) => ({
-    
-    isCodeRunning: false,
-    isSubmittingCode: false,
-    RunReslts: [],
-    userCode: "",
-    isexecuting: false,
-    submissions: [],
-    socket: null,
-    selectedLanguage: 'JAVA',
-    languageId: getLanguageId('JAVA'),
+  isCodeRunning: false,
+  isSubmittingCode: false,
+  isexecuting: false,
 
-    setRunResults: (results) => set({ RunReslts: results }),
+  RunReslts: [],
+  submissions: [],
+  userCode: "",
 
-    // ✅ NEW: Clears temporary state when switching problems, but keeps the socket alive
-    resetProblemState: () => set({ 
-        RunReslts: [], 
-        isexecuting: false, 
-        isSubmittingCode: false,
-        submissions: [] 
+  socket: null,
+  contestSocket: null,
+
+  selectedLanguage: "JAVA",
+  languageId: getLanguageId("JAVA"),
+
+  /* ------------------ STATE HELPERS ------------------ */
+
+  setRunResults: (results) => set({ RunReslts: results }),
+
+  clearRunResults: () => set({ RunReslts: [] }),
+
+  clearResults: () => set({ submissions: [], RunReslts: [] }),
+
+  resetProblemState: () =>
+    set({
+      RunReslts: [],
+      isexecuting: false,
+      isSubmittingCode: false,
+      submissions: [],
     }),
 
-    clearRunResults: () => set({ RunReslts: [] }),
+  setUserCode: (code) => set({ userCode: code }),
 
-    addSubmission: (newSubmission) => set((state) => ({
-        submissions: [newSubmission, ...state.submissions] 
-    })),
+  setSelectedLanguage: (langName) =>
+    set({
+      selectedLanguage: langName,
+      languageId: getLanguageId(langName) || null,
+    }),
 
-    clearResults: () => set({ submissions: [], RunReslts: [] }),
+  /* ------------------ SOCKET INIT ------------------ */
 
-    setUserCode: (code) => {
-        set({ userCode: code })
-    },
+  intializeSocket: async (userId) => {
+    const { socket } = get();
 
-    setSelectedLanguage: (langName) => {
-        set({
-            selectedLanguage: langName,
-            languageId: getLanguageId(langName) || null 
-        });
-    },
+    // ✅ Singleton guard
+    if (socket && socket.connected) {
+      socket.emit("join-room", { userId });
+      return;
+    }
 
-    intializeSocket: async (userId) => {
-        let { socket } = get();
+    const { getSocket, getContestSocket } = await import(
+      "@/app/lib/socket"
+    );
 
-        // ✅ 1. SINGLETON CHECK: If socket exists and is connected, do nothing.
-        if (socket && socket.connected) {
-            console.log("⚡ Socket already active. Re-joining room for user:", userId);
-            socket.emit('join-room', userId);
-            return;
-        }
+    const submissionSocket = getSocket();
+    const contestSocket = getContestSocket();
 
-        // 2. Initialize using centralized helper
-        const { getSocket, getContestSocket } = await import('@/app/lib/socket');
-        const newSocket = getSocket();
-        const cSocket = getContestSocket();
+    submissionSocket.on("connect", () => {
+      console.log("✅ Submission socket connected:", submissionSocket.id);
+      if (userId) {
+        submissionSocket.emit("join-room", { userId });
+      }
+    });
 
-        newSocket.on('connect', () => {
-            console.log("✅ Submission Socket connected:", newSocket.id);
-            if (userId) {
-                newSocket.emit('join-room', userId);
-            }
-        });
+    contestSocket.on("connect", () => {
+      console.log("✅ Contest socket connected:", contestSocket.id);
+    });
 
-        cSocket.on('connect', () => {
-            console.log("✅ Contest Socket connected:", cSocket.id);
-        });
+    /* ---------- Submission updates (UPSERT) ---------- */
+    submissionSocket.on("submission-update", (finalSubmission) => {
+      console.log("📥 Submission update:", finalSubmission);
 
-        set({ socket: newSocket });
+      set((state) => {
+        const exists = state.submissions.some(
+          (sub) => sub.id === finalSubmission.id
+        );
 
-        // Listeners for Submission Socket
-        newSocket.on("submission-update", (finalSubmission) => {
-            console.log('Received submission update:', finalSubmission);
-            set((state) => ({
-                submissions: state.submissions.map(sub =>
-                    sub.id === finalSubmission.id ? finalSubmission : sub
-                ),
-            }));
-        });
+        return {
+          submissions: exists
+            ? state.submissions.map((sub) =>
+                sub.id === finalSubmission.id ? finalSubmission : sub
+              )
+            : [finalSubmission, ...state.submissions],
+        };
+      });
+    });
 
-        // Listeners for Contest Socket
-        cSocket.on("leaderboard:update", (leaderboardData) => {
-            console.log('Received leaderboard update:', leaderboardData);
-            set({ leaderboard: leaderboardData });
-        });
-    },
+    /* ---------- Contest leaderboard updates ---------- */
+    contestSocket.on("leaderboard:update", (leaderboardData) => {
+      console.log("📊 Leaderboard update:", leaderboardData);
+      set({ leaderboard: leaderboardData });
+    });
 
+    set({
+      socket: submissionSocket,
+      contestSocket,
+    });
+  },
 
-    runCode: async (sourceCode, stdin, languageId, expected_output) => {
-        try {
-            set({ isexecuting: true });
-            const result = await axiosInstanceSubmissionService.post("/execute/run-problem", { 
-                sourceCode, stdin, languageId, expected_output 
-            });
-            set({ RunReslts: result.data.testCases });
-            console.log("Run Results:", result.data.testCases);
+  /* ------------------ RUN CODE ------------------ */
 
-        } catch (error) {
-            console.log("Run Code Error:", error);
-            toast.error("Error running code");
-        } finally {
-            set({ isexecuting: false });
-        }
-    },
+  runCode: async (sourceCode, stdin, languageId, expected_output) => {
+    try {
+      set({ isexecuting: true });
 
-    submitCode: async (sourceCode, languageId, problemId, contestId) => {
-        try {
-            set({ isSubmittingCode: true });
+      const result =
+        await axiosInstanceSubmissionService.post(
+          "/execute/run-problem",
+          {
+            sourceCode,
+            stdin,
+            languageId,
+            expected_output,
+          }
+        );
 
-            // Ensure explicitly choosing the /execute service prefix
-            const endpoint = contestId 
-                ? `/execute/submit-code/${contestId}` 
-                : `/execute/submit-code`;
+      set({ RunReslts: result.data.testCases });
+    } catch (error) {
+      console.error("Run Code Error:", error);
+      toast.error("Error running code");
+    } finally {
+      set({ isexecuting: false });
+    }
+  },
 
-            // If your backend handles `undefined` in the param, you can revert this, 
-            // but explicitly checking is safer.
-            const payload = contestId 
-                ? { sourceCode, languageId, problemId } 
-                : { sourceCode, languageId, problemId }; 
+  /* ------------------ SUBMIT CODE ------------------ */
 
-            const result = await axiosInstanceSubmissionService.post(endpoint, payload);
-            
-            set(state => ({
-                submissions: [result.data.submission, ...state.submissions] // Add to top
-            }));
+  submitCode: async (sourceCode, languageId, problemId, contestId) => {
+    try {
+      set({ isSubmittingCode: true });
 
-        } catch (error) {
-            console.log("Submit Code Error:", error);
-            toast.error("Error submitting code");
-        } finally {
-            set({ isSubmittingCode: false });
-        }
-    },
+      const endpoint = contestId
+        ? `/execute/submit-code/${contestId}`
+        : `/execute/submit-code`;
 
-    // ✅ Renamed to avoid confusion. Only call this on Logout.
-    closeSocketConnection: () => {
-        const { socket } = get();
-        if (socket) {
-            socket.disconnect();
-            set({ socket: null, submissions: [] });
-            console.log('Submission socket closed.');
-        }
-    }, 
+      const payload = { sourceCode, languageId, problemId };
+
+      await axiosInstanceSubmissionService.post(endpoint, payload);
+
+      // ❌ NO optimistic insert
+      // Socket will deliver final submission
+
+    } catch (error) {
+      console.error("Submit Code Error:", error);
+      toast.error("Error submitting code");
+    } finally {
+      set({ isSubmittingCode: false });
+    }
+  },
+
+  /* ------------------ CLEANUP ------------------ */
+
+  closeSocketConnection: () => {
+    const { socket, contestSocket } = get();
+
+    socket?.disconnect();
+    contestSocket?.disconnect();
+
+    set({
+      socket: null,
+      contestSocket: null,
+      submissions: [],
+    });
+
+    console.log("🔌 All sockets closed");
+  },
 }));
