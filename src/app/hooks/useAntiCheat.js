@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { axiosInstanceContestService } from "@/app/lib/axios";
+import { toast } from "react-toastify";
 
 export function useAntiCheat({ contestId, userId, enabled = true }) {
   const violationsSent = useRef(new Set());
@@ -16,20 +18,28 @@ export function useAntiCheat({ contestId, userId, enabled = true }) {
       violationsSent.current.add(key);
 
       try {
-        const res = await fetch(`/api/v1/contests/${contestId}/violation`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type,
-            metadata: { ...metadata, timestamp: Date.now(), url: window.location.href }
-          })
+        const res = await axiosInstanceContestService.post(`contest/contests/${contestId}/violation`, {
+          type,
+          metadata: { ...metadata, timestamp: Date.now(), url: window.location.href }
         });
         
-        if (!res.ok) {
-           console.error("Failed to report violation:", await res.text());
+        if (!res.data.ok) {
+           console.error("Failed to report violation:", res.data.error);
+        } else {
+           // Provide immediate local feedback for awareness
+           const readableType = type.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+           
+           if (type !== "DEVTOOLS_SUSPECTED") {
+             toast.warn(`⚠️ Warning: ${readableType} detected. Keep focus on the contest!`, {
+               position: "bottom-left",
+               autoClose: 4000,
+               theme: "dark",
+               hideProgressBar: false,
+             });
+           }
         }
       } catch (err) {
-        console.error("Anti-cheat report error:", err);
+        console.error("Anti-cheat report error:", err.response?.data?.error || err.message);
       }
     };
 

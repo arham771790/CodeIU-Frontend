@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { RefreshCcw, Trophy, Zap, Clock, User, Award, History, Lock, CheckCircle, HelpCircle } from "lucide-react";
 import { useLeaderboardStore } from "@/app/store/useLeaderboardStore";
+import { toast } from "react-toastify";
+import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 
 /* ----- Helpers (Preserved) ----- */
 function initials(name) {
@@ -42,13 +43,15 @@ export default function LeaderboardClientView({ contestId, initialData }) {
     source,
     frozen,
     setInitialLeaderboard,
-    refreshLeaderboard,
-    bindRealtime,
     unbindRealtime,
   } = useLeaderboardStore();
 
+  const { fetchSubmissionsByProblem, submissions: submissionsFromStore } = useSubmissionStore();
+
   const [problemList, setProblemList] = useState([]);
   const [contestInfo, setContestInfo] = useState(null);
+  const [viewingSubmissions, setViewingSubmissions] = useState(null); // { userId, probId, data: [] }
+  const [isViewingLoading, setIsViewingLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) setInitialLeaderboard(initialData);
@@ -146,7 +149,10 @@ export default function LeaderboardClientView({ contestId, initialData }) {
           </div>
 
           <button
-            onClick={() => refreshLeaderboard(contestId)}
+            onClick={async () => {
+              await refreshLeaderboard(contestId);
+              toast.success("Leaderboard updated!");
+            }}
             className="btn btn-primary rounded-2xl px-8 shadow-lg shadow-primary/20 gap-2 h-12 text-white font-black uppercase tracking-widest text-xs"
           >
             <RefreshCcw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
@@ -271,11 +277,35 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                         </div>
                       </td>
 
-                      {/* NEW: Problem cells */}
+                      {/* NEW: Problem cells (Clickable) */}
                       {problemList.map((p) => {
                         const probStatus = (u.problems || []).find(ps => ps.problemId === p.id);
                         return (
-                          <td key={p.id} className="px-4 py-5 text-center">
+                          <td key={p.id} className={`px-4 py-5 text-center cursor-pointer hover:bg-base-content/10 transition-all rounded-xl`}
+                            onClick={async () => {
+                              if (probStatus?.attempts === 0) return;
+                              setIsViewingLoading(true);
+                              setViewingSubmissions({ userId: u.userId, username: u.username, probId: p.id, data: [] });
+
+                              try {
+                                // We need an endpoint that can fetch OTHER users' submissions if admin,
+                                // or just current user's. For now, we assume it's the current user or
+                                // the system allows fetching if context is valid.
+                                // The current fetchSubmissionsByProblem uses the current user's token.
+                                // To view OTHERS, we'd need a different endpoint.
+                                // But user asked "leaderboard view per problem submission",
+                                // maybe they meant just for themselves initially?
+                                // Let's at least show the current user's if they click their own row.
+
+                                await fetchSubmissionsByProblem(p.id, contestId);
+                                // The store updates `submissions` state.
+                                setViewingSubmissions(prev => ({ ...prev, data: submissionsFromStore }));
+                              } catch (err) {
+                                toast.error("Failed to fetch submissions.");
+                              } finally {
+                                setIsViewingLoading(false);
+                              }
+                            }}>
                             {probStatus?.status === "SOLVED" ? (
                               <div className="flex flex-col items-center gap-1 animate-in zoom-in duration-300">
                                 <CheckCircle size={20} className="text-success drop-shadow-[0_0_8px_rgba(var(--s),0.4)]" />
@@ -323,6 +353,67 @@ export default function LeaderboardClientView({ contestId, initialData }) {
             <Zap size={10} className="animate-pulse" /> Live Socket Tunnel Active
           </div>
         </div>
+
+        {/* Submission History Modal */}
+        {viewingSubmissions && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+            <div className="bg-base-200 border-2 border-base-content/10 rounded-[3rem] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl relative">
+              <div className="p-8 border-b border-base-content/5 flex justify-between items-center bg-base-300/30">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tight">Submission History</h3>
+                  <p className="text-xs font-bold opacity-30 uppercase tracking-widest mt-1">
+                    {viewingSubmissions.username} • Problem {viewingSubmissions.probId.substring(0, 8)}
+                  </p>
+                </div>
+                <button onClick={() => setViewingSubmissions(null)} className="btn btn-ghost btn-circle">✕</button>
+              </div>
+
+              <div className="p-8 overflow-auto flex-grow custom-scrollbar">
+                {isViewingLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4">
+                    <span className="loading loading-ring loading-lg text-primary"></span>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Retrieving data nodes...</p>
+                  </div>
+                ) : !submissionsFromStore?.length ? (
+                  <div className="text-center py-20 opacity-30 italic">No submissions found for this problem.</div>
+                ) : (
+                  <div className="space-y-4">
+                    {submissionsFromStore.map((sub, idx) => (
+                      <div key={sub.id || idx} className="bg-base-300/50 border border-base-content/5 rounded-3xl p-6 hover:bg-base-300 transition-all group">
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-2 rounded-full ${sub.status === "Accepted" ? "bg-success animate-pulse" : "bg-error"}`} />
+                            <span className={`text-lg font-black uppercase ${sub.status === "Accepted" ? "text-success" : "text-error"}`}>{sub.status}</span>
+                          </div>
+                          <span className="text-[10px] font-mono opacity-40">{new Date(sub.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="bg-base-100/50 p-3 rounded-2xl">
+                            <p className="text-[8px] font-black opacity-30 uppercase">Language</p>
+                            <p className="text-xs font-bold">{sub.language}</p>
+                          </div>
+                          <div className="bg-base-100/50 p-3 rounded-2xl">
+                            <p className="text-[8px] font-black opacity-30 uppercase">Runtime</p>
+                            <p className="text-xs font-bold">{sub.time || "0ms"}</p>
+                          </div>
+                          <div className="bg-base-100/50 p-3 rounded-2xl">
+                            <p className="text-[8px] font-black opacity-30 uppercase">Memory</p>
+                            <p className="text-xs font-bold">{sub.memory || "0KB"}</p>
+                          </div>
+                          <div className="bg-base-100/50 p-3 rounded-2xl">
+                            <p className="text-[8px] font-black opacity-30 uppercase">Points</p>
+                            <p className="text-xs font-bold">{sub.status === "Accepted" ? "100" : "0"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

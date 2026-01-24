@@ -56,6 +56,7 @@ export default async function EachProblemPage({ params }) {
           description={problem.description}
           codeSnippets={problem.codeSnippets}
           testcases={problem.visibleTestcases}
+          problemId={id}
         />
       </main>
     </div>

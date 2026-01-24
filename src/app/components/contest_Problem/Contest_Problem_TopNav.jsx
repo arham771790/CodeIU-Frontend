@@ -3,6 +3,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, List, Play, CloudDownload, Timer, Loader2 } from "lucide-react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useContestTimer } from "@/app/hooks/useContestTimer";
+import { axiosInstanceContestService } from "@/app/lib/axios";
+import { toast } from "react-toastify";
 
 const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChange, contestId, startsAt, endsAt }) => {
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
@@ -38,19 +40,17 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
   const handleFinishContest = async () => {
     setIsFinishing(true);
     try {
-      const res = await fetch(`/api/v1/contests/${contestId}/finish`, {
-        method: "POST",
-      });
+      const res = await axiosInstanceContestService.post(`contest/contests/${contestId}/finish`);
 
-      if (res.ok) {
+      if (res.data.ok) {
         window.location.href = `/contest/${contestId}/summary`;
       } else {
-        const data = await res.json();
-        alert(data.error || "Failed to finish contest. Please ensure you are logged in.");
+        toast.error(res.data.error || "Failed to finish contest. Please ensure you are logged in.");
       }
     } catch (err) {
       console.error("Finish error:", err);
-      alert("Network error. Please check your connection.");
+      const errorMsg = err.response?.data?.error || "Network error. Please check your connection.";
+      toast.error(errorMsg);
     } finally {
       setIsFinishing(false);
       setShowFinishDialog(false);

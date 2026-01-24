@@ -5,15 +5,17 @@ import Editor from "@monaco-editor/react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import SubmissionResult from "../perProblem_comp/SubmissionResult";
+import { useContestTimer } from "@/app/hooks/useContestTimer"; // Assuming this import is needed for useContestTimer
 
-const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
+const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId, contestId, startsAt, endsAt }) => {
   const [activeTab, setActiveTab] = useState("testcase");
   const [topPanelHeight, setTopPanelHeight] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
+  const { label, value, phase } = useContestTimer({ startsAt, endsAt });
   const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
 
-  const { setUserCode, userCode, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults } = useSubmissionStore();
+  const { setUserCode, userCode, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults, fetchSubmissionsByProblem } = useSubmissionStore();
 
   const latestSubmission = useMemo(() => submissions?.find(sub => sub.problemId === problemId), [submissions, problemId]);
   const isSolved = latestSubmission?.status === "Accepted";
@@ -21,7 +23,10 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
   useEffect(() => {
     if (codeSnippets) setUserCode(codeSnippets?.[selectedLanguage] || "");
     clearResults();
-  }, [codeSnippets, selectedLanguage, clearResults, setUserCode]);
+    if (problemId) {
+      fetchSubmissionsByProblem(problemId, contestId);
+    }
+  }, [codeSnippets, selectedLanguage, clearResults, setUserCode, problemId, contestId, fetchSubmissionsByProblem]);
 
   useEffect(() => { if (latestSubmission?.status === "Pending") setActiveTab("submission"); }, [latestSubmission]);
   useEffect(() => { if (RunReslts?.length > 0) setActiveTab("testresult"); }, [RunReslts]);
@@ -51,8 +56,8 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
             {Object.keys(codeSnippets || {}).map(lang => <option key={lang} value={lang} className="bg-base-200">{lang}</option>)}
           </select>
           <div className="flex gap-1">
-            <button onClick={() => setUserCode(codeSnippets[selectedLanguage])} className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><RefreshCw size={14}/></button>
-            <button className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><Expand size={14}/></button>
+            <button onClick={() => setUserCode(codeSnippets[selectedLanguage])} className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><RefreshCw size={14} /></button>
+            <button className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><Expand size={14} /></button>
           </div>
         </div>
         <div className="flex-1">
@@ -68,7 +73,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
         <div className="flex px-6 border-b border-base-content/5 bg-base-300/30 gap-6">
           {["testcase", "testresult", "submission"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === tab ? "border-primary text-primary" : "border-transparent opacity-40"}`}>
-              {tab === "submission" && isSolved ? <span className="flex items-center gap-1">Submission <CheckCircle2 size={12}/></span> : tab}
+              {tab === "submission" && isSolved ? <span className="flex items-center gap-1">Submission <CheckCircle2 size={12} /></span> : tab}
             </button>
           ))}
         </div>
@@ -96,7 +101,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
                   <div className="flex gap-2 flex-wrap pt-4">
                     {RunReslts.map((r, i) => (
                       <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase border ${r.passed ? "bg-success/5 border-success/20 text-success" : "bg-error/5 border-error/20 text-error"}`}>
-                         {r.passed ? <CheckCircle2 size={12}/> : <XCircle size={12}/>} Case {i + 1}
+                        {r.passed ? <CheckCircle2 size={12} /> : <XCircle size={12} />} Case {i + 1}
                       </div>
                     ))}
                   </div>
@@ -107,20 +112,38 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
 
           {activeTab === "submission" && (
             <div className="space-y-6">
-              {!latestSubmission ? <div className="text-center py-10 text-xs font-bold opacity-20 italic">Waiting for problem submission...</div> : (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <h2 className={`text-2xl font-black  tracking-tighter uppercase ${latestSubmission.status === "Accepted" ? "text-success" : "text-error"}`}>{latestSubmission.status}</h2>
-                    {latestSubmission.status === "Pending" && <Loader2 className="animate-spin text-primary" size={24}/>}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {latestSubmission.testcases?.map((tc, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-base-300 rounded-2xl border border-base-content/5">
-                        <span className="text-xs font-black opacity-40 uppercase tracking-widest">Case {tc.testCase}</span>
-                        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-lg ${tc.passed ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>{tc.passed ? "Accepted" : "Rejected"}</span>
+              {!submissions || submissions.length === 0 ? <div className="text-center py-10 text-xs font-bold opacity-20 italic">Waiting for problem submission...</div> : (
+                <div className="space-y-4">
+                  {submissions.map((sub, index) => (
+                    <div key={sub.id || index} className="bg-base-300/30 rounded-2xl border border-base-content/5 p-6 transition-all hover:bg-base-300/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <h2 className={`text-xl font-black tracking-tighter uppercase ${sub.status === "Accepted" ? "text-success" : "text-error"}`}>
+                            {sub.status}
+                          </h2>
+                          {sub.status === "Pending" && <Loader2 className="animate-spin text-primary" size={18} />}
+                        </div>
+                        <span className="text-[10px] font-black opacity-30 uppercase tracking-widest">
+                          {new Date(sub.createdAt).toLocaleTimeString()}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {sub.testcases?.map((tc, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl border border-base-content/5">
+                            <span className="text-[10px] font-black opacity-40 uppercase">Case {tc.testCase}</span>
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-lg ${tc.passed ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
+                              {tc.passed ? "OK" : "FAIL"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {(sub.compileOutput || sub.stderr) && (
+                        <pre className="mt-4 p-3 bg-error/5 border border-error/10 text-error/80 text-[10px] font-mono rounded-xl whitespace-pre-wrap">
+                          {sub.compileOutput || sub.stderr}
+                        </pre>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

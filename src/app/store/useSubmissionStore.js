@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { axiosInstanceSubmissionService } from '../lib/axios';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { getLanguageId } from '../lib/lang';
 
 export const useSubmissionStore = create((set, get) => ({
@@ -68,6 +68,10 @@ export const useSubmissionStore = create((set, get) => ({
 
         cSocket.on('connect', () => {
             console.log("✅ Contest Socket connected:", cSocket.id);
+            if (userId) {
+                console.log("🛰️ Contest Socket joining user room:", userId);
+                cSocket.emit('join:user', { userId });
+            }
         });
 
         set({ socket: newSocket });
@@ -87,21 +91,43 @@ export const useSubmissionStore = create((set, get) => ({
             console.log('Received leaderboard update:', leaderboardData);
             set({ leaderboard: leaderboardData });
         });
+
+        cSocket.on("participant:warning", (data) => {
+            console.log("⚠️ Anti-Cheat Warning:", data);
+            toast.error(`⚠️ WARNING (${data.warnings}/2): Anti-cheat violation detected! Switching windows or unauthorized actions may lead to disqualification.`, {
+                position: "top-center",
+                autoClose: 10000,
+                theme: "dark",
+            });
+        });
+
+        cSocket.on("participant:disqualified", (data) => {
+            console.log("🚫 Disqualified:", data);
+            toast.error("🚫 YOU HAVE BEEN DISQUALIFIED for repeated violations. Your participation has been terminated.", {
+                position: "top-center",
+                autoClose: false,
+                theme: "colored",
+            });
+            // Delay redirect slightly so user can read the toast
+            setTimeout(() => {
+                window.location.href = `/contest/${data.contestId}/summary`;
+            }, 3000);
+        });
     },
 
 
     runCode: async (sourceCode, stdin, languageId, expected_output) => {
         try {
             set({ isexecuting: true });
-            const result = await axiosInstanceSubmissionService.post("/execute/run-problem", { 
+            const result = await axiosInstanceSubmissionService.post("submission/execute/run-problem", { 
                 sourceCode, stdin, languageId, expected_output 
             });
             set({ RunReslts: result.data.testCases });
             console.log("Run Results:", result.data.testCases);
-
+            toast.success("Code executed successfully!");
         } catch (error) {
             console.log("Run Code Error:", error);
-            toast.error("Error running code");
+            toast.error(error.response?.data?.error || "Error running code");
         } finally {
             set({ isexecuting: false });
         }
@@ -113,26 +139,38 @@ export const useSubmissionStore = create((set, get) => ({
 
             // Ensure explicitly choosing the /execute service prefix
             const endpoint = contestId 
-                ? `/execute/submit-code/${contestId}` 
-                : `/execute/submit-code`;
+                ? `submission/execute/submit-code/${contestId}` 
+                : `submission/execute/submit-code`;
 
-            // If your backend handles `undefined` in the param, you can revert this, 
-            // but explicitly checking is safer.
-            const payload = contestId 
-                ? { sourceCode, languageId, problemId } 
-                : { sourceCode, languageId, problemId }; 
+            const payload = { sourceCode, languageId, problemId }; 
 
             const result = await axiosInstanceSubmissionService.post(endpoint, payload);
             
             set(state => ({
                 submissions: [result.data.submission, ...state.submissions] // Add to top
             }));
-
+            toast.success("Code submitted successfully!");
         } catch (error) {
             console.log("Submit Code Error:", error);
-            toast.error("Error submitting code");
+            toast.error(error.response?.data?.error || "Error submitting code");
         } finally {
             set({ isSubmittingCode: false });
+        }
+    },
+
+    fetchSubmissionsByProblem: async (problemId, contestId) => {
+        try {
+            const params = {};
+            if (contestId) params.contestId = contestId;
+
+            const res = await axiosInstanceSubmissionService.get(`submission/submission/get-Submissions-For-Problem/${problemId}`, { params });
+            
+            if (res.data.ok) {
+                set({ submissions: res.data.submissions });
+            }
+        } catch (error) {
+            console.error("Error fetching submissions:", error);
+            // Silent error for background fetch
         }
     },
 

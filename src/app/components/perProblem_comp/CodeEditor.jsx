@@ -14,7 +14,7 @@ import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import SubmissionResult from "./SubmissionResult";
 
-const CodeEditor = ({ codeSnippets, testcases }) => {
+const CodeEditor = ({ codeSnippets, testcases, problemId }) => {
   const { resolvedTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("testcase");
   const [topPanelHeight, setTopPanelHeight] = useState(60);
@@ -30,6 +30,7 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
     intializeSocket,
     resetProblemState,
     submissions,
+    fetchSubmissionsByProblem,
   } = useSubmissionStore();
 
   const { authUser } = useAuthStore();
@@ -41,11 +42,14 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
     if (authUser?.id) intializeSocket(authUser.id);
   }, [authUser, intializeSocket]);
 
-  // Handle Code Initialization
+  // Handle Code Initialization and Fetch History
   useEffect(() => {
     resetProblemState();
     if (codeSnippets) setUserCode(codeSnippets[selectedLanguage] || "");
-  }, [codeSnippets, selectedLanguage, setUserCode, resetProblemState]);
+    if (authUser?.id && problemId) {
+      fetchSubmissionsByProblem(problemId);
+    }
+  }, [codeSnippets, selectedLanguage, setUserCode, resetProblemState, authUser, problemId, fetchSubmissionsByProblem]);
 
   // Auto-switch tabs based on state
   useEffect(() => {
@@ -113,7 +117,7 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
           <Editor
             height="100%"
             language={selectedLanguage.toLowerCase()}
-            theme={['dark','black','abyss','forest'].includes(resolvedTheme) ? 'vs-dark' : 'light'}
+            theme={['dark', 'black', 'abyss', 'forest'].includes(resolvedTheme) ? 'vs-dark' : 'light'}
             value={userCode}
             onChange={(v) => setUserCode(v || "")}
             options={{
@@ -140,13 +144,12 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`tab tab-sm h-10 transition-all ${
-                activeTab === tab
+              className={`tab tab-sm h-10 transition-all ${activeTab === tab
                   ? "tab-active font-bold border-primary text-primary"
                   : "opacity-50"
-              }`}
+                }`}
             >
-              {tab.toUpperCase()}
+              {tab === "submission" ? "SUBMISSIONS" : tab.toUpperCase()}
             </button>
           ))}
         </div>
@@ -160,11 +163,10 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
                   <button
                     key={i}
                     onClick={() => setSelectedCaseIndex(i)}
-                    className={`btn btn-xs ${
-                      selectedCaseIndex === i
-                        ? "btn-primary"
-                        : "btn-ghost bg-base-300"
-                    }`}
+                    className={`btn btn-xs ${selectedCaseIndex === i
+                      ? "btn-primary"
+                      : "btn-ghost bg-base-300"
+                      }`}
                   >
                     Case {i + 1}
                   </button>
@@ -206,16 +208,14 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
                       <button
                         key={i}
                         onClick={() => setSelectedResultIndex(i)}
-                        className={`btn btn-xs gap-1 ${
-                          selectedResultIndex === i
-                            ? "btn-primary"
-                            : "bg-base-300"
-                        }`}
+                        className={`btn btn-xs gap-1 ${selectedResultIndex === i
+                          ? "btn-primary"
+                          : "bg-base-300"
+                          }`}
                       >
                         <div
-                          className={`w-2 h-2 rounded-full ${
-                            r.passed ? "bg-success" : "bg-error"
-                          }`}
+                          className={`w-2 h-2 rounded-full ${r.passed ? "bg-success" : "bg-error"
+                            }`}
                         ></div>{" "}
                         Case {i + 1}
                       </button>
@@ -243,11 +243,10 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
                       <div className="bg-base-300/50 px-4 py-3 flex justify-between items-center border-b border-base-content/10">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`p-1.5 rounded-full ${
-                              sub.status === "Accepted"
-                                ? "bg-success/20 text-success"
-                                : "bg-error/20 text-error"
-                            }`}
+                            className={`p-1.5 rounded-full ${sub.status === "Accepted"
+                              ? "bg-success/20 text-success"
+                              : "bg-error/20 text-error"
+                              }`}
                           >
                             {sub.status === "Accepted" ? (
                               <CheckCircle2 size={18} />
@@ -257,11 +256,10 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
                           </div>
                           <div>
                             <h3
-                              className={`font-bold leading-none ${
-                                sub.status === "Accepted"
-                                  ? "text-success"
-                                  : "text-error"
-                              }`}
+                              className={`font-bold leading-none ${sub.status === "Accepted"
+                                ? "text-success"
+                                : "text-error"
+                                }`}
                             >
                               {sub.status}
                             </h3>
@@ -293,9 +291,8 @@ const CodeEditor = ({ codeSnippets, testcases }) => {
                                 </span>
                                 <div className="h-1 w-1 rounded-full bg-base-content/20"></div>
                                 <span
-                                  className={`text-sm font-medium ${
-                                    tc.passed ? "text-success" : "text-error"
-                                  }`}
+                                  className={`text-sm font-medium ${tc.passed ? "text-success" : "text-error"
+                                    }`}
                                 >
                                   {tc.status}
                                 </span>

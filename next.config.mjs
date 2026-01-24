@@ -39,19 +39,23 @@ const nextConfig = {
       // NEW: Contest endpoints
       {
         source: "/api/v1/contests/:id/status",
-        destination: `${ALB_URL}/contest/api/v1/contests/:id/status`,
+        destination: `${ALB_URL}/contest/api/v1/contest/contests/:id/status`,
       },
       {
         source: "/api/v1/contests/:id/violation",
-        destination: `${ALB_URL}/contest/api/v1/contests/:id/violation`,
+        destination: `${ALB_URL}/contest/api/v1/contest/contests/:id/violation`,
       },
       {
         source: "/api/v1/contests/:id/eligibility",
-        destination: `${ALB_URL}/contest/api/v1/contests/:id/eligibility`,
+        destination: `${ALB_URL}/contest/api/v1/contest/contests/:id/eligibility`,
       },
       {
         source: "/api/v1/contests/:id/finish",
-        destination: `${ALB_URL}/contest/api/v1/contests/:id/finish`,
+        destination: `${ALB_URL}/contest/api/v1/contest/contests/:id/finish`,
+      },
+      {
+        source: "/api/v1/contests/:id/bundle",
+        destination: `${ALB_URL}/contest/api/v1/contest/contests/:id/bundle`,
       },
 
       // NEW: User/Submission endpoints
@@ -62,6 +66,10 @@ const nextConfig = {
       {
         source: "/api/v1/submissions/:id/source",
         destination: `${ALB_URL}/submission/api/v1/submissions/:id/source`,
+      },
+      {
+        source: "/api/v1/submissions/get-Submissions-For-Problem/:problemId",
+        destination: `${ALB_URL}/submission/api/v1/submission/get-Submissions-For-Problem/:problemId`,
       },
 
       {
