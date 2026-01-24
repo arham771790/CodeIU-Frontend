@@ -31,7 +31,7 @@ export const useSearchStore = create((set, get) => ({
       console.error("Error fetching search results:", error);
       // Set error state and clear results
       set({
-        error: "Failed to fetch search results. Please try again.",
+        error: "Failed to fetch search results. Please try again..",
         isLoading: false,
         results: [],
       });
