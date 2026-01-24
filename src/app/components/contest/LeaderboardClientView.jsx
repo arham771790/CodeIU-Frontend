@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { RefreshCcw, Trophy, Zap, Clock, User, Award, History, Lock, CheckCircle, HelpCircle } from "lucide-react";
 import { useLeaderboardStore } from "@/app/store/useLeaderboardStore";
