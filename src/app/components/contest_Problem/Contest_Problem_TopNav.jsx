@@ -6,6 +6,8 @@ import { useContestTimer } from "@/app/hooks/useContestTimer";
 
 const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChange, contestId, startsAt, endsAt }) => {
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const dropdownRef = useRef(null);
   const { userCode, runCode, isexecuting, languageId, submitCode, isSubmittingCode } = useSubmissionStore();
 
@@ -33,15 +35,37 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
     await submitCode(userCode || "", languageId, currentProblem?.snapshot?.id, contestId);
   };
 
+  const handleFinishContest = async () => {
+    setIsFinishing(true);
+    try {
+      const res = await fetch(`/api/v1/contests/${contestId}/finish`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        window.location.href = `/contest/${contestId}/summary`;
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to finish contest. Please ensure you are logged in.");
+      }
+    } catch (err) {
+      console.error("Finish error:", err);
+      alert("Network error. Please check your connection.");
+    } finally {
+      setIsFinishing(false);
+      setShowFinishDialog(false);
+    }
+  };
+
   return (
     <nav className="bg-base-200 text-base-content px-6 py-3 flex items-center justify-between border-b border-base-content/10 backdrop-blur-md">
       {/* Brand + Navigation */}
       <div className="flex items-center gap-6">
         <div className="relative inline-block mr-4">
           <h1 className="text-2xl font-bold text-blue-400 ml-3">
-              🌊ode<span className="font-bold text-base-content">IU</span>
-            </h1>
-         
+            🌊ode<span className="font-bold text-base-content">IU</span>
+          </h1>
+
         </div>
 
         <div className="relative" ref={dropdownRef}>
@@ -71,6 +95,13 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
 
       {/* Actions + Timer */}
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setShowFinishDialog(true)}
+          className="btn btn-outline btn-sm rounded-xl px-4 border-warning/50 text-warning hover:bg-warning hover:text-warning-content transition-all"
+        >
+          <span className="text-[10px] font-black uppercase tracking-widest">Finish Contest</span>
+        </button>
+
         <button onClick={handleRunCode} disabled={isexecuting || isSubmittingCode} className="btn btn-ghost btn-sm bg-base-300 hover:bg-base-content/10 rounded-xl px-4 flex items-center gap-2">
           {isexecuting ? <Loader2 size={16} className="animate-spin" /> : <Play size={14} className="fill-current" />}
           <span className="text-[10px] font-black uppercase tracking-widest">Run</span>
@@ -82,13 +113,43 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
         </button>
 
         <div className={`flex items-center gap-3 px-4 py-1 rounded-xl border border-base-content/10 ${phase === "running" ? "bg-success/5 text-success border-success/20" : "bg-base-300"}`}>
-           <Timer size={16} className={phase === "running" ? "animate-pulse" : ""} />
-           <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase opacity-60 leading-none">{label}</span>
-              <span className="text-sm font-mono font-bold leading-none">{value}</span>
-           </div>
+          <Timer size={16} className={phase === "running" ? "animate-pulse" : ""} />
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black uppercase opacity-60 leading-none">{label}</span>
+            <span className="text-sm font-mono font-bold leading-none">{value}</span>
+          </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showFinishDialog && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-base-200 border-2 border-base-content/10 rounded-[2.5rem] p-10 max-w-md shadow-2xl">
+            <h3 className="text-2xl font-black uppercase mb-4 tracking-tight">
+              Finish early?
+            </h3>
+            <p className="text-sm opacity-60 mb-8 leading-relaxed font-medium">
+              Are you sure you want to finish the contest? You will not be able to submit any more solutions once you proceed.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setShowFinishDialog(false)}
+                className="btn btn-ghost flex-1 rounded-2xl font-bold uppercase text-xs"
+                disabled={isFinishing}
+              >
+                No, go back
+              </button>
+              <button
+                onClick={handleFinishContest}
+                className="btn btn-warning flex-1 rounded-2xl font-black uppercase text-xs shadow-lg shadow-warning/20"
+                disabled={isFinishing}
+              >
+                {isFinishing ? "Processing..." : "Yes, I'm done"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

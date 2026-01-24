@@ -7,12 +7,14 @@ export const useLeaderboardStore = create((set, get) => ({
   isLoading: false,
   updatedAt: null,
   source: null,
+  frozen: false,
 
   // ✅ Hydrate from Server Page (Instant Load)
   setInitialLeaderboard: (data) => set({
-    rows: data.rows,
+    rows: data.rows || [],
     updatedAt: data.updatedAt,
     source: data.source,
+    frozen: data.frozen || false,
     isLoading: false
   }),
 
@@ -28,6 +30,7 @@ export const useLeaderboardStore = create((set, get) => ({
           rows: res.rows,
           updatedAt: res.updatedAt,
           source: res.source,
+          frozen: res.frozen || false,
           isLoading: false,
         });
       }
@@ -43,6 +46,7 @@ export const useLeaderboardStore = create((set, get) => ({
     joinContestRoom(contestId);
 
     socket.off("leaderboard:update");
+    socket.off("contest:freeze");
 
     let debounceTimer;
     socket.on("leaderboard:update", (payload) => {
@@ -56,10 +60,18 @@ export const useLeaderboardStore = create((set, get) => ({
         get().refreshLeaderboard(contestId);
       }, 1000); 
     });
+
+    // NEW: freeze event
+    socket.on("contest:freeze", ({ contestId: frozenId }) => {
+      if (frozenId === contestId) {
+        set({ frozen: true });
+      }
+    });
   },
 
   unbindRealtime: () => {
     const socket = getContestSocket();
     socket.off("leaderboard:update");
+    socket.off("contest:freeze");
   },
 }));

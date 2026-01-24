@@ -1,7 +1,5 @@
-"use client";
-
-import React, { useEffect, useMemo } from "react";
-import { RefreshCcw, Trophy, Zap, Clock, User, Award, History } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { RefreshCcw, Trophy, Zap, Clock, User, Award, History, Lock, CheckCircle, HelpCircle } from "lucide-react";
 import { useLeaderboardStore } from "@/app/store/useLeaderboardStore";
 
 /* ----- Helpers (Preserved) ----- */
@@ -19,6 +17,15 @@ function formatTime(ts) {
   }
 }
 
+function formatSolveTime(solvedAt, startsAt) {
+  if (!solvedAt || !startsAt) return "—";
+  const diff = new Date(solvedAt) - new Date(startsAt);
+  if (diff < 0) return "0:00";
+  const minutes = Math.floor(diff / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 const getRankStyles = (rank) => {
   if (rank === 1) return "border-yellow-500/50 shadow-yellow-500/10 text-yellow-500";
   if (rank === 2) return "border-slate-400/50 shadow-slate-400/10 text-slate-400";
@@ -32,11 +39,15 @@ export default function LeaderboardClientView({ contestId, initialData }) {
     isLoading,
     updatedAt,
     source,
+    frozen,
     setInitialLeaderboard,
     refreshLeaderboard,
     bindRealtime,
     unbindRealtime,
   } = useLeaderboardStore();
+
+  const [problemList, setProblemList] = useState([]);
+  const [contestInfo, setContestInfo] = useState(null);
 
   useEffect(() => {
     if (initialData) setInitialLeaderboard(initialData);
@@ -45,6 +56,31 @@ export default function LeaderboardClientView({ contestId, initialData }) {
   useEffect(() => {
     if (!contestId) return;
     bindRealtime(contestId);
+
+    // Fetch problem list and contest info for the grid
+    const fetchData = async () => {
+      try {
+        const [bundleRes, statusRes] = await Promise.all([
+          fetch(`/api/v1/contests/${contestId}/bundle`),
+          fetch(`/api/v1/contests/${contestId}/status`)
+        ]);
+
+        if (bundleRes.ok) {
+          const bundleData = await bundleRes.json();
+          setProblemList(bundleData.bundle?.problems || []);
+        }
+
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          setContestInfo(statusData);
+        }
+      } catch (err) {
+        console.error("Failed to fetch contest/bundle info:", err);
+      }
+    };
+
+    fetchData();
+
     return () => unbindRealtime();
   }, [contestId, bindRealtime, unbindRealtime]);
 
@@ -54,7 +90,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
   return (
     <div className="min-h-screen bg-base-100 text-base-content font-sans px-4 sm:px-6 lg:px-10 py-12">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Signature CodeIU X Header */}
         <header className="flex flex-col items-center text-center mb-16">
           <div className="relative inline-block mb-4">
@@ -75,6 +111,23 @@ export default function LeaderboardClientView({ contestId, initialData }) {
             Contest Node: <span className="font-mono text-primary">{contestId}</span>
           </p>
         </header>
+
+        {/* Freeze Banner */}
+        {frozen && (
+          <div className="mb-10 bg-warning/10 border-2 border-warning/30 rounded-[2rem] p-8 flex items-center gap-6 shadow-2xl animate-pulse">
+            <div className="w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center border border-warning/50">
+              <Lock size={32} className="text-warning" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black uppercase tracking-tight text-warning mb-1">
+                Leaderboard Frozen
+              </h3>
+              <p className="text-sm font-medium opacity-70">
+                Live updates are paused for the final period. Final standings will be revealed once the contest ends.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Toolbar & Meta info */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -106,7 +159,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
             <div className="flex items-center gap-4 mb-8">
               <div className="h-8 w-1.5 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--p),0.5)]" />
               <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
-                <Trophy className="text-yellow-500" size={24} /> 
+                <Trophy className="text-yellow-500" size={24} />
                 Elite <span className="opacity-20">Performers</span>
               </h2>
             </div>
@@ -121,7 +174,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                     className={`relative group bg-base-200 border-2 rounded-[2.5rem] p-8 shadow-2xl transition-all duration-500 hover:-translate-y-2 ${style}`}
                   >
                     <div className="absolute top-6 right-8">
-                       <span className="text-5xl font-black opacity-10">#{rank}</span>
+                      <span className="text-5xl font-black opacity-10">#{rank}</span>
                     </div>
 
                     <div className="flex flex-col items-center">
@@ -130,7 +183,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                           {initials(u.username)}
                         </div>
                         <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-base-100 rounded-full flex items-center justify-center border-2 border-current">
-                           <Award size={16} />
+                          <Award size={16} />
                         </div>
                       </div>
 
@@ -138,25 +191,25 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                         {u.username || "User"}
                       </h3>
                       <div className="text-[10px] font-black uppercase tracking-widest opacity-30 mb-6">
-                         Solved {u.solvedCount ?? 0} Problems
+                        Solved {u.solvedCount ?? 0} Problems
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 w-full mb-6">
                         <div className="bg-base-300/50 p-3 rounded-2xl text-center border border-base-content/5">
-                           <p className="text-[9px] font-black uppercase opacity-40">Penalty</p>
-                           <p className="text-sm font-bold text-base-content">{u.penalty ?? 0}m</p>
+                          <p className="text-[9px] font-black uppercase opacity-40">Penalty</p>
+                          <p className="text-sm font-bold text-base-content">{u.penalty ?? 0}m</p>
                         </div>
                         <div className="bg-base-300/50 p-3 rounded-2xl text-center border border-base-content/5">
-                           <p className="text-[9px] font-black uppercase opacity-40">Efficiency</p>
-                           <p className="text-sm font-bold text-base-content">94%</p>
+                          <p className="text-[9px] font-black uppercase opacity-40">Efficiency</p>
+                          <p className="text-sm font-bold text-base-content">94%</p>
                         </div>
                       </div>
 
                       <div className="w-full pt-6 border-t border-base-content/5 flex items-end justify-between">
-                         <span className="text-[10px] font-black uppercase opacity-30 tracking-[0.2em]">Total Score</span>
-                         <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-primary">
-                            {u.score ?? 0}
-                         </span>
+                        <span className="text-[10px] font-black uppercase opacity-30 tracking-[0.2em]">Total Score</span>
+                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-primary">
+                          {u.score ?? 0}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -170,7 +223,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
         <div className="bg-base-200 border border-base-content/10 rounded-[2.5rem] shadow-2xl overflow-hidden backdrop-blur-md">
           <div className="px-8 py-6 bg-base-300/30 border-b border-base-content/5 flex items-center justify-between">
             <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-3">
-               <User className="text-primary/50" size={18} /> Participants Queue
+              <User className="text-primary/50" size={18} /> Participants Queue
             </h3>
             <span className="badge badge-outline border-base-content/10 text-[10px] font-black uppercase">{rows.length} total</span>
           </div>
@@ -181,18 +234,29 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                 <tr className="bg-base-300/10 text-base-content/40 uppercase text-[10px] font-black tracking-[0.2em]">
                   <th className="px-8 py-5 font-black border-none">Rank</th>
                   <th className="px-8 py-5 font-black border-none text-left">Contender</th>
+
+                  {/* NEW: Problem columns */}
+                  {problemList.map((p, i) => (
+                    <th key={p.id || i} className="px-4 py-5 font-black border-none text-center">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className="text-primary opacity-60">{String.fromCharCode(65 + i)}</span>
+                        <HelpCircle size={10} className="opacity-20" />
+                      </div>
+                    </th>
+                  ))}
+
                   <th className="px-8 py-5 font-black border-none text-center">Solved</th>
                   <th className="px-8 py-5 font-black border-none text-right">Penalty</th>
                   <th className="px-8 py-5 font-black border-none text-right">Score</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-base-content/5">
-                {rest.map((u, i) => {
-                  const r = u.rank ?? i + 4;
+                {rows.map((u, i) => {
+                  const r = u.rank ?? i + 1;
                   return (
                     <tr key={(u.userId || i) + "-row"} className="hover:bg-base-content/5 transition-colors group">
                       <td className="px-8 py-5">
-                         <span className="text-lg font-black opacity-20 group-hover:opacity-100 transition-opacity">#{r}</span>
+                        <span className="text-lg font-black opacity-20 group-hover:opacity-100 transition-opacity">#{r}</span>
                       </td>
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
@@ -205,6 +269,30 @@ export default function LeaderboardClientView({ contestId, initialData }) {
                           </div>
                         </div>
                       </td>
+
+                      {/* NEW: Problem cells */}
+                      {problemList.map((p) => {
+                        const probStatus = (u.problems || []).find(ps => ps.problemId === p.id);
+                        return (
+                          <td key={p.id} className="px-4 py-5 text-center">
+                            {probStatus?.status === "SOLVED" ? (
+                              <div className="flex flex-col items-center gap-1 animate-in zoom-in duration-300">
+                                <CheckCircle size={20} className="text-success drop-shadow-[0_0_8px_rgba(var(--s),0.4)]" />
+                                <span className="text-[9px] font-black font-mono opacity-40">
+                                  {formatSolveTime(probStatus.solvedAt, contestInfo?.startsAt)}
+                                </span>
+                              </div>
+                            ) : probStatus?.attempts > 0 ? (
+                              <div className="bg-error/10 text-error rounded-lg py-1 px-2 inline-block">
+                                <span className="text-[10px] font-black">-{probStatus.attempts}</span>
+                              </div>
+                            ) : (
+                              <span className="text-base-content/10 font-black">—</span>
+                            )}
+                          </td>
+                        );
+                      })}
+
                       <td className="px-8 py-5 text-center">
                         <span className="text-sm font-bold opacity-60 group-hover:opacity-100">{u.solvedCount ?? 0}</span>
                       </td>
@@ -220,7 +308,7 @@ export default function LeaderboardClientView({ contestId, initialData }) {
 
                 {rows.length === 0 && !isLoading && (
                   <tr>
-                    <td className="py-24 text-center opacity-30 italic font-medium" colSpan={5}>
+                    <td className="py-24 text-center opacity-30 italic font-medium" colSpan={problemList.length + 5}>
                       <Trophy className="mx-auto mb-4 opacity-10" size={48} />
                       No participants have entered the arena yet.
                     </td>

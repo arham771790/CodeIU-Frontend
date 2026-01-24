@@ -35,6 +35,35 @@ const nextConfig = {
       },
 
       // ---------- API v1 ROUTES (Generic Pattern: /alb_prefix/api/v1/internal_path) ----------
+
+      // NEW: Contest endpoints
+      {
+        source: "/api/v1/contests/:id/status",
+        destination: `${ALB_URL}/contest/api/v1/contests/:id/status`,
+      },
+      {
+        source: "/api/v1/contests/:id/violation",
+        destination: `${ALB_URL}/contest/api/v1/contests/:id/violation`,
+      },
+      {
+        source: "/api/v1/contests/:id/eligibility",
+        destination: `${ALB_URL}/contest/api/v1/contests/:id/eligibility`,
+      },
+      {
+        source: "/api/v1/contests/:id/finish",
+        destination: `${ALB_URL}/contest/api/v1/contests/:id/finish`,
+      },
+
+      // NEW: User/Submission endpoints
+      {
+        source: "/api/v1/users/:userId/submissions",
+        destination: `${ALB_URL}/submission/api/v1/users/:userId/submissions`,
+      },
+      {
+        source: "/api/v1/submissions/:id/source",
+        destination: `${ALB_URL}/submission/api/v1/submissions/:id/source`,
+      },
+
       {
         source: "/api/v1/:service/:path*",
         destination: `${ALB_URL}/:service/api/v1/:service/:path*`,
