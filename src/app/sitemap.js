@@ -1,5 +1,7 @@
 import { getProblems } from "@/lib/services/problemService";
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap() {
   const baseUrl = "https://codeiu.in";
 
