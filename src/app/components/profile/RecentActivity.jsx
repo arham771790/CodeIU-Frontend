@@ -1,5 +1,7 @@
 import React from 'react';
 import { BarChart, List, FileCheck, BrainCircuit, ChevronRight, Activity } from 'lucide-react';
+import { useProfileStore } from '@/app/store/useProfileStore';
+import { useAuthStore } from '@/app/store/useAuthStore';
 
 const FilterBtn = ({ icon: Icon, label }) => (
   <button className="px-3 py-1.5 hover:bg-gray-800 rounded-md flex items-center gap-2 text-sm text-gray-300 transition-colors">
@@ -8,8 +10,22 @@ const FilterBtn = ({ icon: Icon, label }) => (
 );
 
 const RecentActivity = () => {
-  // ✅ Empty array
-  const activities = []; 
+  const { authUser } = useAuthStore();
+  const { activities, fetchRecentSubmissions, isLoadingActivity } = useProfileStore();
+
+  React.useEffect(() => {
+    if (authUser?.id) {
+      fetchRecentSubmissions(authUser.id);
+    }
+  }, [authUser, fetchRecentSubmissions]);
+
+  // Format data for standard view
+  const formattedActivities = (activities || []).slice(0, 10).map(sub => ({
+    title: sub.problemId.substring(0, 15) + "...", // Problem names would be better if we had them
+    status: sub.status === "Accepted" ? "AC" : "WA",
+    time: new Date(sub.createdAt).toLocaleDateString(),
+    id: sub.id
+  }));
 
   return (
     <div className="bg-gradient-to-b from-gray-900 via-black to-black border border-gray-700/50 rounded-xl p-6">
@@ -28,15 +44,17 @@ const RecentActivity = () => {
       </div>
 
       <div className="space-y-1">
-        {activities.length > 0 ? (
-          activities.map((item) => (
-            <div key={item.title} className="flex justify-between items-center p-3 hover:bg-gray-800/30 rounded-lg transition-colors cursor-pointer group">
+        {isLoadingActivity ? (
+          <div className="py-12 flex justify-center"><span className="loading loading-spinner loading-md opacity-20"></span></div>
+        ) : formattedActivities.length > 0 ? (
+          formattedActivities.map((item) => (
+            <div key={item.id} className="flex justify-between items-center p-3 hover:bg-gray-800/30 rounded-lg transition-colors cursor-pointer group">
               <p className="font-semibold text-gray-300 group-hover:text-white transition-colors text-sm">{item.title}</p>
               <div className="flex items-center gap-3">
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${item.status === 'AC' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
-                      {item.status}
-                  </span>
-                  <p className="text-xs text-gray-500 min-w-[80px] text-right">{item.time}</p>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${item.status === 'AC' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
+                  {item.status}
+                </span>
+                <p className="text-xs text-gray-500 min-w-[80px] text-right">{item.time}</p>
               </div>
             </div>
           ))

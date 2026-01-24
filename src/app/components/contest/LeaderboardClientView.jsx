@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import { RefreshCcw, Trophy, Zap, Clock, User, Award, History, Lock, CheckCircle, HelpCircle, Loader2 } from "lucide-react";
 import { useLeaderboardStore } from "@/app/store/useLeaderboardStore";
 import { toast } from "react-toastify";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
@@ -43,6 +44,8 @@ export default function LeaderboardClientView({ contestId, initialData }) {
     source,
     frozen,
     setInitialLeaderboard,
+    refreshLeaderboard,
+    bindRealtime,
     unbindRealtime,
   } = useLeaderboardStore();
 

@@ -7,18 +7,18 @@ import RecentActivity from '@/app/components/profile/RecentActivity';
 import BadgesSection from '@/app/components/profile/BadgesSection';
 import SubmissionStats from '@/app/components/profile/SubmissionStats';
 import GridHighlights from '@/app/components/GridHighlights';
+import { useProfileStore } from '@/app/store/useProfileStore';
 import { UserCircle } from 'lucide-react';
 
 const ProfilePage = () => {
   const { authUser } = useAuthStore();
+  const { stats, activityData, fetchProfileData, isLoadingStats } = useProfileStore();
 
-  const stats = {
-    solved: { total: 0, easy: 0, medium: 0, hard: 0 },
-    totalQuestions: { total: 0, easy: 0, medium: 0, hard: 0 },
-    percentage: 0
-  };
-
-  const activityData = useMemo(() => Array.from({ length: 365 }, () => 0), []);
+  React.useEffect(() => {
+    if (authUser?.id) {
+      fetchProfileData(authUser.id);
+    }
+  }, [authUser, fetchProfileData]);
 
   return (
     <div className="min-h-screen bg-base-300 text-base-content font-sans overflow-hidden relative pb-20 ">
@@ -39,8 +39,8 @@ const ProfilePage = () => {
           <main className="lg:col-span-3 space-y-8">
             <SubmissionStats stats={stats} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <BadgesSection />
-                <RecentActivity />
+              <BadgesSection />
+              <RecentActivity />
             </div>
             <SubmissionHeatmap data={activityData} />
           </main>

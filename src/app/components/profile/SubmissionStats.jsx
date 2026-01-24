@@ -9,10 +9,10 @@ const CircularProgress = ({ percentage, solved }) => {
     <div className="relative flex items-center justify-center">
       <svg className="transform -rotate-90 w-32 h-32">
         <circle className="text-base-300" strokeWidth="8" stroke="currentColor" fill="transparent" r={radius} cx="64" cy="64" />
-        <circle 
-          className="text-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--p),0.5)]" 
-          strokeWidth="8" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset || circumference} 
-          strokeLinecap="round" stroke="currentColor" fill="transparent" r={radius} cx="64" cy="64" 
+        <circle
+          className="text-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--p),0.5)]"
+          strokeWidth="8" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset || circumference}
+          strokeLinecap="round" stroke="currentColor" fill="transparent" r={radius} cx="64" cy="64"
         />
       </svg>
       <div className="absolute text-center">
@@ -26,25 +26,29 @@ const CircularProgress = ({ percentage, solved }) => {
 const StatCard = ({ label, solved, total, color }) => (
   <div className="p-4 rounded-2xl bg-base-300 border border-base-content/5 flex justify-between items-center group hover:border-primary/30 transition-all">
     <div className="flex flex-col">
-        <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>{label}</span>
-        <span className="text-lg font-black text-base-content">{solved}<span className="text-xs opacity-20 font-bold">/{total}</span></span>
+      <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>{label}</span>
+      <span className="text-lg font-black text-base-content">{solved}<span className="text-xs opacity-20 font-bold">/{total}</span></span>
     </div>
     <div className={`w-1 h-8 rounded-full ${color.replace('text', 'bg')} opacity-20 group-hover:opacity-100 transition-opacity`} />
   </div>
 );
 
 const SubmissionStats = ({ stats }) => {
+  const solved = stats?.solved || { total: 0, easy: 0, medium: 0, hard: 0 };
+  const total = stats?.totalQuestions || { total: 0, easy: 0, medium: 0, hard: 0 };
+  const percentage = stats?.percentage || 0;
+
   return (
     <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[2.5rem] p-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
       <div className="md:col-span-1 flex items-center justify-center gap-10">
-          <CircularProgress percentage={0} solved={0} />
-          <div className="h-12 w-px bg-base-content/5 hidden md:block" />
+        <CircularProgress percentage={percentage} solved={solved.total} />
+        <div className="h-12 w-px bg-base-content/5 hidden md:block" />
       </div>
-      
+
       <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Easy" solved={0} total={0} color="text-emerald-400" />
-        <StatCard label="Medium" solved={0} total={0} color="text-amber-400" />
-        <StatCard label="Hard" solved={0} total={0} color="text-rose-400" />
+        <StatCard label="Easy" solved={solved.easy} total={total.easy} color="text-emerald-400" />
+        <StatCard label="Medium" solved={solved.medium} total={total.medium} color="text-amber-400" />
+        <StatCard label="Hard" solved={solved.hard} total={total.hard} color="text-rose-400" />
       </div>
     </div>
   );
