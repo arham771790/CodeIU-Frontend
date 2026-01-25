@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const getBaseUrl = () => process.env.NEXT_CONTESTSERVICE_URL;
+const getBaseUrl = () => process.env.NEXT_PUBLIC_CONTESTSERVICE_URL;
 
 export async function getContests() {
   try {

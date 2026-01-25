@@ -56,6 +56,7 @@ export default function ContestWorkspace({ contest }) {
   }
 
   const snapshot = activeProblem.snapshot;
+  console.log("active problem data : ",snapshot?.id)
 
   return (
     <div className="bg-base-100 flex flex-col h-screen font-sans text-base-content overflow-hidden">
@@ -71,19 +72,19 @@ export default function ContestWorkspace({ contest }) {
       <main className="flex-1 overflow-y-auto p-3 grid grid-cols-1 lg:grid-cols-2 gap-3 custom-scrollbar">
         {/* Left Panel: Description */}
         <Contest_problem_Description
-          title={snapshot.title}
-          description={snapshot.description}
-          testcases={snapshot.visibleTestcases || snapshot.testcases}
-          constraints={snapshot.constraints}
+          title={snapshot?.title}
+          description={snapshot?.description}
+          testcases={snapshot?.visibleTestcases || snapshot?.testcases}
+          constraints={snapshot?.constraints}
         />
 
         {/* Right Panel: Editor */}
         <Contest_Problem_CodeEditor
           key={snapshot.id} 
-          problemId={snapshot.id}
-          description={snapshot.description}
-          codeSnippets={snapshot.codeSnippets}
-          testcases={snapshot.visibleTestcases || snapshot.testcases}
+          problemId={snapshot?.id}
+          description={snapshot?.description}
+          codeSnippets={snapshot?.codeSnippets}
+          testcases={snapshot?.visibleTestcases || snapshot?.testcases}
         />
       </main>
     </div>

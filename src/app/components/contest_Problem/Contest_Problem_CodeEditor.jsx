@@ -15,6 +15,8 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
 
   const { setUserCode, userCode, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults } = useSubmissionStore();
 
+  console.log(submissions)
+
   const latestSubmission = useMemo(() => submissions?.find(sub => sub.problemId === problemId), [submissions, problemId]);
   const isSolved = latestSubmission?.status === "Accepted";
 
