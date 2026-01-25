@@ -1,10 +1,17 @@
 export default function robots() {
+  const baseUrl = "https://codeiu.in";
+
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/Admin/', '/Profile/', '/(auth)/'],
+      disallow: [
+        '/Admin/',   // Secure internal admin routes
+        '/Profile/', // User-specific profile data
+        '/(auth)/',  // Authentication flows
+        '/api/',     // Backend API proxies
+      ],
     },
-    sitemap: 'https://codeiu.in/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   }
 }

@@ -1,29 +1,58 @@
 import { getProblems } from "@/lib/services/problemService";
 
-export default async function sitemap() {
-  const baseUrl = "https://codeiu.in";
+/**
+ * @typedef {Object} SitemapEntry
+ * @property {string} url
+ * @property {Date} lastModified
+ * @property {string} changeFrequency
+ * @property {number} priority
+ */
 
-  // Static routes
-  const routes = ["", "/problems", "/Explore", "/Leaderboard"].map((route) => ({
-    url: `${baseUrl}${route}`,
+const BASE_URL = "https://codeiu.in";
+
+export default async function sitemap() {
+  // 1. Static Core Routes
+  const staticRoutes = [
+    { url: "", changeFrequency: "daily", priority: 1 },
+    { url: "/problems", changeFrequency: "daily", priority: 0.9 },
+    { url: "/Explore", changeFrequency: "weekly", priority: 0.8 },
+    { url: "/Leaderboard", changeFrequency: "daily", priority: 0.8 },
+  ].map((route) => ({
+    url: `${BASE_URL}${route.url}`,
     lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: route === "" ? 1 : 0.8,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
 
-  // Dynamic routes (Problems)
+  // 2. Dynamic Problem Routes
+  let problemRoutes = [];
   try {
+    // getProblems uses next: { revalidate: 3600 } internally
     const problems = await getProblems();
-    const problemRoutes = problems.map((problem) => ({
-      url: `${baseUrl}/Each-problem/${problem._id}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
+    problemRoutes = problems.map((problem) => ({
+      url: `${BASE_URL}/Each-problem/${problem._id}`,
+      lastModified: new Date(problem.updatedAt || new Date()),
+      changeFrequency: "weekly",
+      priority: 0.7,
     }));
-
-    return [...routes, ...problemRoutes];
   } catch (error) {
-    console.error("Error generating sitemap:", error);
-    return routes;
+    console.error("Sitemap dynamic fetch error (Problems):", error);
   }
+
+  // 3. Future Modules (Placeholders)
+  // To extend: fetch data from respective services and map to SitemapEntry
+  const contestRoutes = []; // TODO: fetchContests()
+  const userRoutes = [];    // TODO: fetchActiveUsers()
+  const blogRoutes = [];    // TODO: fetchBlogs()
+
+  return [
+    ...staticRoutes,
+    ...problemRoutes,
+    ...contestRoutes,
+    ...userRoutes,
+    ...blogRoutes,
+  ];
 }
+
+// SEO Tip: If the sitemap exceeds 50k URLs, use multiple sitemaps via generateSitemaps
+// https://nextjs.org/docs/app/api-reference/functions/generate-sitemaps
