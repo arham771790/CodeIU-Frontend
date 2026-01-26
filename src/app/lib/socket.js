@@ -13,7 +13,7 @@ export const getSocket = () => {
     // Connect to BASE_URL, path includes service prefix for ALB routing
     submissionSocket = io(BASE_URL, {
       path: "/submission/realtime",
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"],
       withCredentials: true,
     });
 
@@ -34,7 +34,7 @@ export const getContestSocket = () => {
     // Connect to BASE_URL, path includes service prefix for ALB routing
     contestSocket = io(BASE_URL, {
       path: "/contest/realtime",
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"],
       withCredentials: true,
     });
 
