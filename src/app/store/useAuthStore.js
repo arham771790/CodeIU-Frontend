@@ -13,18 +13,18 @@ export const useAuthStore = create((set) => ({
   isLoggingOut: false,
 
   GoogleLoginCall: async () => {
-    set({ isLoggingIn: true })
-    try {
-      const res = await axiosInstanceAuthService.get("/auth/google/redirect");
+  set({ isLoggingIn: true });
 
-      window.location.href = res.data.url;
-      set({ isLoggingIn: false })
-
-
-    } catch (error) {
-      toast.error('Error while logging in with Google')
-    }
-  },
+  try {
+    // OAuth must be a browser redirect (NOT axios/fetch)
+    window.location.href =
+      "https://api.codeiu.in/auth/api/v1/auth/google";
+  } catch (error) {
+    console.error("Google OAuth error:", error);
+    toast.error("Error while logging in with Google");
+    set({ isLoggingIn: false });
+  }
+},
   signup: async (payload) => {
     set({ isSigninUp: true });
     try {
