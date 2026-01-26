@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/app/lib/axios";
 import { toast } from "react-toastify";
+
 export const useParticipantStore = create((set, get) => ({
   isRegistered: false,
   isRegistering: false,
@@ -9,16 +10,28 @@ export const useParticipantStore = create((set, get) => ({
   participantCount: 0,
   error: null,
   
-  // 🔍 Check if user is already registered
+  // ✅ NEW: User Status State
+  myWarnings: 0,
+  myStatus: "ACTIVE", // ACTIVE, WARNED, DISQUALIFIED
+
+  // ✅ Actions for Socket Updates
+  setWarnings: (count) => set({ myWarnings: count }),
+  setStatus: (status) => set({ myStatus: status }),
+
+  // 🔍 Check if user is already registered & Get Status
   async checkRegistration({ contestId, userId }) {
-    
     try {
-      
       const res = await axiosInstanceContestService.get(`contest/contests/${contestId}/check`, {
         params: { userId },
       });
 
-      set({ isRegistered: res.data.isRegistered || false });
+      set({ 
+        isRegistered: res.data.isRegistered || false,
+        // ✅ Save these from the backend response
+        myWarnings: res.data.warnings || 0,
+        myStatus: res.data.status || "ACTIVE"
+      });
+
     } catch (err) {
       console.error("Error checking registration:", err);
       set({ error: "Failed to check registration" });
@@ -26,11 +39,11 @@ export const useParticipantStore = create((set, get) => ({
   },
 
   // ✅ Register for contest
-  async register({ contestId, userId ,username}) {
+  async register({ contestId, userId, username }) {
     try {
       set({ isRegistering: true, error: null });
       const res = await axiosInstanceContestService.post(`contest/contests/${contestId}/register`, {
-        userId,username
+        userId, username
       });
       if (res.data.ok) {
         toast.success("Registered successfully!");
@@ -38,6 +51,8 @@ export const useParticipantStore = create((set, get) => ({
           isRegistered: true,
           isRegistering: false,
           participantCount: state.participantCount + 1,
+          myWarnings: 0, // Reset on new registration
+          myStatus: "ACTIVE"
         }));
       } else {
         toast.error("Failed to register.");
@@ -63,6 +78,8 @@ export const useParticipantStore = create((set, get) => ({
           isRegistered: false,
           isUnregistering: false,
           participantCount: Math.max(0, state.participantCount - 1),
+          myWarnings: 0,
+          myStatus: "ACTIVE"
         }));
       } else {
         toast.error("Failed to unregister.");
@@ -75,7 +92,6 @@ export const useParticipantStore = create((set, get) => ({
     }
   },
 
-  // 👥 (Optional) Fetch participant count
   async fetchParticipantCount(contestId) {
     try {
       const res = await axiosInstanceContestService.get(`/contests/${contestId}/participants/count`);
