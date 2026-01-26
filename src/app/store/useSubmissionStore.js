@@ -45,48 +45,37 @@ export const useSubmissionStore = create((set, get) => ({
     },
 
     intializeSocket: async (userId) => {
-        let { socket } = get();
+        const { socket } = get();
 
-        // ✅ 1. SINGLETON CHECK: If socket exists and is connected, do nothing.
+        // 1. Singleton Check
         if (socket && socket.connected) {
             console.log("⚡ Socket already active. Re-joining room for user:", userId);
-            socket.emit('join-room', {userId});
+            if (userId) socket.emit('join-room', { userId });
             return;
         }
 
-        // 2. Initialize using centralized helper
-        const { getSocket, getContestSocket } = await import('@/app/lib/socket');
+        // 2. Initialize
+        const { getSocket } = await import('@/app/lib/socket');
         const newSocket = getSocket();
-        const cSocket = getContestSocket();
+
+        // Remove old listeners to avoid stacking
+        newSocket.off("submission-update");
 
         newSocket.on('connect', () => {
             console.log("✅ Submission Socket connected:", newSocket.id);
-            if (userId) {
-                newSocket.emit('join-room', { userId });
-            }
+            if (userId) newSocket.emit('join-room', { userId });
         });
 
-        cSocket.on('connect', () => {
-            console.log("✅ Contest Socket connected:", cSocket.id);
-        });
-
-        set({ socket: newSocket });
-
-        // Listeners for Submission Socket
         newSocket.on("submission-update", (finalSubmission) => {
-            console.log('Received submission update:', finalSubmission);
+            console.log('📬 [SubmissionStore] Received update:', finalSubmission.id, finalSubmission.status);
             set((state) => ({
                 submissions: state.submissions.map(sub =>
-                    sub.id === finalSubmission.id ? finalSubmission : sub
+                    sub.id === finalSubmission.id ? { ...sub, ...finalSubmission } : sub
                 ),
             }));
         });
 
-        // Listeners for Contest Socket
-        cSocket.on("leaderboard:update", (leaderboardData) => {
-            console.log('Received leaderboard update:', leaderboardData);
-            set({ leaderboard: leaderboardData });
-        });
+        set({ socket: newSocket });
     },
 
 

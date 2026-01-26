@@ -20,8 +20,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
 
   useEffect(() => {
     if (codeSnippets) setUserCode(codeSnippets?.[selectedLanguage] || "");
-    clearResults();
-  }, [codeSnippets, selectedLanguage, clearResults, setUserCode]);
+  }, [codeSnippets, selectedLanguage, setUserCode]);
 
   useEffect(() => { if (latestSubmission?.status === "Pending") setActiveTab("submission"); }, [latestSubmission]);
   useEffect(() => { if (RunReslts?.length > 0) setActiveTab("testresult"); }, [RunReslts]);
@@ -51,8 +50,8 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
             {Object.keys(codeSnippets || {}).map(lang => <option key={lang} value={lang} className="bg-base-200">{lang}</option>)}
           </select>
           <div className="flex gap-1">
-            <button onClick={() => setUserCode(codeSnippets[selectedLanguage])} className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><RefreshCw size={14}/></button>
-            <button className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><Expand size={14}/></button>
+            <button onClick={() => setUserCode(codeSnippets[selectedLanguage])} className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><RefreshCw size={14} /></button>
+            <button className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><Expand size={14} /></button>
           </div>
         </div>
         <div className="flex-1">
@@ -68,7 +67,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
         <div className="flex px-6 border-b border-base-content/5 bg-base-300/30 gap-6">
           {["testcase", "testresult", "submission"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === tab ? "border-primary text-primary" : "border-transparent opacity-40"}`}>
-              {tab === "submission" && isSolved ? <span className="flex items-center gap-1">Submission <CheckCircle2 size={12}/></span> : tab}
+              {tab === "submission" && isSolved ? <span className="flex items-center gap-1">Submission <CheckCircle2 size={12} /></span> : tab}
             </button>
           ))}
         </div>
@@ -96,7 +95,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
                   <div className="flex gap-2 flex-wrap pt-4">
                     {RunReslts.map((r, i) => (
                       <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase border ${r.passed ? "bg-success/5 border-success/20 text-success" : "bg-error/5 border-error/20 text-error"}`}>
-                         {r.passed ? <CheckCircle2 size={12}/> : <XCircle size={12}/>} Case {i + 1}
+                        {r.passed ? <CheckCircle2 size={12} /> : <XCircle size={12} />} Case {i + 1}
                       </div>
                     ))}
                   </div>
@@ -111,7 +110,7 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
                     <h2 className={`text-2xl font-black  tracking-tighter uppercase ${latestSubmission.status === "Accepted" ? "text-success" : "text-error"}`}>{latestSubmission.status}</h2>
-                    {latestSubmission.status === "Pending" && <Loader2 className="animate-spin text-primary" size={24}/>}
+                    {latestSubmission.status === "Pending" && <Loader2 className="animate-spin text-primary" size={24} />}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {latestSubmission.testcases?.map((tc, idx) => (

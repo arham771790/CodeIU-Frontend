@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { getContestSocket, joinContestRoom } from "@/app/lib/socket";
+import { getContestSocket, joinContestRoom, joinUserRoom } from "@/app/lib/socket";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
@@ -41,13 +41,33 @@ export default function ContestClientView({ initialContest }) {
   useEffect(() => {
     const socket = getContestSocket();
     joinContestRoom(contestId);
+    if (authUser?.id) joinUserRoom(authUser.id);
 
     const onUpdate = ({ contestId: changedId, newStatus }) => {
       if (changedId === contestId) fetchContestById(contestId);
     };
 
+    // ✅ Listen for warning updates
+    const onWarningUpdate = ({ warnings }) => {
+      console.log("⚠️ [ContestClientView] Warning update received:", warnings);
+      useParticipantStore.getState().setWarnings(warnings);
+    };
+
+    // ✅ Listen for disqualification
+    const onTerminated = ({ reason }) => {
+      console.log("🛑 [ContestClientView] Contest terminated:", reason);
+      useParticipantStore.getState().setStatus("DISQUALIFIED");
+    };
+
     socket.on("contestStatusUpdated", onUpdate);
-    return () => socket.off("contestStatusUpdated", onUpdate);
+    socket.on("warning:update", onWarningUpdate);
+    socket.on("contest:terminated", onTerminated);
+
+    return () => {
+      socket.off("contestStatusUpdated", onUpdate);
+      socket.off("warning:update", onWarningUpdate);
+      socket.off("contest:terminated", onTerminated);
+    };
   }, [contestId, fetchContestById]);
 
   const activeContest = contest || initialContest;
