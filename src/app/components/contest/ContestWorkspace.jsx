@@ -1,10 +1,10 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
-import { joinContestRoom } from "@/app/lib/socket";
+import { joinContestRoom } from "@/app/lib/socket"; // Contest Public Room
+import { useAntiCheat } from "@/app/hooks/useAntiCheat"; // ✅ Import New Hook
 import { Loader2, AlertCircle } from "lucide-react";
 
 import Contest_Problem_CodeEditor from "../contest_Problem/Contest_Problem_CodeEditor";
@@ -17,19 +17,26 @@ export default function ContestWorkspace({ contest }) {
   const { intializeSocket, closeSocketConnection } = useSubmissionStore();
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // 1. Fetch Bundle
   useEffect(() => {
     if (contest?.id && authUser?.id) {
       fetchBundle({ contestId: contest.id, userId: authUser.id });
     }
   }, [contest?.id, authUser?.id, fetchBundle]);
 
+  // 2. Initialize Submission Socket (Port 8080) & Join Public Contest Room (Port 8090)
   useEffect(() => {
     if (authUser?.id && contest?.id) {
-      intializeSocket(authUser.id);
-      joinContestRoom(contest.id);
+      intializeSocket(authUser.id); // Submission Store (Port 8080)
+      joinContestRoom(contest.id);  // Lib Socket (Port 8090)
     }
     return () => { closeSocketConnection(); };
   }, [authUser?.id, contest?.id, intializeSocket, closeSocketConnection]);
+
+  // ✅ 3. ACTIVATE ANTI-CHEAT (Port 8090)
+  // This handles the visibility checks and warning listeners cleanly
+  useAntiCheat(contest?.id, authUser?.id);
+
 
   if (isLoading || !bundle) {
     return (
@@ -70,21 +77,18 @@ export default function ContestWorkspace({ contest }) {
       />
 
       <main className="flex-1 overflow-y-auto p-3 grid grid-cols-1 lg:grid-cols-2 gap-3 custom-scrollbar">
-        {/* Left Panel: Description */}
         <Contest_problem_Description
-          title={snapshot.title}
-          description={snapshot.description}
-          testcases={snapshot.visibleTestcases || snapshot.testcases}
-          constraints={snapshot.constraints}
+          title={snapshot?.title}
+          description={snapshot?.description}
+          testcases={snapshot?.visibleTestcases || snapshot?.testcases}
+          constraints={snapshot?.constraints}
         />
-
-        {/* Right Panel: Editor */}
         <Contest_Problem_CodeEditor
           key={snapshot.id} 
-          problemId={snapshot.id}
-          description={snapshot.description}
-          codeSnippets={snapshot.codeSnippets}
-          testcases={snapshot.visibleTestcases || snapshot.testcases}
+          problemId={snapshot?.id}
+          description={snapshot?.description}
+          codeSnippets={snapshot?.codeSnippets}
+          testcases={snapshot?.visibleTestcases || snapshot?.testcases}
         />
       </main>
     </div>
