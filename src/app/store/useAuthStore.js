@@ -18,7 +18,7 @@ export const useAuthStore = create((set) => ({
   try {
     // OAuth must be a browser redirect (NOT axios/fetch)
     window.location.href =
-      "https://api.codeiu.in/auth/api/v1/auth/google";
+  "https://api.codeiu.in/auth/api/v1/auth/google/redirect";
   } catch (error) {
     console.error("Google OAuth error:", error);
     toast.error("Error while logging in with Google");
