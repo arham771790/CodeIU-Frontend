@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { getContestSocket, joinContestRoom } from "@/app/lib/socket";
 import { Calendar, LayoutGrid } from "lucide-react";
 
 function calcStartsIn(startsAt) {
@@ -37,7 +37,7 @@ export default function ContestCard({ contest }) {
 
   // Socket listener for status updates
   useEffect(() => {
-    const socket = getSocket();
+    const socket = getContestSocket();
     joinContestRoom(contest.id);
 
     const handler = ({ contestId, newStatus }) => {
@@ -75,7 +75,7 @@ export default function ContestCard({ contest }) {
       <div className="relative h-44 bg-gradient-to-br from-base-300 to-base-100 overflow-hidden">
         {/* Animated background shape */}
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-        
+
         <div className="absolute inset-0 p-5 flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <div className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 flex items-center gap-2 text-[11px] font-bold text-white uppercase tracking-wider">
@@ -83,10 +83,10 @@ export default function ContestCard({ contest }) {
               {status}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 text-white/90 font-mono text-sm bg-black/20 backdrop-blur-sm w-fit px-3 py-1.5 rounded-lg border border-white/5">
-             <Calendar size={14} className="text-primary" />
-             {formatTime}
+            <Calendar size={14} className="text-primary" />
+            {formatTime}
           </div>
         </div>
       </div>
@@ -98,10 +98,10 @@ export default function ContestCard({ contest }) {
         </h3>
         <div className="mt-3 flex items-center justify-between">
           <p className="text-xs text-base-content/50 font-medium">
-            {new Date(contest.startsAt).toLocaleDateString()} • {new Date(contest.startsAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            {new Date(contest.startsAt).toLocaleDateString()} • {new Date(contest.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
           <div className="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-content transition-all">
-             <LayoutGrid size={14} />
+            <LayoutGrid size={14} />
           </div>
         </div>
       </div>

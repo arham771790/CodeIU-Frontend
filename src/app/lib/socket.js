@@ -12,8 +12,8 @@ export const getSocket = () => {
   if (!submissionSocket) {
     // Connect to BASE_URL, path includes service prefix for ALB routing
     submissionSocket = io(BASE_URL, {
-      path: "/submission/socket.io",
-      transports: ["websocket"],
+      path: "/submission/realtime",
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
@@ -34,7 +34,7 @@ export const getContestSocket = () => {
     // Connect to BASE_URL, path includes service prefix for ALB routing
     contestSocket = io(BASE_URL, {
       path: "/contest/realtime",
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
@@ -68,7 +68,7 @@ export const joinUserRoom = (userId) => {
 export const joinSubmissionRoom = (userId) => {
   const s = getSocket();
   if (!userId) return;
-  s.emit("join-room", userId);
+  s.emit("join-room", { userId });
   console.log(`📑 join-room (Submission) -> ${userId}`);
 }
 

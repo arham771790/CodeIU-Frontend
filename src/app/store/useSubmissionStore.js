@@ -62,7 +62,7 @@ export const useSubmissionStore = create((set, get) => ({
         newSocket.on('connect', () => {
             console.log("✅ Submission Socket connected:", newSocket.id);
             if (userId) {
-                newSocket.emit('join-room', {userId});
+                newSocket.emit('join-room', { userId });
             }
         });
 

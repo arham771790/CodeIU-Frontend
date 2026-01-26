@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getSocket, joinUserRoom } from "@/app/lib/socket"; // Uses your lib/socket.js
+import { getContestSocket, joinUserRoom } from "@/app/lib/socket"; // Uses your lib/socket.js
 import { useParticipantStore } from "@/app/store/useParticipantStore";
 import { toast } from "react-toastify"; // or react-hot-toast depending on what you use
 
@@ -9,7 +9,7 @@ export const useAntiCheat = (contestId, userId) => {
   useEffect(() => {
     if (!contestId || !userId) return;
 
-    const socket = getSocket();
+    const socket = getContestSocket();
 
     // 1. Join User Room (Specific to Contest Service)
     // We do this to ensure we receive private events like disqualification

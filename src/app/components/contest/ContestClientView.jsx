@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { getSocket } from "@/app/lib/socket";
+import { getContestSocket, joinContestRoom } from "@/app/lib/socket";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useContestStore } from "@/app/store/useContestStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
@@ -20,7 +20,7 @@ export default function ContestClientView({ initialContest }) {
   const { authUser } = useAuthStore();
   const { contest, setContest, fetchContestById } = useContestStore();
   const { bundle, fetchBundle } = useBundleStore();
-  
+
   // ✅ Get Warning Data
   const { checkRegistration, myWarnings, myStatus } = useParticipantStore();
 
@@ -34,13 +34,13 @@ export default function ContestClientView({ initialContest }) {
     if (contestId && authUser?.id) {
       fetchBundle({ contestId, userId: authUser.id });
       // ✅ Fetch latest warning count on load
-      checkRegistration({ contestId, userId: authUser.id }); 
+      checkRegistration({ contestId, userId: authUser.id });
     }
   }, [contestId, authUser?.id, fetchBundle, checkRegistration]);
 
   useEffect(() => {
-    const socket = getSocket();
-    socket.emit("join:contest", { contestId });
+    const socket = getContestSocket();
+    joinContestRoom(contestId);
 
     const onUpdate = ({ contestId: changedId, newStatus }) => {
       if (changedId === contestId) fetchContestById(contestId);
@@ -62,12 +62,12 @@ export default function ContestClientView({ initialContest }) {
     if (myStatus === "DISQUALIFIED" || myWarnings > 3) {
       return (
         <div className="flex flex-col items-center gap-2">
-           <button disabled className="btn btn-error btn-outline rounded-2xl px-12 h-14 text-lg font-black uppercase opacity-50 cursor-not-allowed gap-2">
-             <Lock size={18} /> Disqualified
-           </button>
-           <p className="text-error text-xs font-bold uppercase tracking-widest animate-pulse">
-             Rule Violation Limit Exceeded
-           </p>
+          <button disabled className="btn btn-error btn-outline rounded-2xl px-12 h-14 text-lg font-black uppercase opacity-50 cursor-not-allowed gap-2">
+            <Lock size={18} /> Disqualified
+          </button>
+          <p className="text-error text-xs font-bold uppercase tracking-widest animate-pulse">
+            Rule Violation Limit Exceeded
+          </p>
         </div>
       );
     }
@@ -76,16 +76,16 @@ export default function ContestClientView({ initialContest }) {
     if (myWarnings > 0) {
       return (
         <div className="flex flex-col items-center gap-4">
-           <Link href={`/Contest_ProblemPage/${contestId}`}>
-              <button className="btn btn-primary rounded-2xl px-12 h-14 text-lg font-black uppercase shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
-                Resume Arena
-              </button>
-           </Link>
-           {/* Warning Badge in Lobby */}
-           <div className="flex items-center gap-2 px-4 py-1.5 bg-warning/10 border border-warning/20 text-warning rounded-full text-xs font-bold uppercase tracking-wide">
-             <AlertTriangle size={14} className="animate-pulse"/>
-             <span>Warnings: {myWarnings}/3</span>
-           </div>
+          <Link href={`/Contest_ProblemPage/${contestId}`}>
+            <button className="btn btn-primary rounded-2xl px-12 h-14 text-lg font-black uppercase shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
+              Resume Arena
+            </button>
+          </Link>
+          {/* Warning Badge in Lobby */}
+          <div className="flex items-center gap-2 px-4 py-1.5 bg-warning/10 border border-warning/20 text-warning rounded-full text-xs font-bold uppercase tracking-wide">
+            <AlertTriangle size={14} className="animate-pulse" />
+            <span>Warnings: {myWarnings}/3</span>
+          </div>
         </div>
       );
     }
@@ -106,13 +106,13 @@ export default function ContestClientView({ initialContest }) {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
           {/* ... Header Content ... */}
-           <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <div className="h-10 w-1.5 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--p),0.5)]" />
             <h2 className="text-3xl font-black tracking-tight uppercase">
               Contest <span className="opacity-30 not-italic">Overview</span>
             </h2>
           </div>
-         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             {isAdmin && (
               <AdminAttachProblemsDialog contestId={activeContest.id} />
             )}
@@ -127,8 +127,8 @@ export default function ContestClientView({ initialContest }) {
         <div className="mb-20">
           {problems?.length > 0 ? (
             isAdmin ? (
-               // Admin View ...
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              // Admin View ...
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {problems
                   .slice()
                   .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -178,12 +178,12 @@ export default function ContestClientView({ initialContest }) {
             )
           ) : (
             <div className="text-center py-20 bg-base-200/20 rounded-3xl border border-dashed border-base-content/10 italic opacity-40">
-               No problems available.
+              No problems available.
             </div>
           )}
         </div>
         {/* Rules & Prizes Grid */}
-         <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-12">
           <ContestRules />
           <div className="space-y-12">
             <ContestPrizes />

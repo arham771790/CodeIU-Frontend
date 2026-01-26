@@ -5,7 +5,7 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import CreateContestDialog from "@/app/components/contest/CreateContestDialog";
 import ManageContestsButton from "@/app/components/contest/ManageContestButton";
 import ContestGrid from "@/app/components/contest/ContestGrid";
-import { getSocket, joinContestRoom } from "@/app/lib/socket";
+import { getContestSocket, joinContestRoom } from "@/app/lib/socket";
 import { Trophy, Calendar, Zap, LayoutGrid, Plus, Swords } from "lucide-react";
 import GridHighlights from "@/app/components/GridHighlights"; // Ensure this import exists
 
@@ -32,7 +32,7 @@ export default function ContestDashboard({ initialContests }) {
 
   // 2. Socket Logic
   useEffect(() => {
-    const socket = getSocket();
+    const socket = getContestSocket();
     contests.forEach((c) => joinContestRoom(c.id));
 
     const onStatus = ({ contestId, newStatus }) => {
@@ -81,7 +81,7 @@ export default function ContestDashboard({ initialContests }) {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* 2. Header with "Developer Page Style" Glow */}
         <header className="relative z-10 py-12 md:py-24 text-center">
           {/* THE CONSTANT BACKGROUND GLOW (Title Aura) */}
@@ -103,7 +103,7 @@ export default function ContestDashboard({ initialContests }) {
                       <div className="absolute inset-0 bg-primary/50 blur-xl rounded-full animate-pulse" />
                       {/* Rotating Dashed Orbit */}
                       <div className="absolute inset-[-8px] border border-dashed border-primary/40 rounded-full animate-[spin_10s_linear_infinite] opacity-50" />
-                      
+
                       {/* The Swords Icon for Contests */}
                       <Swords className="text-primary w-6 h-6 md:w-6 md:h-6 relative z-10 drop-shadow-[0_0_8px_rgba(var(--p),0.8)]" />
                     </div>
@@ -123,7 +123,7 @@ export default function ContestDashboard({ initialContests }) {
 
         {/* 3. Controls Section (Tabs + Admin Buttons) */}
         <div className="mb-10 relative z-20 flex flex-col md:flex-row items-center justify-between gap-6">
-          
+
           {/* Tabs - Styled like filters */}
           <div className="flex p-1 bg-base-200/80 backdrop-blur-md rounded-full border border-base-content/10 shadow-lg">
             {tabs.map((t) => {
@@ -133,11 +133,10 @@ export default function ContestDashboard({ initialContests }) {
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-                    isActive
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${isActive
                       ? "bg-primary text-primary-content shadow-[0_0_20px_rgba(var(--p),0.4)]"
                       : "text-base-content/40 hover:text-base-content hover:bg-base-content/5"
-                  }`}
+                    }`}
                 >
                   <Icon size={14} className={isActive ? "animate-pulse" : ""} />
                   {t.label}
@@ -157,9 +156,9 @@ export default function ContestDashboard({ initialContests }) {
                 <Plus className="w-5 h-5" />
               </button>
               {openCreate && <CreateContestDialog setOpen={setOpenCreate} />}
-              
+
               <div className="scale-90 origin-right">
-                 <ManageContestsButton />
+                <ManageContestsButton />
               </div>
             </div>
           )}
@@ -167,14 +166,14 @@ export default function ContestDashboard({ initialContests }) {
 
         {/* 4. Contest Grid Section (Glassmorphism Container) */}
         <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[2.5rem] overflow-hidden shadow-2xl mb-24 p-8 min-h-[400px]">
-          
+
           {/* Grid Header / Status Line */}
           <div className="flex items-center gap-4 mb-8 opacity-40">
-             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
-             <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-               Displaying {filteredContests.length} {activeTab.toLowerCase()} Events
-             </span>
-             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+              Displaying {filteredContests.length} {activeTab.toLowerCase()} Events
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
           </div>
 
           {/* The Actual Grid */}
