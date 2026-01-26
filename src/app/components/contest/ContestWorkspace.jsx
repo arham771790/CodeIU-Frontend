@@ -24,7 +24,7 @@ export default function ContestWorkspace({ contest }) {
     }
   }, [contest?.id, authUser?.id, fetchBundle]);
 
-  // 2. Initialize Submission Socket (Port 8080) & Join Public Contest Room (Port 8090)
+  // 2. Initialize Submission Socket (Port 8080) & Join Public Contest Room (Port 8090) ok
   useEffect(() => {
     if (authUser?.id && contest?.id) {
       intializeSocket(authUser.id); // Submission Store (Port 8080)
