@@ -21,7 +21,7 @@ export const LayoutTextFlip = ({
     <motion.span
       layout
       /* SENIOR FIX: Changed text-blue-700 to text-primary */
-      className="relative w-fit font-sans text-4xl font-extrabold tracking-wide text-primary md:text-6xl bg-transparent"
+      className="relative w-fit font-sans text-4xl font-extrabold tracking-wide text-primary md:text-7xl bg-transparent"
     >
       <AnimatePresence mode="popLayout">
         <motion.span
