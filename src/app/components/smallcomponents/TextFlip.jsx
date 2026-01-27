@@ -7,7 +7,7 @@ export function TextFlip() {
   return (
     <div>
       <motion.div
-        className=" flex flex-col border-none mr-2 items-center justify-center">
+        className=" flex flex-col border-none mr-2 items-center justify-center ">
         <LayoutTextFlip
           words={["MAKE", "CODE", "WORK"]} />
       </motion.div>

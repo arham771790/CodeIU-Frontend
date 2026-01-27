@@ -1,77 +1,96 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { TextFlip } from "./smallcomponents/TextFlip";
 import Link from "next/link";
+import { Cpu, Zap, Code2, ChevronRight } from "lucide-react";
+import GridHighlights from "@/app/components/GridHighlights";
 
 const Landingpage = () => {
-  const words = ["CodeIU", "CodeBetter", "CodeFast", "CodeSmart"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
+  // Syncing the fade with your TextFlip timing
   useEffect(() => {
     const interval = setInterval(() => {
       setFadeOut(true);
       setTimeout(() => {
-        setCurrentWordIndex((prev) => (prev + 1) % words.length);
         setFadeOut(false);
-      }, 40);
+      }, 500); 
     }, 7000);
-
     return () => clearInterval(interval);
   }, []);
 
   return (
-
-    
-   
-    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden  transition-colors duration-500">
-     
-      {/* Dynamic Background Glow that follows the theme's primary color */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-from)_0%,transparent_70%)] from-primary/10 to-transparent pointer-events-none" />
+    <div className="bg-base-300 text-base-content min-h-[85vh] relative overflow-hidden flex items-center justify-center font-sans mb-8">
       
+      {/* 1. THE GRID & HIGHLIGHTS BACKGROUND (CodeIU X Signature) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-20 pointer-events-none" />
+      
+      <div className="absolute top-0 left-0 w-full h-full 
+        [mask-image:linear-gradient(to_bottom,black_60%,transparent)]
+        pointer-events-none z-0" 
+      >
+        <div className="absolute inset-0 
+          bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] 
+          bg-[size:24px_24px]" 
+        />
+        <GridHighlights />
+      </div>
 
-      <div className="flex flex-col items-center justify-around mb-15 z-10">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold uppercase px-4 mb-6 text-base-content tracking-tight">
-            <div className="inline-block md:w-[150px] relative md:mr-2">
-              <span
-                className={`text-primary w-full mr-2 text-center font-extrabold inline-block transition-all duration-500 ${
-                  fadeOut ? "opacity-0 scale-90" : "opacity-100 scale-100"
-                }`}
-              >
-                <TextFlip />
-              </span>
-            </div>
-            {" with next\n generation developer"} <br />
-          </h1>
+      {/* 2. MAIN CONTENT AREA */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        
+       
 
-          <div className="flex flex-col items-center justify-center gap-2">
-            <p className="max-w-2xl mx-auto text-sm md:text-xl font-medium text-base-content/70">
-              Ultimate Platform For Next-Gen Coding Contests
-            </p>
-            
-            <div className="flex items-center gap-2 max-w-2xl mx-auto text-sm md:text-lg font-semibold text-base-content/60">
-              Developed by Students of 
-              <span className="text-primary font-bold">Integral University</span>
-            </div>
+        {/* Hero Title */}
+        <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] mb-10 uppercase">
+          <div className="inline-block relative">
+            <span
+              className={`text-transparent bg-clip-text bg-gradient-to-b from-white via-primary to-primary/60 transition-all duration-700 ${
+                fadeOut ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+              }`}
+            >
+              <TextFlip />
+            </span>
+          </div>
+          <br />
+          Next Generation <br />
+          <span className="text-base-content opacity-20">Developer Arena</span>
+        </h1>
+
+        {/* REQUESTED: 3xl Heading, No Italics */}
+        <div className="space-y-4 mb-14">
+          <h2 className="text-2xl md:text-3xl font-black text-base-content tracking-tighter uppercase leading-tight gap-2">
+            Ultimate Platform For Next-Gen Coding Contests
+          </h2>
+          
+          <div className="inline-flex items-center gap-2 bg-base-200 border border-base-content/10 px-5 py-2 rounded-2xl shadow-xl">
+             <Cpu size={16} className="text-primary" />
+             <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
+               Engineered by Students of <span className="text-primary opacity-100">Integral University</span>
+             </p>
           </div>
         </div>
 
-        {/* SENIOR FIX: Replaced hardcoded buttons with DaisyUI semantic buttons */}
-        <div className="mt-12 flex flex-col sm:flex-row gap-6">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <Link href="/problems">
-          <button className="bg-transparent btn btn-outline btn-primary px-8 h-auto py-4 text-lg hover:scale-105 transition-transform rounded-lg">
-            <span>Start Coding</span>
-            <div className="badge badge-primary ml-2 p-3">{"</>"}</div>
-          </button>
+            <button className="group bg-primary text-white px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_40px_rgba(var(--p),0.3)]">
+              <span>Start Coding</span>
+              <Code2 size={16} className="group-hover:rotate-12 transition-transform" />
+            </button>
           </Link>
 
           <Link href="/contest">
-          <button className="btn btn-primary px-8 h-auto py-4 text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform rounded-lg">
-            Join a Contest
-          </button>
+            <button className="group bg-base-200 border border-base-content/10 text-base-content px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-3 hover:bg-base-100 transition-all">
+              Join Contest
+              <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </button>
           </Link>
         </div>
+
       </div>
+
+      
     </div>
   );
 };
