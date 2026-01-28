@@ -78,9 +78,9 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
         </p>
 
         <div className="mt-10 flex items-center justify-center md:justify-start gap-5">
-          <button className="btn btn-primary rounded-2xl px-10 h-14 shadow-xl shadow-primary/30 text-white font-black uppercase tracking-widest hover:scale-105 transition-all">
+          <a href="https://arhamz-portfolio.vercel.app/" className="btn btn-primary rounded-2xl px-10 h-14 shadow-xl shadow-primary/30 text-white font-black uppercase tracking-widest hover:scale-105 transition-all">
             Portfolio
-          </button>
+          </a>
           <div className="flex items-center gap-3">
             <a
               href={developer.social.github}
