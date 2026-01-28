@@ -4,7 +4,7 @@ export default function Footer() {
   // We define the links explicitly to handle the special case for "Home" -> "/"
   const footerSections = [
     {
-      title: "Platform", // Better than "Features" for general nav
+      title: "Platform", // Better than "Features" for general navigation
       links: [
         { name: "Home", href: "/" }, // Explicitly points to root
         { name: "Login", href: "/login" },
