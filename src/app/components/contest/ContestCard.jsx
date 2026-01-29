@@ -22,7 +22,7 @@ export default function ContestCard({ contest }) {
   const [timeLeft, setTimeLeft] = useState(() => calcStartsIn(contest.startsAt));
   const [status, setStatus] = useState(contest.status);
 
-  // ✅ Always sync local status if props change (important!)
+  // ✅ Always sync local status if props change (important!
   useEffect(() => {
     setStatus(contest.status);
   }, [contest.status]);
