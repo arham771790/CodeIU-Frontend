@@ -19,6 +19,7 @@ const developers = [
     description:
       "Wasif is the backbone of the development team, focusing on server-side logic, database management, and API development. He is dedicated to building robust, secure, and scalable systems that power our applications.",
     imageUrl: "me.jpg",
+    portfolio: "https://portfolio-sy3p.onrender.com/", // Added property
     social: {
       github: "https://github.com/SyedWasif1234",
       linkedin: "https://www.linkedin.com/in/wasif2345",
@@ -26,10 +27,11 @@ const developers = [
   },
   {
     name: "Mohd Arham",
-    role: "Full Stack Developer + Devops",
+    role: "Full Stack + Devops",
     description:
       "Arham is a passionate developer with expertise in building scalable web applications. He excels at turning complex problems into elegant, efficient code, focusing on both frontend and backend development to deliver complete and robust solutions.",
     imageUrl: "./arham.jpg",
+    portfolio: "https://arhamz-portfolio.vercel.app/", // Added property
     social: {
       github: "https://github.com/arham771790/",
       linkedin: "https://www.linkedin.com/in/arhamsheikh0044/",
@@ -41,6 +43,7 @@ const developers = [
     description:
       "Shahain specializes in crafting beautiful and intuitive user interfaces. With a keen eye for design and a mastery of modern frontend technologies, he ensures a seamless and engaging user experience across all devices.",
     imageUrl: "./shahain_pic.jpg",
+    portfolio: "https://shahan-portfolio.example.com", // Added property
     social: {
       github: "https://github.com/blaackstring",
       linkedin: "https://www.linkedin.com/in/mohd-shahan-siddiqui-669a16253",
@@ -48,7 +51,6 @@ const developers = [
   },
 ];
 
-// 3. UPDATED: Reduced padding here (py-20 -> py-10) to pull content closer to header
 const DeveloperProfile = ({ developer, reverse = false }) => (
   <section className="container mx-auto px-6 py-10 lg:py-24 relative">
     <div
@@ -78,7 +80,13 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
         </p>
 
         <div className="mt-10 flex items-center justify-center md:justify-start gap-5">
-          <a href="https://arhamz-portfolio.vercel.app/" className="btn btn-primary rounded-2xl px-10 h-14 shadow-xl shadow-primary/30 text-white font-black uppercase tracking-widest hover:scale-105 transition-all">
+          {/* UPDATED: Reference the developer.portfolio prop here */}
+          <a 
+            href={developer.portfolio} 
+            target="_blank" 
+            rel="noreferrer"
+            className="btn btn-primary rounded-2xl px-10 h-14 shadow-xl shadow-primary/30 text-white font-black uppercase tracking-widest hover:scale-105 transition-all"
+          >
             Portfolio
           </a>
           <div className="flex items-center gap-3">
@@ -102,7 +110,7 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
         </div>
       </div>
 
-      {/* --- Image Content --- */}
+      {/* --- Image Content (remains the same) --- */}
       <div className="md:w-1/2 w-full mt-16 md:mt-0 flex justify-center relative">
         <div className="relative w-[300px] h-[300px] sm:w-[420px] sm:h-[420px]">
           <div className="absolute inset-0 bg-primary blur-[80px] rounded-full animate-pulse pointer-events-none" />
@@ -121,7 +129,7 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
               <img
                 src={developer.imageUrl}
                 alt={developer.name}
-                className="w-full h-full object-cover  hover:grayscale-0 transition-all duration-700 scale-105"
+                className="w-full h-full object-cover hover:grayscale-0 transition-all duration-700 scale-105"
               />
             </div>
           </div>
@@ -151,10 +159,6 @@ const DeveloperProfile = ({ developer, reverse = false }) => (
 const DeveloperPage = () => {
   return (
     <div className="bg-base-300 text-base-content font-sans overflow-hidden relative">
-      {/* 1. MOVED GRID HERE: 
-        Moved the grid out of the  header wrapper. 
-        It is now absolute to the main page container so it sits behind everything properly.
-      */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-20 pointer-events-none" />
       
       <div className="absolute top-0 left-0 w-full h-[100vh] 
@@ -167,13 +171,7 @@ const DeveloperPage = () => {
         <GridHighlights />
       </div>
 
-      {/* 2. UPDATED HEADER WRAPPER: 
-        Removed 'min-h-screen'. Changed to 'relative' so it only takes up the space of the text.
-      */}
       <div className="relative"> 
-        {/* 3. UPDATED HEADER PADDING: 
-          Reduced py-20 to py-12 to tighten the vertical space.
-        */}
         <header className="relative z-10 max-w-7xl mx-auto px-6 py-12 md:py-16 text-center">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4">
             <span className="relative inline-block mx-2">
@@ -187,7 +185,6 @@ const DeveloperPage = () => {
         </header>
       </div>
 
-      {/* Developer Profiles */}
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="space-y-5">
           {developers.map((dev, index) => (
