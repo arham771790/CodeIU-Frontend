@@ -43,7 +43,7 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
 
   return (
     <nav className="bg-base-200 text-base-content px-6 py-3 flex items-center justify-between border-b border-base-content/10 backdrop-blur-md">
-      {/* Brand + Navigation */}
+      {/* Brand+Navigation */}
       <div className="flex items-center gap-6">
         <div className="relative inline-block mr-4">
           <h1 className="text-2xl font-bold text-blue-400 ml-3">
