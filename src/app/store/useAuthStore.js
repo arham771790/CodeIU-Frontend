@@ -32,7 +32,7 @@ export const useAuthStore = create((set) => ({
       console.log("signup response:", res);
       if (res?.status === 200) {
         set({ authUser: res.data.user, isAuthenticated: true });
-        toast.success(res?.data?.message || "Signup successful");
+        toast.success(res?.data?.message || "Signup successful! Please check your email (including spam folder) for the verification link.");
         return true;
       }
       toast.error(res?.data?.message || "Signup failed");
@@ -89,7 +89,7 @@ export const useAuthStore = create((set) => ({
         withCredentials: true,
       });
       if (res?.status === 200 && res?.data?.status === true) {
-        toast.success(res?.data?.message || "Password reset link sent to your email");
+        toast.success(res?.data?.message || "Password reset link sent! Check your email and spam folder.");
         return true;
       }
       toast.error(res?.data?.message || "Failed to send reset link");
