@@ -3,7 +3,7 @@ const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["randomuser.me", "cdn.prod.website-files.com"],
+    domains: ["randomuser.me", "cdn.prod.website-files.com", "api.codeiu.in"],
   },
 
   async rewrites() {
