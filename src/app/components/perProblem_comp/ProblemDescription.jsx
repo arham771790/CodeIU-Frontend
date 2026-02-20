@@ -1,12 +1,18 @@
 "use client";
 import React from "react";
-import { Code2, Expand, Book } from "lucide-react";
+import { Code2, Expand, Book , Clock } from "lucide-react";
 
 const ProblemDescription = ({ title, description, examples, constraints }) => {
+
   return (
     <div className="bg-base-200 text-base-content flex flex-col h-full overflow-hidden rounded-xl border border-base-content/10">
       <div className="bg-base-300/50 px-4 py-2 flex items-center justify-between border-b border-base-content/10">
-        <div className="flex items-center gap-2 text-primary font-bold"><Book size={16} /> Description</div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-primary font-bold"><Book size={16} /> Description</div>
+          <div className="divider divider-horizontal mx-0"></div>
+        <div className="flex items-center text-primary gap-1 font-bold hover:cursor-pointer" ><Clock size={16}/> Submissions</div>
+        </div>
+
         <div className="flex gap-3 opacity-50">
           <Code2 size={18} className="cursor-pointer hover:opacity-100" />
           <Expand size={18} className="cursor-pointer hover:opacity-100" />
