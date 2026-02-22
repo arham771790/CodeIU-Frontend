@@ -2,7 +2,7 @@ const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.co
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return `${DIRECT_ALB_URL}/submission/api/v1`;
+  return `${DIRECT_ALB_URL}/problem/api/v1`;
 };
 
 // 1. Fetch ALL Problems (Fully Cached, No Cookies)
