@@ -1,10 +1,8 @@
-// lib/services/problemService.js
+const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_MODE === "development"
-    ? process.env.NEXT_PUBLIC_PROBLEMSERVICE_URL
-    : "/api/v1";
+  return `${DIRECT_ALB_URL}/submission/api/v1`;
 };
 
 // 1. Fetch ALL Problems (Fully Cached, No Cookies)
