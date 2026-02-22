@@ -1,5 +1,4 @@
 // lib/services/problemService.js
-import { cookies } from "next/headers";
 
 // Helper to get Base URL
 const getBaseUrl = () => {
@@ -8,15 +7,13 @@ const getBaseUrl = () => {
     : "/api/v1";
 };
 
-// 1. Fetch ALL Problems (for the list/dropdown)
+// 1. Fetch ALL Problems (Fully Cached, No Cookies)
 export async function getProblems(searchQuery = '', difficulty = '') {
   try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
     const BASE_URL = getBaseUrl();
 
     const res = await fetch(`${BASE_URL}/problem/getAllProblem`, {
-      headers: { "Content-Type": "application/json", "Cookie": cookieHeader },
+      headers: { "Content-Type": "application/json" },
       next: { revalidate: 3600, tags: ['problems-list'] }
     });
 
@@ -36,16 +33,15 @@ export async function getProblems(searchQuery = '', difficulty = '') {
   }
 }
 
-// 2. Fetch SINGLE Problem (BFF Pattern)
+// 2. Fetch SINGLE Problem
 export async function getProblemById(id) {
   try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
     const BASE_URL = getBaseUrl();
 
+    // Note: If single problems are public, you shouldn't need cookies here either
     const res = await fetch(`${BASE_URL}/problem/getProblem/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json", "Cookie": cookieHeader },
+      headers: { "Content-Type": "application/json" },
       next: { revalidate: 3600, tags: [`problem-${id}`] }
     });
 

@@ -2,13 +2,12 @@ import {create} from 'zustand';
 import { axiosInstanceProblemService } from '../lib/axios';
 import { toast } from 'react-hot-toast';
 
-
-
-
 export const useProblemStore = create((set) => ({
     
   problems: [],
   problem: null,
+  solvedProblemsIds: [], 
+  isSolvedLoading: false, 
   solvedProblems: [],
   isProblemsLoading: false,
   isProblemLoading: false,
@@ -17,6 +16,19 @@ export const useProblemStore = create((set) => ({
   isDeletingProblem: false ,
   isUpdatingProblem : false ,
 
+  fetchUserSolvedProblems: async () => {
+    try {
+      set({ isSolvedLoading: true });
+      // This automatically sends the user's auth cookie because it's client-side axios
+      const res = await axiosInstanceProblemService.get("/problem/solved-problems");
+      console.log("Solved problems:", res.data.solvedIds);
+      set({ solvedProblemsIds: res.data.solvedIds || [] });
+    } catch (error) {
+      console.error("Error fetching solved problems", error);
+    } finally {
+      set({ isSolvedLoading: false });
+    }
+  },
 
   createProblem : async(data) => {
     try {

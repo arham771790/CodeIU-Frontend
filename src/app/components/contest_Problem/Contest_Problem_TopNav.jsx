@@ -1,13 +1,19 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, List, Play, CloudDownload, Timer, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, Play, CloudDownload, Timer, Loader2, CheckCircle2 } from "lucide-react"; // ✅ Imported CheckCircle2
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
+import { useProblemStore } from "@/app/store/useProblemStore"; // ✅ Import Problem Store
 import { useContestTimer } from "@/app/hooks/useContestTimer";
 
 const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChange, contestId, startsAt, endsAt }) => {
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { userCode, runCode, isexecuting, languageId, submitCode, isSubmittingCode } = useSubmissionStore();
+  
+  // ✅ Added "submissions" from your store
+  const { userCode, runCode, isexecuting, languageId, submitCode, isSubmittingCode, submissions } = useSubmissionStore();
+  
+  // ✅ Get the solved IDs from the database
+  const { solvedProblemsIds } = useProblemStore(); 
 
   const currentProblem = problems?.[activeIndex];
   const visibleTestCase = currentProblem?.snapshot?.testcases;
@@ -50,14 +56,26 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
           </button>
           {isProblemListOpen && (
             <div className="absolute top-full left-0 mt-3 w-72 bg-base-200 border border-base-content/10 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl">
-              <div className="p-4 space-y-1 max-h-80 overflow-auto">
-                {problems.map((problem, index) => (
-                  <button key={index} onClick={() => { onProblemChange?.(index); setIsProblemListOpen(false); }}
-                    className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl transition-all ${index === activeIndex ? "bg-primary text-primary-content font-bold shadow-lg" : "hover:bg-base-content/5 opacity-60"}`}>
-                    <span className="text-[10px] font-black opacity-50">{String.fromCharCode(65 + index)}</span>
-                    <span className="text-sm truncate">{problem.snapshot?.title}</span>
-                  </button>
-                ))}
+              <div className="p-4 space-y-1 max-h-80 overflow-auto custom-scrollbar">
+                {problems.map((problem, index) => {
+                  const probId = problem.snapshot?.id;
+                  
+                  // ✅ MAGIC: Check both DB (for refresh) and Live Socket (for instant update)
+                  const isPreviouslySolved = solvedProblemsIds?.includes(probId);
+                  const isLiveSolved = submissions?.some(sub => sub.problemId === probId && sub.status === "Accepted");
+                  const isSolved = isPreviouslySolved || isLiveSolved;
+
+                  return (
+                    <button key={index} onClick={() => { onProblemChange?.(index); setIsProblemListOpen(false); }}
+                      className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl transition-all ${index === activeIndex ? "bg-primary text-primary-content font-bold shadow-lg" : "hover:bg-base-content/5 opacity-80"}`}>
+                      <span className="text-[10px] font-black opacity-50">{String.fromCharCode(65 + index)}</span>
+                      <span className="text-sm truncate flex-1">{problem.snapshot?.title}</span>
+                      
+                      {/* ✅ Render Green Tick if Solved */}
+                      {isSolved && <CheckCircle2 size={16} className={index === activeIndex ? "text-primary-content" : "text-success"} />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

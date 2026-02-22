@@ -1,0 +1,131 @@
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { useAuthStore } from "@/app/store/useAuthStore";
+import { useProblemStore } from "@/app/store/useProblemStore";
+import { Youtube, CheckCircle, Circle, Loader2 } from "lucide-react";
+
+const DifficultyChip = ({ difficulty }) => {
+  const styles =
+    difficulty === "EASY"
+      ? "bg-green-500/10 text-green-600 dark:text-green-400"
+      : difficulty === "MEDIUM"
+        ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+        : "bg-red-500/10 text-red-600 dark:text-red-400";
+
+  return (
+    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${styles}`}>
+      {difficulty}
+    </span>
+  );
+};
+
+export default function ProblemsTable({ problems }) {
+  const { authUser } = useAuthStore();
+  const { solvedProblemsIds, fetchUserSolvedProblems, isSolvedLoading } = useProblemStore();
+
+  // Fetch the solved problems when the component mounts IF the user is logged in
+  useEffect(() => {
+    if (authUser) {
+      fetchUserSolvedProblems();
+    }
+  }, [authUser, fetchUserSolvedProblems]);
+
+  return (
+    <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[2.5rem] overflow-hidden shadow-2xl mb-24">
+      
+      {/* Table Header */}
+      <div className="grid grid-cols-12 px-10 py-6 border-b border-base-content/5 bg-base-300 text-[11px] font-black opacity-40 uppercase tracking-[0.25em]">
+        <div className="col-span-1 text-center">Status</div>
+        <div className="col-span-5 text-left">Directory</div>
+        <div className="col-span-2 text-center">Difficulty</div>
+        <div className="col-span-2 text-center">Editorial</div>
+        <div className="col-span-2 text-center">Acceptance</div>
+      </div>
+
+      {/* Table Body */}
+      <div className="divide-y divide-base-content/5">
+        {problems.length > 0 ? (
+          problems.map((problem, idx) => {
+            
+            // Check if this problem's ID is in the user's solved array
+            const isSolved = solvedProblemsIds.includes(problem.id);
+
+            return (
+              <div
+                key={problem.id}
+                className={`relative grid grid-cols-12 items-center px-10 py-6 transition-all duration-300 group
+                  ${idx % 2 === 0 ? "bg-base-100" : "bg-base-200/40"} 
+                  hover:bg-primary/[0.08] hover:translate-x-1`}
+              >
+                
+                <Link 
+                  href={`/problems/${problem.id}`}
+                  className="absolute inset-0 z-0 cursor-pointer"
+                  aria-label={`View problem ${problem.title}`}
+                />
+
+                {/* Solved Status */}
+                <div className="col-span-1 flex justify-center items-center relative z-10 pointer-events-none">
+                  {isSolvedLoading ? (
+                    <Loader2 className="w-4 h-4 text-base-content/20 animate-spin" />
+                  ) : isSolved ? (
+                    <CheckCircle className="w-5 h-5 text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-base-content/20 group-hover:text-base-content/40 transition-colors" />
+                  )}
+                </div>
+
+                {/* Directory / Title */}
+                <div className="col-span-5 relative z-10 pointer-events-none">
+                  <div className="flex items-center gap-5">
+                    <span className="text-xs font-mono opacity-20 font-black group-hover:text-primary group-hover:opacity-100 transition-all">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <p className="text-base-content font-semibold group-hover:text-primary transition-colors tracking-tight text-base md:text-lg truncate">
+                      {problem.title}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Difficulty */}
+                <div className="col-span-2 flex justify-center items-center relative z-10 pointer-events-none">
+                  <DifficultyChip difficulty={problem.difficulty} />
+                </div>
+
+                {/* Editorial */}
+                <div className="col-span-2 flex justify-center items-center relative z-20">
+                  {problem.editorial ? (
+                    <a 
+                      href={problem.editorial} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="p-2 text-base-content/30 text-red-500 hover:text-red-600 hover:scale-110 transition-all duration-300 drop-shadow-lg cursor-pointer"
+                    >
+                      <Youtube className="w-6 h-6" />
+                    </a>
+                  ) : (
+                    <span className="p-2 text-base-content/20 font-mono font-bold">-</span>
+                  )}
+                </div>
+
+                {/* Acceptance */}
+                <div className="col-span-2 flex justify-center items-center relative z-10 pointer-events-none">
+                  <p className="font-mono text-sm font-black opacity-30 group-hover:opacity-100 group-hover:text-base-content transition-all">
+                    {problem.acceptance || "0%"}
+                  </p>
+                </div>
+
+              </div>
+            );
+          })
+        ) : (
+          <div className="p-32 text-center opacity-20 font-black uppercase tracking-widest italic">
+            No challenges available in this sector.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

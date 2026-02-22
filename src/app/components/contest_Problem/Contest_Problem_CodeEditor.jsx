@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { RefreshCw, Expand, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { RefreshCw, Expand, Loader2, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
@@ -12,10 +12,11 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
+  
+  //  State to track if the current pending submission has timed out
+  const [isTimedOut, setIsTimedOut] = useState(false);
 
   const { setUserCode, userCode, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults } = useSubmissionStore();
-
-  console.log(submissions)
 
   const latestSubmission = useMemo(() => submissions?.find(sub => sub.problemId === problemId), [submissions, problemId]);
   const isSolved = latestSubmission?.status === "Accepted";
@@ -27,6 +28,29 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
 
   useEffect(() => { if (latestSubmission?.status === "Pending") setActiveTab("submission"); }, [latestSubmission]);
   useEffect(() => { if (RunReslts?.length > 0) setActiveTab("testresult"); }, [RunReslts]);
+
+  // NEW: Effect to handle the 25-second timeout for pending submissions
+  useEffect(() => {
+    let timeoutId;
+
+    if (latestSubmission?.status === "Pending") {
+      // Reset timeout state when a new pending submission starts
+      setIsTimedOut(false);
+
+      // Start the 25-second timer
+      timeoutId = setTimeout(() => {
+        setIsTimedOut(true);
+      }, 25000); 
+    } else {
+      // If it is no longer pending (e.g., Accepted or Rejected), ensure timeout is cleared
+      setIsTimedOut(false);
+    }
+
+    // Cleanup function to clear the timer if the component unmounts or status changes early
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [latestSubmission?.status, latestSubmission?.id]); // Re-run if status or submission ID changes
 
   const handleMouseMove = (e) => {
     if (!isDragging || !containerRef.current) return;
@@ -111,10 +135,37 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
             <div className="space-y-6">
               {!latestSubmission ? <div className="text-center py-10 text-xs font-bold opacity-20 italic">Waiting for problem submission...</div> : (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <h2 className={`text-2xl font-black  tracking-tighter uppercase ${latestSubmission.status === "Accepted" ? "text-success" : "text-error"}`}>{latestSubmission.status}</h2>
-                    {latestSubmission.status === "Pending" && <Loader2 className="animate-spin text-primary" size={24}/>}
+                  
+                  {/* UPDATED: Submission Status Header */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-4">
+                      <h2 className={`text-2xl font-black tracking-tighter uppercase 
+                        ${latestSubmission.status === "Accepted" ? "text-success" 
+                        : (isTimedOut && latestSubmission.status === "Pending") ? "text-error" 
+                        : "text-warning"}`}
+                      >
+                        {isTimedOut && latestSubmission.status === "Pending" ? "Execution Timeout" : latestSubmission.status}
+                      </h2>
+                      
+                      {/* Only show loader if it's pending AND hasn't timed out yet */}
+                      {latestSubmission.status === "Pending" && !isTimedOut && (
+                        <Loader2 className="animate-spin text-warning" size={24}/>
+                      )}
+                      
+                      {/* Show an alert icon if it timed out */}
+                      {isTimedOut && latestSubmission.status === "Pending" && (
+                        <AlertTriangle className="text-error" size={24}/>
+                      )}
+                    </div>
+                    
+                    {/* Show a helper message to the user if it timed out */}
+                    {isTimedOut && latestSubmission.status === "Pending" && (
+                      <p className="text-xs font-bold text-error/70 uppercase tracking-widest">
+                        Server took too long to respond. Please check your connection or try again.
+                      </p>
+                    )}
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {latestSubmission.testcases?.map((tc, idx) => (
                       <div key={idx} className="flex items-center justify-between p-4 bg-base-300 rounded-2xl border border-base-content/5">
