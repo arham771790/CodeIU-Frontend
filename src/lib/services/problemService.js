@@ -1,21 +1,19 @@
-import { cookies } from "next/headers";
-
-const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+// lib/services/problemService.js
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return `${DIRECT_ALB_URL}/problem/api/v1`;
+  return process.env.NEXT_PUBLIC_MODE === "development"
+    ? process.env.NEXT_PUBLIC_PROBLEMSERVICE_URL
+    : "/api/v1";
 };
 
-// 1. Fetch ALL Problems (for the list/dropdown)
+// 1. Fetch ALL Problems (Fully Cached, No Cookies)
 export async function getProblems(searchQuery = '', difficulty = '') {
   try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
     const BASE_URL = getBaseUrl();
 
     const res = await fetch(`${BASE_URL}/problem/getAllProblem`, {
-      headers: { "Content-Type": "application/json", "Cookie": cookieHeader },
+      headers: { "Content-Type": "application/json" },
       next: { revalidate: 3600, tags: ['problems-list'] }
     });
 
@@ -30,22 +28,20 @@ export async function getProblems(searchQuery = '', difficulty = '') {
 
     return problems;
   } catch (error) {
-    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Server Fetch Error:", error.message);
     return [];
   }
 }
 
-// 2. Fetch SINGLE Problem (BFF Pattern)
+// 2. Fetch SINGLE Problem
 export async function getProblemById(id) {
   try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
     const BASE_URL = getBaseUrl();
 
+    // Note: If single problems are public, you shouldn't need cookies here either
     const res = await fetch(`${BASE_URL}/problem/getProblem/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json", "Cookie": cookieHeader },
+      headers: { "Content-Type": "application/json" },
       next: { revalidate: 3600, tags: [`problem-${id}`] }
     });
 
@@ -58,7 +54,6 @@ export async function getProblemById(id) {
     return data.problem || null;
 
   } catch (error) {
-    if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
     console.error("Server Fetch Error (Single Problem):", error.message);
     return null;
   }

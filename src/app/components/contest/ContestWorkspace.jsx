@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
-import { joinContestRoom } from "@/app/lib/socket"; // Contest Public Room
-import { useAntiCheat } from "@/app/hooks/useAntiCheat"; // ✅ Import New Hook
+import { useProblemStore } from "@/app/store/useProblemStore";
+import { joinContestRoom } from "@/app/lib/socket"; 
+import { useAntiCheat } from "@/app/hooks/useAntiCheat"; 
 import { Loader2, AlertCircle } from "lucide-react";
 
 import Contest_Problem_CodeEditor from "../contest_Problem/Contest_Problem_CodeEditor";
@@ -15,26 +16,29 @@ export default function ContestWorkspace({ contest }) {
   const { authUser } = useAuthStore();
   const { bundle, fetchBundle, isLoading } = useBundleStore();
   const { intializeSocket, closeSocketConnection } = useSubmissionStore();
+  
+  // ✅ Extract fetch function for solved problems
+  const { fetchUserSolvedProblems } = useProblemStore(); 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // 1. Fetch Bundle
+  // 1. Fetch Bundle & Solved Problems
   useEffect(() => {
     if (contest?.id && authUser?.id) {
       fetchBundle({ contestId: contest.id, userId: authUser.id });
+      fetchUserSolvedProblems(); // ✅ Fetch solved data from DB (survives refresh)
     }
-  }, [contest?.id, authUser?.id, fetchBundle]);
+  }, [contest?.id, authUser?.id, fetchBundle, fetchUserSolvedProblems]);
 
-  // 2. Initialize Submission Socket (Port 8080) & Join Public Contest Room (Port 8090) ok
+  // 2. Initialize Submission Socket & Join Public Contest Room
   useEffect(() => {
     if (authUser?.id && contest?.id) {
-      intializeSocket(authUser.id); // Submission Store (Port 8080)
-      joinContestRoom(contest.id);  // Lib Socket (Port 8090)
+      intializeSocket(authUser.id); 
+      joinContestRoom(contest.id);  
     }
     return () => { closeSocketConnection(); };
   }, [authUser?.id, contest?.id, intializeSocket, closeSocketConnection]);
 
-  // ✅ 3. ACTIVATE ANTI-CHEAT (Port 8090)
-  // This handles the visibility checks and warning listeners cleanly
+  // 3. ACTIVATE ANTI-CHEAT
   useAntiCheat(contest?.id, authUser?.id);
 
 
