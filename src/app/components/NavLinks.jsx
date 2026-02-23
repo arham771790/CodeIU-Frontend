@@ -55,7 +55,7 @@ export default function NavLinks({ pages, isMobile, closeMenu }) {
       <li className={isMobile ? "w-full flex justify-center" : ""}>
         <Link 
           className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg transition-colors"
-          href="/Devloper"
+          href="/Developer"
           onClick={isMobile ? closeMenu : undefined}
         >
           Developers

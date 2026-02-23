@@ -113,7 +113,7 @@ export default function ProblemsTable({ problems }) {
                 {/* Acceptance */}
                 <div className="col-span-2 flex justify-center items-center relative z-10 pointer-events-none">
                   <p className="font-mono text-sm font-black opacity-30 group-hover:opacity-100 group-hover:text-base-content transition-all">
-                    {problem.acceptance || "0%"}
+                    {problem.acceptance || "-"}
                   </p>
                 </div>
 
