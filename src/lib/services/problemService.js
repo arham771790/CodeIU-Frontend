@@ -26,7 +26,7 @@ export async function getProblems(searchQuery = '', difficulty = '') {
 
     return problems;
   } catch (error) {
-    console.error("Server Fetch Error:", error.message);
+    console.error("Server Fetch Error:~", error.message);
     return [];
   }
 }
