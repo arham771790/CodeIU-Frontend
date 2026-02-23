@@ -37,7 +37,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <UserActions />
           
-          {/* Hamburger Icon - Only visible on mobile */}
+          {/* Hamburger Icon - Only visible on mobile **/}
           <button
             className="md:hidden p-2 text-base-content hover:bg-base-content/10 rounded-lg transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
