@@ -117,8 +117,10 @@ export default function ContestClientView({ initialContest }) {
               <AdminAttachProblemsDialog contestId={activeContest.id} />
             )}
             <Link href={`/Leaderboard/${activeContest.id}`}>
-              <button className="btn btn-ghost border-base-content/10 bg-base-200/50 hover:bg-primary hover:text-white rounded-2xl px-6">
-                🏆 Leaderboard
+              {/* ADDED: flex items-center gap-2 whitespace-nowrap */}
+              <button className="btn btn-ghost border-base-content/10 bg-base-200/50 hover:bg-primary hover:text-white rounded-2xl px-6 flex items-center gap-2 whitespace-nowrap">
+                <span>🏆</span>
+                <span>Leaderboard</span>
               </button>
             </Link>
           </div>
