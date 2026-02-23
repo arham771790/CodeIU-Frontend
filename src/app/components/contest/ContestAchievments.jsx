@@ -62,7 +62,7 @@ export default function ContestAchievements() {
         <div className="bg-base-200/50 border border-base-content/10 rounded-[2rem] overflow-hidden shadow-xl backdrop-blur-md">
           <div className="divide-y divide-base-content/5">
             {rows.map((r, i) => {
-              const IconComponent = r.icon; // Extract the specific icon
+              const IconComponent = r.icon; // Extract the specific icon's
 
               return (
                 <div 
