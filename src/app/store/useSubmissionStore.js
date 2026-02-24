@@ -62,10 +62,18 @@ export const useSubmissionStore = create((set, get) => ({
         // Remove old listeners to avoid stacking
         newSocket.off("submission-update");
 
+        // Join room on every (re)connect
         newSocket.on('connect', () => {
             console.log("✅ Submission Socket connected:", newSocket.id);
             if (userId) newSocket.emit('join-room', { userId });
         });
+
+        // ✅ RACE CONDITION FIX: If socket is already connected when this runs,
+        // the 'connect' event won't re-fire — so join-room must be emitted immediately.
+        if (newSocket.connected && userId) {
+            console.log("⚡ Socket already connected, immediately joining room:", userId);
+            newSocket.emit('join-room', { userId });
+        }
 
         newSocket.on("submission-update", (finalSubmission) => {
             console.log('📬 [SubmissionStore] Received update:', finalSubmission.id, finalSubmission.status);
@@ -75,7 +83,7 @@ export const useSubmissionStore = create((set, get) => ({
                 ),
             }));
 
-            // ✅ NEW: Persist Accepted status so it survives tab switching
+            // ✅ Persist Accepted status so it survives tab switching
             if (finalSubmission.status === "Accepted") {
                 const { solvedProblemsIds } = useProblemStore.getState();
                 if (!solvedProblemsIds.includes(finalSubmission.problemId)) {
