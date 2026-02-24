@@ -3,17 +3,21 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, List, Play, CloudDownload, Timer, Loader2, CheckCircle2 } from "lucide-react"; // ✅ Imported CheckCircle2
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useProblemStore } from "@/app/store/useProblemStore"; // ✅ Import Problem Store
+import { useParticipantStore } from "@/app/store/useParticipantStore"; // ✅ Import Participant Store
 import { useContestTimer } from "@/app/hooks/useContestTimer";
+import { useAuthStore } from "@/app/store/useAuthStore";
 
 const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChange, contestId, startsAt, endsAt }) => {
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
   const dropdownRef = useRef(null);
-  
+
   // ✅ Added "submissions" from your store
   const { userCode, runCode, isexecuting, languageId, submitCode, isSubmittingCode, submissions } = useSubmissionStore();
-  
+
   // ✅ Get the solved IDs from the database
-  const { solvedProblemsIds } = useProblemStore(); 
+  const { solvedProblemsIds } = useProblemStore();
+  const { finishContest } = useParticipantStore();
+  const { authUser } = useAuthStore();
 
   const currentProblem = problems?.[activeIndex];
   const visibleTestCase = currentProblem?.snapshot?.testcases;
@@ -39,15 +43,21 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
     await submitCode(userCode || "", languageId, currentProblem?.snapshot?.id, contestId);
   };
 
+  const handleFinishContest = async () => {
+    if (confirm("Are you sure you want to finish the contest? You will not be able to return.")) {
+      await finishContest({ contestId, userId: authUser?.id });
+    }
+  };
+
   return (
     <nav className="bg-base-200 text-base-content px-6 py-3 flex items-center justify-between border-b border-base-content/10 backdrop-blur-md">
       {/* Brand + Navigation */}
       <div className="flex items-center gap-6">
         <div className="relative inline-block mr-4">
           <h1 className="text-2xl font-bold text-blue-400 ml-3">
-              🌊ode<span className="font-bold text-base-content">IU</span>
-            </h1>
-         
+            🌊ode<span className="font-bold text-base-content">IU</span>
+          </h1>
+
         </div>
 
         <div className="relative" ref={dropdownRef}>
@@ -59,7 +69,7 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
               <div className="p-4 space-y-1 max-h-80 overflow-auto custom-scrollbar">
                 {problems.map((problem, index) => {
                   const probId = problem.snapshot?.id;
-                  
+
                   // ✅ MAGIC: Check both DB (for refresh) and Live Socket (for instant update)
                   const isPreviouslySolved = solvedProblemsIds?.includes(probId);
                   const isLiveSolved = submissions?.some(sub => sub.problemId === probId && sub.status === "Accepted");
@@ -70,7 +80,7 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
                       className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl transition-all ${index === activeIndex ? "bg-primary text-primary-content font-bold shadow-lg" : "hover:bg-base-content/5 opacity-80"}`}>
                       <span className="text-[10px] font-black opacity-50">{String.fromCharCode(65 + index)}</span>
                       <span className="text-sm truncate flex-1">{problem.snapshot?.title}</span>
-                      
+
                       {/* ✅ Render Green Tick if Solved */}
                       {isSolved && <CheckCircle2 size={16} className={index === activeIndex ? "text-primary-content" : "text-success"} />}
                     </button>
@@ -100,12 +110,16 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
         </button>
 
         <div className={`flex items-center gap-3 px-4 py-1 rounded-xl border border-base-content/10 ${phase === "running" ? "bg-success/5 text-success border-success/20" : "bg-base-300"}`}>
-           <Timer size={16} className={phase === "running" ? "animate-pulse" : ""} />
-           <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase opacity-60 leading-none">{label}</span>
-              <span className="text-sm font-mono font-bold leading-none">{value}</span>
-           </div>
+          <Timer size={16} className={phase === "running" ? "animate-pulse" : ""} />
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black uppercase opacity-60 leading-none">{label}</span>
+            <span className="text-sm font-mono font-bold leading-none">{value}</span>
+          </div>
         </div>
+
+        <button onClick={handleFinishContest} className="btn btn-error btn-sm btn-outline rounded-xl px-4 flex items-center gap-2 border-error/30 hover:bg-error hover:text-white hover:border-error">
+          <span className="text-[10px] font-black uppercase tracking-widest leading-none">Finish</span>
+        </button>
       </div>
     </nav>
   );

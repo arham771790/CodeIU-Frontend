@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { axiosInstanceSubmissionService } from '../lib/axios';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { getLanguageId } from '../lib/lang';
+import { useProblemStore } from './useProblemStore';
 
 export const useSubmissionStore = create((set, get) => ({
     
@@ -73,6 +74,16 @@ export const useSubmissionStore = create((set, get) => ({
                     sub.id === finalSubmission.id ? { ...sub, ...finalSubmission } : sub
                 ),
             }));
+
+            // ✅ NEW: Persist Accepted status so it survives tab switching
+            if (finalSubmission.status === "Accepted") {
+                const { solvedProblemsIds } = useProblemStore.getState();
+                if (!solvedProblemsIds.includes(finalSubmission.problemId)) {
+                    useProblemStore.setState({
+                        solvedProblemsIds: [...solvedProblemsIds, finalSubmission.problemId]
+                    });
+                }
+            }
         });
 
         set({ socket: newSocket });
@@ -116,6 +127,16 @@ export const useSubmissionStore = create((set, get) => ({
             set(state => ({
                 submissions: [result.data.submission, ...state.submissions] // Add to top
             }));
+
+            // ✅ NEW: Persist Accepted status on immediate return if applicable
+            if (result.data.submission?.status === "Accepted") {
+                const { solvedProblemsIds } = useProblemStore.getState();
+                if (!solvedProblemsIds.includes(problemId)) {
+                    useProblemStore.setState({
+                        solvedProblemsIds: [...solvedProblemsIds, problemId]
+                    });
+                }
+            }
 
         } catch (error) {
             console.log("Submit Code Error:", error);

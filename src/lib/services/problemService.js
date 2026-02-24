@@ -1,8 +1,9 @@
 const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return `${DIRECT_ALB_URL}/problem/api/v1`;
+  return isLocal ? "http://localhost:8000/problem/api/v1" : `${DIRECT_ALB_URL}/problem/api/v1`;
 };
 
 // 1. Fetch ALL Problems (Fully Cached, No Cookies)

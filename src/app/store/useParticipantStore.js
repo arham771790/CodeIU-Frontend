@@ -94,10 +94,26 @@ export const useParticipantStore = create((set, get) => ({
 
   async fetchParticipantCount(contestId) {
     try {
-      const res = await axiosInstanceContestService.get(`/contests/${contestId}/participants/count`);
+      const res = await axiosInstanceContestService.get(`contest/contests/${contestId}/participants/count`);
       set({ participantCount: res.data.count || 0 });
     } catch (err) {
       console.error("Error fetching participant count:", err);
+    }
+  },
+
+  // 🏁 Finish contest early
+  async finishContest({ contestId, userId }) {
+    try {
+      const res = await axiosInstanceContestService.put(`contest/${contestId}/finish`, { userId });
+      if (res.data.ok) {
+        toast.info("Contest finished successfully.");
+        set({ myStatus: "FINISHED" });
+      } else {
+        toast.error("Failed to finish contest.");
+      }
+    } catch (err) {
+      console.error("Error finishing contest:", err);
+      toast.error(err.response?.data?.error || "Failed to finish contest");
     }
   },
 }));
