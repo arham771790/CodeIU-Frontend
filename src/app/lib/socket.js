@@ -1,8 +1,11 @@
 // src/app/lib/socket.js
 import { io } from "socket.io-client";
 
-const BASE_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
-console.log("ENV:", process.env.NEXT_PUBLIC_DIRECT_ALB_URL);
+const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
+
+const SUBMISSION_BASE = isLocal ? "http://localhost:8080" : ALB_URL;
+const CONTEST_BASE = isLocal ? "http://localhost:8090" : ALB_URL;
 
 let submissionSocket;
 let contestSocket;
@@ -10,8 +13,8 @@ let contestSocket;
 // ✅ Submission Service Socket
 export const getSocket = () => {
   if (!submissionSocket) {
-    // Connect to BASE_URL, path includes service prefix for ALB routing
-    submissionSocket = io(BASE_URL, {
+    // Connect to SUBMISSION_BASE, path includes service prefix for ALB routing
+    submissionSocket = io(SUBMISSION_BASE, {
       path: "/submission/realtime",
       transports: ["polling", "websocket"],
       withCredentials: true,
@@ -31,8 +34,8 @@ export const getSocket = () => {
 // ✅ Contest Service Socket (Realtime)
 export const getContestSocket = () => {
   if (!contestSocket) {
-    // Connect to BASE_URL, path includes service prefix for ALB routing
-    contestSocket = io(BASE_URL, {
+    // Connect to CONTEST_BASE, path includes service prefix for ALB routing
+    contestSocket = io(CONTEST_BASE, {
       path: "/contest/realtime",
       transports: ["polling", "websocket"],
       withCredentials: true,

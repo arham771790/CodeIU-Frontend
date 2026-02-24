@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
 
 const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
 
 const getBaseUrl = () => {
-  return `${DIRECT_ALB_URL}/contest/api/v1/contest`;
+  return isLocal ? "http://localhost:8090/contest/api/v1/contest" : `${DIRECT_ALB_URL}/contest/api/v1/contest`;
 };
 
 export async function getContests() {

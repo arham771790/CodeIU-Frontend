@@ -13,18 +13,24 @@ export const useAuthStore = create((set) => ({
   isLoggingOut: false,
 
   GoogleLoginCall: async () => {
-  set({ isLoggingIn: true });
+    set({ isLoggingIn: true });
 
-  try {
-    // OAuth must be a browser redirect (NOT axios/fetch)
-    window.location.href =
-  "https://api.codeiu.in/auth/api/v1/auth/google/redirect";
-  } catch (error) {
-    console.error("Google OAuth error:", error);
-    toast.error("Error while logging in with Google");
-    set({ isLoggingIn: false });
-  }
-},
+    try {
+      // Determine OAuth redirect URL based on environment
+      const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL;
+      const isLocal = !ALB_URL || ALB_URL.includes("localhost");
+      const authUrl = isLocal 
+        ? "http://localhost:8020/auth/api/v1/auth/google/redirect" 
+        : (ALB_URL || "https://api.codeiu.in") + "/auth/api/v1/auth/google/redirect";
+
+      // OAuth must be a browser redirect (NOT axios/fetch)
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      toast.error("Error while logging in with Google");
+      set({ isLoggingIn: false });
+    }
+  },
   signup: async (payload) => {
     set({ isSigninUp: true });
     try {

@@ -4,8 +4,11 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBundleStore } from "@/app/store/useBundleStore";
 import { useSubmissionStore } from "@/app/store/useSubmissionStore";
 import { useProblemStore } from "@/app/store/useProblemStore";
-import { joinContestRoom } from "@/app/lib/socket"; 
-import { useAntiCheat } from "@/app/hooks/useAntiCheat"; 
+import { useParticipantStore } from "@/app/store/useParticipantStore";
+import { joinContestRoom } from "@/app/lib/socket";
+import { useAntiCheat } from "@/app/hooks/useAntiCheat";
+import { useContestTimer } from "@/app/hooks/useContestTimer";
+import { toast } from "react-toastify";
 import { Loader2, AlertCircle } from "lucide-react";
 
 import Contest_Problem_CodeEditor from "../contest_Problem/Contest_Problem_CodeEditor";
@@ -16,9 +19,9 @@ export default function ContestWorkspace({ contest }) {
   const { authUser } = useAuthStore();
   const { bundle, fetchBundle, isLoading } = useBundleStore();
   const { intializeSocket, closeSocketConnection } = useSubmissionStore();
-  
+
   // ✅ Extract fetch function for solved problems
-  const { fetchUserSolvedProblems } = useProblemStore(); 
+  const { fetchUserSolvedProblems } = useProblemStore();
   const [activeIndex, setActiveIndex] = useState(0);
 
   // 1. Fetch Bundle & Solved Problems
@@ -32,8 +35,8 @@ export default function ContestWorkspace({ contest }) {
   // 2. Initialize Submission Socket & Join Public Contest Room
   useEffect(() => {
     if (authUser?.id && contest?.id) {
-      intializeSocket(authUser.id); 
-      joinContestRoom(contest.id);  
+      intializeSocket(authUser.id);
+      joinContestRoom(contest.id);
     }
     return () => { closeSocketConnection(); };
   }, [authUser?.id, contest?.id, intializeSocket, closeSocketConnection]);
@@ -41,6 +44,23 @@ export default function ContestWorkspace({ contest }) {
   // 3. ACTIVATE ANTI-CHEAT
   useAntiCheat(contest?.id, authUser?.id);
 
+  // 4. CHECK END OR DISQUALIFICATION
+  const { myStatus, myWarnings } = useParticipantStore();
+  const { phase } = useContestTimer(contest);
+
+  useEffect(() => {
+    // Determine reason for lockout
+    const isEnded = phase === "ended";
+    const isLockedOut = myStatus === "DISQUALIFIED" || myWarnings > 3 || myStatus === "FINISHED";
+
+    if (isEnded || isLockedOut) {
+      if (isEnded) toast.info("Contest has ended!", { id: "contest-ended" });
+      else if (myStatus === "FINISHED") toast.info("You already finished this contest.", { id: "contest-finished" });
+      else toast.error("You have been disqualified.", { id: "contest-dq" });
+
+      window.location.href = `/Leaderboard/${contest?.id}`;
+    }
+  }, [phase, myStatus, myWarnings, contest?.id]);
 
   if (isLoading || !bundle) {
     return (
@@ -88,7 +108,7 @@ export default function ContestWorkspace({ contest }) {
           constraints={snapshot?.constraints}
         />
         <Contest_Problem_CodeEditor
-          key={snapshot.id} 
+          key={snapshot.id}
           problemId={snapshot?.id}
           description={snapshot?.description}
           codeSnippets={snapshot?.codeSnippets}

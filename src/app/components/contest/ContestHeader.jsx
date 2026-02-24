@@ -45,7 +45,7 @@ export default function ContestHeader({ contest }) {
       {/* Grid Background Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]" />
-      
+
       <div className="relative z-5 max-w-7xl mx-auto px-6 py-5 md:py-5">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
@@ -76,6 +76,7 @@ export default function ContestHeader({ contest }) {
               </button>
             ) : (
               <button
+                id="register-contest-btn"
                 onClick={onRegister}
                 disabled={isRegistering}
                 className="btn btn-primary rounded-2xl px-8 h-10 shadow-xl shadow-primary/20 text-white font-black uppercase tracking-widest hover:scale-105 transition-all"
