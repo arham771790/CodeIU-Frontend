@@ -1,15 +1,20 @@
 "use client";
 import React from "react";
-import { Code2, Expand, Book , Clock } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { Code2, Expand, Book, Clock } from "lucide-react";
 
 const ProblemDescription = ({ title, description, examples, constraints }) => {
   return (
     <div className="bg-base-200 text-base-content flex flex-col h-full overflow-hidden rounded-xl border border-base-content/10">
       <div className="bg-base-300/50 px-4 py-2 flex items-center justify-between border-b border-base-content/10">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 text-primary font-bold"><Book size={16} /> Description</div>
+          <div className="flex items-center gap-2 text-primary font-bold">
+            <Book size={16} /> Description
+          </div>
           <div className="divider divider-horizontal mx-0"></div>
-        <div className="flex items-center text-primary gap-1 font-bold hover:cursor-pointer" ><Clock size={16}/> Submissions</div>
+          <div className="flex items-center text-primary gap-1 font-bold hover:cursor-pointer">
+            <Clock size={16} /> Submissions
+          </div>
         </div>
         <div className="flex gap-3 opacity-50">
           <Code2 size={18} className="cursor-pointer hover:opacity-100" />
@@ -19,32 +24,50 @@ const ProblemDescription = ({ title, description, examples, constraints }) => {
 
       <div className="p-6 overflow-y-auto space-y-6">
         <h2 className="text-2xl font-bold">{title}</h2>
-        <p className="leading-relaxed opacity-90">{description}</p>
 
-       <div className="space-y-4">
-  <h3 className="font-bold text-lg">Examples</h3>
-  
-  {/* Convert the object into an array of [language, data] pairs */}
-  {examples && Object.entries(examples).map(([language, data], i) => (
-    <div key={i} className="bg-base-300/50 p-4 rounded-xl border border-base-content/5 space-y-2">
-      <p className="text-sm font-mono">
-        <span className="opacity-50 font-bold">Input:</span> {data.input}
-      </p>
-      <p className="text-sm font-mono">
-        <span className="opacity-50 font-bold">Output:</span> {data.output}
-      </p>
-      {data.explanation && (
-        <p className="text-sm italic opacity-70">
-          <span className="font-bold">Explanation:</span> {data.explanation}
-        </p>
-      )}
-    </div>
-  ))}
-</div>
+        {/* Description — rendered as Markdown */}
+        <div className="leading-relaxed opacity-90 prose prose-sm max-w-none prose-headings:text-base-content prose-p:text-base-content prose-strong:text-base-content prose-li:text-base-content">
+          <ReactMarkdown>{description}</ReactMarkdown>
+        </div>
 
+        {/* Examples */}
+        <div className="space-y-4">
+          <h3 className="font-bold text-lg">Examples</h3>
+
+          {examples &&
+            Object.entries(examples).map(([language, data], i) => (
+              <div
+                key={i}
+                className="bg-base-300/50 p-4 rounded-xl border border-base-content/5 space-y-2"
+              >
+                <p className="text-sm font-mono whitespace-pre-wrap">
+                  <span className="opacity-50 font-bold">Input:</span>{" "}
+                  {data.input}
+                </p>
+                <p className="text-sm font-mono whitespace-pre-wrap">
+                  <span className="opacity-50 font-bold">Output:</span>{" "}
+                  {data.output}
+                </p>
+                {data.explanation && (
+                  <p className="text-sm italic opacity-70">
+                    <span className="font-bold">Explanation:</span>{" "}
+                    {data.explanation}
+                  </p>
+                )}
+              </div>
+            ))}
+        </div>
+
+        {/* Constraints — split into bullet points */}
         <div className="space-y-2">
           <h3 className="font-bold">Constraints</h3>
-          <code className="block bg-base-300 px-3 py-2 rounded-lg text-sm font-mono border border-base-content/5">{constraints}</code>
+          <ul className="list-disc list-inside space-y-1 text-sm font-mono bg-base-300 px-4 py-3 rounded-lg border border-base-content/5">
+            {constraints &&
+              constraints
+                .split("\n")
+                .filter(Boolean)
+                .map((line, i) => <li key={i}>{line}</li>)}
+          </ul>
         </div>
       </div>
     </div>

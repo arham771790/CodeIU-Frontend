@@ -104,6 +104,7 @@ export default function ContestWorkspace({ contest }) {
         <Contest_problem_Description
           title={snapshot?.title}
           description={snapshot?.description}
+          examples={snapshot?.examples}
           testcases={snapshot?.visibleTestcases || snapshot?.testcases}
           constraints={snapshot?.constraints}
         />
