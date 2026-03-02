@@ -27,8 +27,32 @@ const addInterceptors = (instance) => {
     async (error) => {
       const originalRequest = error.config;
 
+      // --- Normalize backend error shape into a consistent format ---
+      // Backend returns: { success: false, error: { code, message }, traceId, path }
+      const backendError = error.response?.data?.error;
+      const normalizedMessage =
+        backendError?.message ||
+        error.response?.data?.message ||
+        error.message ||
+        "An unexpected error occurred";
+      const normalizedCode = backendError?.code || "SRV_001";
+      const traceId = error.response?.data?.traceId || null;
+      const status = error.response?.status || 0;
+
+      // Attach normalized fields to the error for stores to use
+      error.normalizedMessage = normalizedMessage;
+      error.errorCode = normalizedCode;
+      error.traceId = traceId;
+      error.httpStatus = status;
+
+      // Structured dev-friendly console log
+      console.error(
+        `[API Error] [${normalizedCode}] ${status} — ${normalizedMessage}${traceId ? ` | TraceId: ${traceId}` : ""}`,
+        { path: error.config?.url, method: error.config?.method }
+      );
+
       // --- Handle 401 Unauthorized ---
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (status === 401 && !originalRequest._retry) {
         const { isCheckingAuth } = useAuthStore.getState();
 
         // Skip refresh during initial auth check on app load
@@ -75,7 +99,7 @@ const addInterceptors = (instance) => {
       }
 
       // --- Handle 429 Rate Limit ---
-      if (error.response?.status === 429) {
+      if (status === 429) {
         toast.error("Too many requests. Please slow down.");
       }
 

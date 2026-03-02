@@ -9,9 +9,9 @@ const Profile = () => {
   const { authUser, logout, isLoggingOut } = useAuthStore();
   const navigate = useRouter();
 
-  const handleLogout = async() => {
-      await logout();
-      navigate.push("/");
+  const handleLogout = async () => {
+    await logout();
+    navigate.push("/");
   }
 
   const LogoutButton = () => {
@@ -40,7 +40,7 @@ const Profile = () => {
       <div className="flex flex-col">
         <ul className="menu menu-sm p-0">
           <li>
-            <Link href="/Profile" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
+            <Link href="/profile" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
               <User className="h-4 w-4" />
               Profile
             </Link>
@@ -53,14 +53,14 @@ const Profile = () => {
           </li>
           {authUser?.role === "ADMIN" && (
             <li>
-              <Link href="/Admin" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
+              <Link href="/admin" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
                 <UserStar className="h-4 w-4 text-success" />
                 Admin
               </Link>
             </li>
           )}
         </ul>
-        
+
         <div className="border-t border-base-content/10 my-1"></div>
         <LogoutButton />
       </div>

@@ -140,6 +140,11 @@ export const useSubmissionStore = create((set, get) => {
     },
 
     runCode: async (sourceCode, stdin, languageId, expected_output) => {
+        // Auto-reset after 5s in case of hang
+        const autoResetTimer = setTimeout(() => {
+            set({ isexecuting: false });
+        }, 5000);
+
         try {
             set({ isexecuting: true });
             
@@ -155,24 +160,30 @@ export const useSubmissionStore = create((set, get) => {
             });
             set({ RunReslts: result.data.testCases });
             
-            // Start local cooldown (30s as per backend middleware)
-            get().startCooldown('run', 30);
+            // 5s cooldown
+            get().startCooldown('run', 5);
 
         } catch (error) {
-            if (error.response?.status === 429) {
-                const ttl = error.response.data.message.match(/\d+/)?.[0] || 30;
+            if (error.httpStatus === 429) {
+                const ttl = error.normalizedMessage?.match(/\d+/)?.[0] || 5;
                 get().startCooldown('run', parseInt(ttl));
-                toast.error(error.response.data.message);
+                toast.error(error.normalizedMessage || "Too many requests.");
             } else {
-                const errMsg = error.response?.data?.error?.message || error.response?.data?.message || "Error running code";
-                toast.error(errMsg);
+                console.error(`[useSubmissionStore] runCode [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+                toast.error(error.normalizedMessage || "Error running code");
             }
         } finally {
+            clearTimeout(autoResetTimer);
             set({ isexecuting: false });
         }
     },
 
     submitCode: async (sourceCode, languageId, problemId, contestId) => {
+        // Auto-reset after 5s in case of hang
+        const autoResetTimer = setTimeout(() => {
+            set({ isSubmittingCode: false });
+        }, 5000);
+
         try {
             set({ isSubmittingCode: true });
 
@@ -188,8 +199,8 @@ export const useSubmissionStore = create((set, get) => {
                 submissions: [result.data.submission, ...state.submissions]
             }));
 
-            // Start local cooldown
-            get().startCooldown('submit', 30);
+            // 5s cooldown
+            get().startCooldown('submit', 5);
 
             if (result.data.submission?.status === "Accepted") {
                 const { solvedProblemsIds } = useProblemStore.getState();
@@ -201,15 +212,16 @@ export const useSubmissionStore = create((set, get) => {
             }
 
         } catch (error) {
-            if (error.response?.status === 429) {
-                const ttl = error.response.data.message.match(/\d+/)?.[0] || 30;
+            if (error.httpStatus === 429) {
+                const ttl = error.normalizedMessage?.match(/\d+/)?.[0] || 5;
                 get().startCooldown('submit', parseInt(ttl));
-                toast.error(error.response.data.message);
+                toast.error(error.normalizedMessage || "Too many requests.");
             } else {
-                const errMsg = error.response?.data?.error?.message || error.response?.data?.message || "Error submitting code";
-                toast.error(errMsg);
+                console.error(`[useSubmissionStore] submitCode [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+                toast.error(error.normalizedMessage || "Error submitting code");
             }
         } finally {
+            clearTimeout(autoResetTimer);
             set({ isSubmittingCode: false });
         }
     },

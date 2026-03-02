@@ -2,13 +2,13 @@ import { getProblems } from "@/lib/services/problemService";
 import ProblemFilters from "@/components/molecules/ProblemFilters";
 import GridHighlights from "@/components/atoms/GridHighlights";
 import { Terminal } from "lucide-react";
-import ProblemsTable from "./ProblemsTable"; 
+import ProblemsTable from "@/components/organisms/ProblemsTable";
 
 export default async function ProblemsPage({ searchParams }) {
   const params = await searchParams;
   const query = params?.q || "";
   const difficulty = params?.difficulty || "";
-  
+
   // 🚀 This is now 100% statically cached across all users!
   const problems = await getProblems(query, difficulty);
 
@@ -58,7 +58,7 @@ export default async function ProblemsPage({ searchParams }) {
 
         {/* 🚀 Pass the cached problems down to the Client Component */}
         <ProblemsTable problems={problems} />
-        
+
       </div>
     </div>
   );

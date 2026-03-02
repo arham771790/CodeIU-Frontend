@@ -5,13 +5,13 @@ import { useState } from "react";
 import Link from "next/link";
 import NavLinks from "@/components/molecules/NavLinks";
 import UserActions from "@/components/molecules/UserActions";
-import { Menu, X } from "lucide-react"; 
+import { Menu, X } from "lucide-react";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const pages = [
-    { name: "Explore", link: "/Explore" },
+    { name: "Explore", link: "/explore" },
     { name: "Problems", link: "/problems" },
     { name: "Contest", link: "/contest" },
   ];
@@ -36,7 +36,7 @@ export default function Header() {
         {/* Actions & Mobile Menu Toggle */}
         <div className="flex items-center gap-2">
           <UserActions />
-          
+
           {/* Hamburger Icon - Only visible on mobile **/}
           <button
             className="md:hidden p-2 text-base-content hover:bg-base-content/10 rounded-lg transition-colors"
@@ -50,10 +50,10 @@ export default function Header() {
       {/* Mobile Navigation Dropdown */}
       {isMobileMenuOpen && (
         <nav className="md:hidden w-full pt-6 pb-4 border-t border-white/5 mt-3">
-          <NavLinks 
-            pages={pages} 
-            isMobile={true} 
-            closeMenu={() => setIsMobileMenuOpen(false)} 
+          <NavLinks
+            pages={pages}
+            isMobile={true}
+            closeMenu={() => setIsMobileMenuOpen(false)}
           />
         </nav>
       )}

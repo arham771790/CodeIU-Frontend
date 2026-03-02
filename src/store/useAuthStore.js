@@ -169,4 +169,22 @@ export const useAuthStore = create((set, get) => ({
       return false;
     }
   },
+
+  updateProfile: async (payload) => {
+    try {
+      const res = await axiosInstanceAuthService.put("/auth/update-profile", payload, {
+        withCredentials: true,
+      });
+      if (res?.data?.success) {
+        set({ authUser: res.data.user });
+        toast.success(res.data.message || "Profile updated successfully");
+        return true;
+      }
+      toast.error(res?.data?.message || "Update failed");
+      return false;
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Error updating profile");
+      return false;
+    }
+  },
 }));

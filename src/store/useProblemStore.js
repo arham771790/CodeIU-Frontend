@@ -2,7 +2,9 @@ import {create} from 'zustand';
 import { axiosInstanceProblemService } from '../lib/axios';
 import { toast } from 'react-hot-toast';
 
-export const useProblemStore = create((set) => ({
+const FETCH_TTL_MS = 60_000; // 60 seconds
+
+export const useProblemStore = create((set, get) => ({
     
   problems: [],
   problem: null,
@@ -12,19 +14,22 @@ export const useProblemStore = create((set) => ({
   isProblemsLoading: false,
   isProblemLoading: false,
   isCreatingProblem: false,
+  isDeletingProblem: false,
+  isUpdatingProblem: false,
+  lastFetched: null, // TTL guard timestamp
 
-  isDeletingProblem: false ,
-  isUpdatingProblem : false ,
-
-  getAllProblems: async () => {
+  getAllProblems: async (force = false) => {
+    const { lastFetched } = get();
+    if (!force && lastFetched && Date.now() - lastFetched < FETCH_TTL_MS) {
+      return; // Data is fresh, skip fetch
+    }
     try {
       set({ isProblemsLoading: true });
       const res = await axiosInstanceProblemService.get("/problem/getAllProblem");
-      console.log("All problems fetched:", res.data.problems);
-      set({ problems: res.data.problems || [] });
+      set({ problems: res.data.problems || [], lastFetched: Date.now() });
     } catch (error) {
-      console.error("Error fetching all problems:", error);
-      toast.error("Error fetching problems");
+      console.error(`[useProblemStore] getAllProblems [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error fetching problems");
     } finally {
       set({ isProblemsLoading: false });
     }
@@ -33,104 +38,67 @@ export const useProblemStore = create((set) => ({
   fetchUserSolvedProblems: async () => {
     try {
       set({ isSolvedLoading: true });
-      // This automatically sends the user's auth cookie because it's client-side axios
       const res = await axiosInstanceProblemService.get("/problem/solved-problems");
-      console.log("Solved problems:", res.data.solvedProblem);
       const ids = (res.data.solvedProblem || []).map(s => s.problemId);
       set({ solvedProblemsIds: ids });
     } catch (error) {
-      console.error("Error fetching solved problems", error);
+      console.error(`[useProblemStore] fetchUserSolvedProblems [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
     } finally {
       set({ isSolvedLoading: false });
     }
   },
 
-  createProblem : async(data) => {
+  createProblem: async (data) => {
     try {
-
-        set({ isCreatingProblem : true })
-
-        const result = await axiosInstanceProblemService.post("/problem/createProblem", data)
-        console.log("....................responce from create problem function .............................");
-        console.log(result);
-        toast.success("problem created successfully")
-        
+      set({ isCreatingProblem: true });
+      await axiosInstanceProblemService.post("/problem/createProblem", data);
+      // Invalidate cache on mutation
+      set({ lastFetched: null });
+      toast.success("Problem created successfully");
     } catch (error) {
-        console.log("error occured while creating problem", error)
-        toast.error("error occured while creating problem")
-        
+      console.error(`[useProblemStore] createProblem [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error creating problem");
     } finally {
-        set({ isCreatingProblem : false })
+      set({ isCreatingProblem: false });
     }
-  } ,
+  },
 
-  getProblemById : async(ProblemID) => {
-     try {
-       set({ isProblemLoading : true })
-       const res = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`);
-       const prob = res?.data?.problem;
-
-       // 🔎 LOG: raw and summarized testcase sources
-       console.log("[ProblemStore] getProblemById raw:", res?.data);
-       console.log("[ProblemStore] getProblemById keys:", Object.keys(prob || {}));
-       console.log("[ProblemStore] testcases lengths:", {
-         testcases: Array.isArray(prob?.testcases) ? prob.testcases.length : 0,
-         testCases: Array.isArray(prob?.testCases) ? prob.testCases.length : 0,
-         publicTestcases: Array.isArray(prob?.publicTestcases) ? prob.publicTestcases.length : 0,
-         hiddenTestcases: Array.isArray(prob?.hiddenTestcases) ? prob.hiddenTestcases.length : 0,
-         privateTestcases: Array.isArray(prob?.privateTestcases) ? prob.privateTestcases.length : 0,
-       });
-       console.log("[ProblemStore] first few examples:", {
-         exJS: prob?.examples?.JAVASCRIPT,
-         exPY: prob?.examples?.PYTHON,
-         exJAVA: prob?.examples?.JAVA,
-         exCPP: prob?.examples?.CPP,
-       });
-
-       set({ problem: prob });
-       return prob;
-
-    } catch (error) {
-
-        console.log("error occured while fetching problem by id");
-        toast.error("error occured while fetching problem by id ");
-        
-    }
-    finally{
-        set({ isProblemLoading : false })
-    }
-
-  } ,
-
-  //function of getProblem Solved by user will be added in the future
-  //function of update and delete problem will be added in the future
-
-  UpdateProblem : async() => {
+  getProblemById: async (ProblemID) => {
     try {
-      
+      set({ isProblemLoading: true });
+      const res = await axiosInstanceProblemService.get(`/problem/getProblem/${ProblemID}`);
+      const prob = res?.data?.problem;
+      set({ problem: prob });
+      return prob;
     } catch (error) {
-      
+      console.error(`[useProblemStore] getProblemById [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error fetching problem");
+    } finally {
+      set({ isProblemLoading: false });
     }
-  } ,
+  },
 
-  deleteProblem : async(ProblemId) => {
+  UpdateProblem: async () => {
     try {
+      set({ lastFetched: null }); // Invalidate cache on mutation
+    } catch (error) {
+      console.error(`[useProblemStore] UpdateProblem [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+    }
+  },
 
-      set({isDeletingProblem : true})
-
+  deleteProblem: async (ProblemId) => {
+    try {
+      set({ isDeletingProblem: true });
       await axiosInstanceProblemService.delete(`/problem/deleteProblem/${ProblemId}`);
-
-      set((state)=>({
-        problems : state.problems.filter(problem => problem.id !== ProblemId)
-      }))
-      
+      set((state) => ({
+        problems: state.problems.filter(problem => problem.id !== ProblemId),
+        lastFetched: null, // Invalidate cache
+      }));
     } catch (error) {
-      console.log("error occured while deleting problem :" , error);
-      toast.error("error occured while deleting problem");
-      
+      console.error(`[useProblemStore] deleteProblem [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error deleting problem");
     } finally {
-      set({isDeletingProblem : false})
+      set({ isDeletingProblem: false });
     }
   }
-
 }))
