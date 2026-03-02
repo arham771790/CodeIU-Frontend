@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateProblemForm } from "@/app/components/CreateProblemForm";
+import { CreateProblemForm } from "@/components/organisms/CreateProblemFormPage";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 

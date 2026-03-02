@@ -1,4 +1,4 @@
-import ContestManager from "@/app/components/contest/ContestManager";
+import ContestManager from "@/components/organisms/ContestManager";
 import { getContests } from "@/lib/services/contestService";
 
 export const dynamic = 'force-dynamic';

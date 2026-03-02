@@ -1,5 +1,5 @@
 import { getContestById } from "@/lib/services/contestService";
-import ContestClientView from "@/app/components/contest/ContestClientView";
+import ContestClientView from "@/components/organisms/ContestClientView";
 import { notFound } from "next/navigation";
 
 export default async function ContestDetailPage({ params }) {

@@ -1,9 +1,9 @@
-import Scroll from '@/app/components/scrollcomponent/Scroll'
+import Scroll from '@/components/atoms/Scroll'
 import React from 'react'
 import Section2 from './sections/Section2'
 import Section3 from './sections/Section3'
 import Section4 from './sections/Section4 '
-import GridHighlights from '@/app/components/GridHighlights'
+import GridHighlights from '@/components/atoms/GridHighlights'
 
 const Home2 = () => {
   return (

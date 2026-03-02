@@ -11,7 +11,7 @@ import {
   Keyboard,
   Lock,
 } from "lucide-react";
-import GridHighlights from "@/app/components/GridHighlights";
+import GridHighlights from "@/components/atoms/GridHighlights";
 
 const BattleMode = () => {
   // --- USER DATA (Preserved) ---

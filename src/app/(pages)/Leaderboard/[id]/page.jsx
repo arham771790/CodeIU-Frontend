@@ -1,5 +1,5 @@
 import { getLeaderboardService } from "@/lib/services/leaderboardService";
-import LeaderboardClientView from "@/app/components/contest/LeaderboardClientView";
+import LeaderboardClientView from "@/components/organisms/LeaderboardClientView";
 
 export default async function LeaderboardPage({ params }) {
   const { id } = await params;

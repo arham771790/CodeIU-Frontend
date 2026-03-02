@@ -1,6 +1,6 @@
 import { getProblems } from "@/lib/services/problemService";
-import ProblemFilters from "@/app/components/ProblemFilters";
-import GridHighlights from "@/app/components/GridHighlights";
+import ProblemFilters from "@/components/molecules/ProblemFilters";
+import GridHighlights from "@/components/atoms/GridHighlights";
 import { Terminal } from "lucide-react";
 import ProblemsTable from "./ProblemsTable"; 
 

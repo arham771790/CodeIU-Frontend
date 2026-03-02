@@ -10,7 +10,7 @@ import {
   Braces,
 } from "lucide-react";
 
-import GridHighlights from "../components/GridHighlights";
+import GridHighlights from "@/components/atoms/GridHighlights";
 
 const developers = [
   {

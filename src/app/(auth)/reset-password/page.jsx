@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useAuthStore } from "@/app/store/useAuthStore";
-import { axiosInstanceAuthService } from "@/app/lib/axios";
+import { useAuthStore } from "@/store/useAuthStore";
+import { axiosInstanceAuthService } from "@/lib/axios";
 import { toast } from "react-toastify";
 
 const EyeIcon = ({ toggleVisibility, isVisible }) => (
@@ -19,7 +19,7 @@ const EyeIcon = ({ toggleVisibility, isVisible }) => (
     </button>
 );
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
     const [formData, setFormData] = useState({
         password: "",
         confirmPassword: "",
@@ -207,5 +207,13 @@ export default function ResetPassword() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black font-sans"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>}>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }

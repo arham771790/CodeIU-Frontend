@@ -1,24 +1,66 @@
 "use client";
 import React, { useMemo } from 'react';
-import { useAuthStore } from '@/app/store/useAuthStore';
-import ProfileSidebar from '@/app/components/profile/ProfileSidebar';
-import SubmissionHeatmap from '@/app/components/profile/SubmissionHeatmap';
-import RecentActivity from '@/app/components/profile/RecentActivity';
-import BadgesSection from '@/app/components/profile/BadgesSection';
-import SubmissionStats from '@/app/components/profile/SubmissionStats';
-import GridHighlights from '@/app/components/GridHighlights';
+import { useAuthStore } from '@/store/useAuthStore';
+import ProfileSidebar from '@/components/organisms/ProfileSidebar';
+import SubmissionHeatmap from '@/components/molecules/SubmissionHeatmap';
+import RecentActivity from '@/components/molecules/RecentActivity';
+import BadgesSection from '@/components/molecules/BadgesSection';
+import SubmissionStats from '@/components/molecules/SubmissionStats';
+import GridHighlights from '@/components/atoms/GridHighlights';
 import { UserCircle } from 'lucide-react';
+import { axiosInstanceSubmissionService } from '@/lib/axios';
 
 const ProfilePage = () => {
   const { authUser } = useAuthStore();
-
-  const stats = {
+  const [stats, setStats] = React.useState({
     solved: { total: 0, easy: 0, medium: 0, hard: 0 },
     totalQuestions: { total: 0, easy: 0, medium: 0, hard: 0 },
     percentage: 0
-  };
+  });
+  const [activityData, setActivityData] = React.useState(Array.from({ length: 365 }, () => 0));
+  const [loading, setLoading] = React.useState(true);
 
-  const activityData = useMemo(() => Array.from({ length: 365 }, () => 0), []);
+  React.useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const [statsRes, heatmapRes] = await Promise.all([
+          axiosInstanceSubmissionService.get('/submission/profile/stats'),
+          axiosInstanceSubmissionService.get('/submission/profile/heatmap')
+        ]);
+
+        if (statsRes.data.success) {
+          // We need to fetch total questions to calculate percentage
+          // For now, let's assume some defaults or fetch them if an API exists
+          const fetchedStats = statsRes.data.stats;
+          setStats({
+            solved: fetchedStats.solved,
+            totalQuestions: { total: 100, easy: 40, medium: 40, hard: 20 }, // Mock totals for demo
+            percentage: ((fetchedStats.solved.total / 100) * 100).toFixed(1)
+          });
+        }
+
+        if (heatmapRes.data.success) {
+          const heatmap = heatmapRes.data.heatmap;
+          // Map the heatmap object to the 365-day array expected by SubmissionHeatmap
+          // (Assuming SubmissionHeatmap expects a flat array of numbers for the last 365 days)
+          const today = new Date();
+          const dataArr = Array.from({ length: 365 }, (_, i) => {
+            const date = new Date(today);
+            date.setDate(today.getDate() - (364 - i));
+            const dateString = date.toISOString().split('T')[0];
+            return heatmap[dateString] || 0;
+          });
+          setActivityData(dataArr);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-base-300 text-base-content font-sans overflow-hidden relative pb-20 ">
@@ -39,8 +81,8 @@ const ProfilePage = () => {
           <main className="lg:col-span-3 space-y-8">
             <SubmissionStats stats={stats} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <BadgesSection />
-                <RecentActivity />
+              <BadgesSection />
+              <RecentActivity />
             </div>
             <SubmissionHeatmap data={activityData} />
           </main>
