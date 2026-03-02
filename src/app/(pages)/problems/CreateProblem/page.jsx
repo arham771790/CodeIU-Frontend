@@ -1,5 +1,5 @@
 
-import { CreateProblemForm } from "@/app/components/CreateProblemForm";
+import { CreateProblemForm } from "@/components/organisms/CreateProblemFormPage";
 
 
 const AddProblem = () => {

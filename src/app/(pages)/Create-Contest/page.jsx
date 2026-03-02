@@ -1,4 +1,4 @@
-import CreateContestDialog from '@/app/components/contest/CreateContestDialog'
+import CreateContestDialog from '@/components/organisms/CreateContestDialog'
 import React from 'react'
 
 const page = () => {

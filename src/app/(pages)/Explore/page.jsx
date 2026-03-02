@@ -13,7 +13,7 @@ import {
   Code2,
   Terminal,
 } from "lucide-react";
-import GridHighlights from "@/app/components/GridHighlights";
+import GridHighlights from "@/components/atoms/GridHighlights";
 
 // --- Mock Data ---
 const courses = {

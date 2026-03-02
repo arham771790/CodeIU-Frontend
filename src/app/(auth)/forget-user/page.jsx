@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Mail } from "lucide-react";
-import { useAuthStore } from "@/app/store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function ForgetUser() {
     const [email, setEmail] = useState("");

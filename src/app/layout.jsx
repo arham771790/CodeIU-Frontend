@@ -3,8 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import Structure from './Structure'
-import { ThemeProvider } from "./components/ThemeProvider"
+import { ThemeProvider } from "./providers/ThemeProvider"
 import Script from "next/script";
+import AuthProvider from "./providers/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +58,9 @@ export default function RootLayout({ children }) {
       >
         <ThemeProvider>
           {/* Ensure Structure component doesn't have bg-black inside it */}
-          <Structure>{children}</Structure>
+          <AuthProvider>
+            <Structure>{children}</Structure>
+          </AuthProvider>
         </ThemeProvider>
 
         {/* Google Analytics */}

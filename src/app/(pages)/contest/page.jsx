@@ -1,5 +1,5 @@
 import { getContests } from "@/lib/services/contestService";
-import ContestDashboard from "@/app/components/contest/ContestDashboard";
+import ContestDashboard from "@/components/organisms/ContestDashboard";
 
 export const dynamic = 'force-dynamic';
 

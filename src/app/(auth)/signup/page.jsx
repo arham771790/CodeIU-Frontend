@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, Github , Linkedin } from 'lucide-react';
-import { useAuthStore } from "@/app/store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

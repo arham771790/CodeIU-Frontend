@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getContestById } from "@/lib/services/contestService";
-import ContestWorkspace from "@/app/components/contest/ContestWorkspace";
+import ContestWorkspace from "@/components/organisms/ContestWorkspace";
 
 export default async function ContestProblemPage({ params }) {
   const { id } = await params;
