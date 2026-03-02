@@ -15,15 +15,14 @@ export default function NavLinks({ pages, isMobile, closeMenu }) {
           <Link
             href={page.link}
             onClick={isMobile ? closeMenu : undefined} // Closes menu on mobile click
-            className={`${
-              pathname === page.link ? "text-primary" : "text-base-content"
-            } hover:text-primary transition-colors relative group block`}
+            className={`${pathname === page.link ? "text-primary" : "text-base-content"
+              } hover:text-primary transition-colors relative group block`}
           >
             {page.name}
           </Link>
         </li>
       ))}
-      
+
       <li
         className={`flex items-center justify-center gap-1 ${isMobile ? "w-full" : ""}`}
         title="Under Construction"
@@ -34,7 +33,7 @@ export default function NavLinks({ pages, isMobile, closeMenu }) {
         </span>
         Blogs
       </li>
-      
+
       <li
         className={`flex items-center justify-center gap-1 ${isMobile ? "w-full" : ""}`}
         title="Under Construction"
@@ -43,19 +42,19 @@ export default function NavLinks({ pages, isMobile, closeMenu }) {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
         </span>
-        <Link 
-          href="/Battle" 
-          onClick={isMobile ? closeMenu : undefined} 
+        <Link
+          href="/battle"
+          onClick={isMobile ? closeMenu : undefined}
           className="block hover:text-primary transition-colors"
         >
           Battle Mode
         </Link>
       </li>
-      
+
       <li className={isMobile ? "w-full flex justify-center" : ""}>
-        <Link 
+        <Link
           className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg transition-colors"
-          href="/Developer"
+          href="/developer"
           onClick={isMobile ? closeMenu : undefined}
         >
           Developers

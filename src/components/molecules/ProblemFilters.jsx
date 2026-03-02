@@ -28,7 +28,7 @@ export default function ProblemFilters() {
 
 
   const handleCreateProblem = () => {
-    navigate.push(`/problems/CreateProblem`);
+    navigate.push(`/problems/create-problem`);
   };
 
 

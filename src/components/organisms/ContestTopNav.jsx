@@ -34,7 +34,16 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
   const visibleTestCase = currentProblem?.snapshot?.testcases;
   const { label, value, phase } = useContestTimer({ startsAt, endsAt });
 
-  // Deriving Lock State
+  // Reactive tick to unlock buttons when cooldown expires
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const hasCooldown = operationCooldowns.run > Date.now() || operationCooldowns.submit > Date.now();
+    if (!hasCooldown) return;
+    const interval = setInterval(() => setTick(t => t + 1), 500);
+    return () => clearInterval(interval);
+  }, [operationCooldowns]);
+
+  // Deriving Lock State (now re-evaluated live every 500ms during cooldown)
   const now = Date.now();
   const isRunLocked = operationCooldowns.run > now || isexecuting;
   const isSubmitLocked = operationCooldowns.submit > now || isSubmittingCode;

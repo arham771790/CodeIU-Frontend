@@ -1,11 +1,9 @@
-"use client";
-
-import Home2 from "./(pages)/Home/Home2";
+import HomeView from "@/components/templates/home/HomeView";
 
 export default function Home() {
   return (
     <div className="relative overflow-hidden flex justify-center items-center max-w-screen">
-      <Home2 />
+      <HomeView />
     </div>
   );
 }

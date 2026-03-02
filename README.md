@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CodeIU Frontend
 
-## Getting Started
+A modern, high-performance competitive programming platform built with Next.js.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework**: Next.js 14+ (App Router)
+- **State Management**: Zustand
+- **Styling**: Vanilla CSS (with custom tokens/variables)
+- **Icons**: Lucide React
+- **Charts**: Recharts (for profile stats & heatmap)
+- **Notifications**: React Toastify
+- **Editor**: Custom Code Editor with multi-language support
+
+## Project Structure
+
+- `src/app`: App Router pages and layouts.
+  - `(pages)`: Main platform views (Home, Explore, Contest, Profile, Admin).
+  - `(auth)`: Login and Signup flows.
+- `src/components`: UI components organized by complexity (Atoms, Molecules, Organisms).
+- `src/store`: Zustand stores for global state.
+- `src/hooks`: Custom React hooks for API interaction and lifecycle.
+- `src/utils`: Helper functions and axios instances.
+
+## Global State (Zustand)
+
+The application uses specialized stores for decoupled state management:
+- `useAuthStore`: Handles user identity, login/logout, and token persistence.
+- `useProblemStore`: Manages problem lists, details, and boilerplate loading.
+- `useContestStore`: Controls contest metadata and lifecycle.
+- `useSubmissionStore`: Real-time submission results and history.
+- `useAdminStore`: Administrative tools for user and content management.
+
+## Environment Variables
+
+Create a `.env.local` for development:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8020/auth/api/v1  # Placeholder or direct service
+NEXT_PUBLIC_SOCKET_URL=http://localhost:8080           # Submission Service for real-time
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*Note: In production, requests are typically proxied via `next.config.mjs` or a central Load Balancer.*
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Local Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Design System
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+CodeIU uses a custom design system focused on:
+- **Glassmorphism**: Subtle translucent backgrounds for a premium feel.
+- **Vibrant Palettes**: Modern color schemes for difficulty levels and status indicators.
+- **Responsiveness**: Fully adaptive layouts for all device types.

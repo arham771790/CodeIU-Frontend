@@ -63,7 +63,7 @@ export default function ContestCard({ contest }) {
   }, [status, timeLeft]);
 
   const handleClick = () => {
-    router.push(`/contest/${contest.id}`);
+    router.push(`/contest/${contest.slug || contest.id}`);
   };
 
   return (

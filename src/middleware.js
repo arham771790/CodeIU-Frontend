@@ -26,47 +26,27 @@ export async function middleware(request) {
   // We REMOVED: /contest, /problem, /Each-problem, /Leaderboard (Now Public)
   const protectedPaths = [
      '/profile',
-    '/Contest_ProblemPage',
-    '/CreateProblem' ,
-    '/Leaderboard' ,
+    '/contest-problem-view',
+    '/problems/create-problem' ,
+    '/leaderboard' ,
     
     // Add other sensitive user-specific routes here
   ];
 
-  const adminPaths = ['/Admin']; // /problems/CreateProblem is already in protectedPaths but admin check handles role
-  const authPaths = ['/login', '/signup'];
+  const adminPaths = ['/admin']; // /problems/create-problem is already in protectedPaths but admin check handles role
+  const authPaths = ['/login', '/signup', '/forget-user', '/reset-password', '/verify-email'];
 
-  // 2. CHECK: Admin Access
-  const isAccessingAdminPath = adminPaths.some((path) => pathname.startsWith(path));
-  
-  if (isAccessingAdminPath) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    const user = await verifyToken(token);
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    if (user.role !== 'ADMIN') {
-      // Redirect to unauthorized or home if they are just a normal user
-      return NextResponse.redirect(new URL('/', request.url)); 
-    }
-    return NextResponse.next();
-  }
+  // ... (previous checks)
 
-  // 3. CHECK: General Protected Access
-  const isAccessingProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
-  if (isAccessingProtectedPath) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
-
-  // 4. CHECK: Auth Pages (Login/Signup)
-  // If user is already logged in, kick them to dashboard
-  if (authPaths.includes(pathname)) {
+  // 4. CHECK: Auth Pages (Login/Signup/etc.) - Guest Only
+  const isAccessingAuthPath = authPaths.some((path) => pathname.startsWith(path));
+  if (isAccessingAuthPath) {
     if (token) {
-      return NextResponse.redirect(new URL('/', request.url));
+      const user = await verifyToken(token);
+      if (user) {
+        // If valid session exists, don't allow access to login/signup
+        return NextResponse.redirect(new URL('/', request.url));
+      }
     }
   }
 

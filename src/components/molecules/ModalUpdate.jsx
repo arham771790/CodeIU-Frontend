@@ -4,61 +4,81 @@ import { useState } from "react";
 import Portal from "@/components/atoms/Portal";
 import { useAdminStore } from "@/store/useAdminStore";
 
-const Modal = ({ isOpen, setisEditing,user }) => {
+const Modal = ({ isOpen, setisEditing, user }) => {
   if (!isOpen) return null;
 
   const [role, setRole] = useState(user.role);
   const [username, setUsername] = useState(user.username);
- const { UpdateUser}=useAdminStore()
-  
+  const { UpdateUser } = useAdminStore();
 
-  const handleupdate=async(e)=>{
+  const handleupdate = async (e) => {
     e.preventDefault();
-  
     try {
-      const data={
-        role,
-        username
-      }
-      await UpdateUser(user.id,data);
+      const data = { role, username };
+      await UpdateUser(user.id, data);
       setisEditing(false);
     } catch (error) {
-      console.log('Error while Updating');
-      
+      console.error('Error while Updating:', error);
     }
-  }
+  };
 
-const onclose=()=>{
+  const onclose = () => {
     setisEditing(false);
-}
+  };
+
   return (
     <Portal>
-         <div className="absolute top-1/2 bg-black left-1/2 -translate-x-1/3 -translate-y-1/2  p-6 rounded-lg shadow-lg w-96">
-    <div className="flex flex-col">
-        <h2 className="w-full text-black flex justify-between items-center "><span className="px-3 bg-gray-300 rounded"> Editing User</span><span className="text-sm px-5 py-1 text-center  text-black rounded p-1 bg-white cursor-pointer" onClick={onclose}>❌</span></h2>
-        <form onSubmit={handleupdate} >
-       <div className="flex flex-col gap-1  justify-center mt-4"> 
-        <label className="block mb-2  font-medium text-gray-300">Role:</label>
-        <select className="w-full p-1 border border-gray-300 rounded-md bg-gray-800 text-white"  value={user?.username??'none'} 
-         onChange={(e) => setRole(e.target.value)}>
-     
-            <option value="">{role}</option>
-            {role=='USER'?<option value="ADMIN">ADMIN</option>:<option value="USER">USER</option>}
-            
-            </select>
-            
-            </div>
-            <div className="flex flex-col gap-2  justify-center mt-4 mb-4"> 
-            <label htmlFor="ipt" className="mr-1">Username</label>
-            <input id="ipt" type="text" value={username} className="w-full p-1 border-gray-300 rounded-md bg-gray-800 px-2" placeholder="Enter Username..." onChange={(e)=>setUsername(e.target.value)}/>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+        <div className="bg-base-100 border border-base-content/10 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl transition-all animate-in fade-in zoom-in duration-200">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-black uppercase tracking-tighter text-base-content">
+              Edit <span className="text-primary">User Profile</span>
+            </h2>
+            <button
+              onClick={onclose}
+              className="btn btn-circle btn-ghost btn-sm text-base-content/40 hover:bg-base-content/10"
+            >
+              ✕
+            </button>
+          </div>
+
+          <form onSubmit={handleupdate} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 ml-4">System Role</label>
+              <select
+                className="select select-bordered w-full rounded-2xl bg-base-content/5 border-base-content/5 focus:border-primary focus:ring-1 focus:ring-primary/50 font-bold transition-all"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="USER">Standard User</option>
+                <option value="ADMIN">System Administrator</option>
+              </select>
             </div>
 
-            <button type="submit" className="p-1 rounded bg-green-400 w-2/3 text-white font-bold">Update</button>
-        </form>
-    </div>
-    </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 ml-4">Username</label>
+              <input
+                type="text"
+                value={username}
+                className="input input-bordered w-full rounded-2xl bg-base-content/5 border-base-content/5 focus:border-primary focus:ring-1 focus:ring-primary/50 font-bold transition-all"
+                placeholder="Enter Username..."
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+
+            <div className="pt-6">
+              <button
+                type="submit"
+                className="btn btn-primary w-full rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
+              >
+                Update System Identity
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </Portal>
   );
 };
-  
+
 export default Modal;

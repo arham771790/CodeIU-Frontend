@@ -30,7 +30,7 @@
         "src/lib/*"
       ],
       "@/providers/*": [
-        "src/app/providers/*"
+        "src/providers/*"
       ]
     }
   }
