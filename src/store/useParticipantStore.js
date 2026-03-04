@@ -58,9 +58,9 @@ export const useParticipantStore = create((set, get) => ({
         toast.error("Failed to register.");
         set({ isRegistering: false });
       }
-    } catch (err) {
-      console.error("Error registering:", err);
-      toast.error(err.response?.data?.error || "Failed to register");
+    } catch (error) {
+      console.error(`[useParticipantStore] register [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Failed to register");
       set({ isRegistering: false, error: "Registration failed" });
     }
   },
@@ -82,12 +82,11 @@ export const useParticipantStore = create((set, get) => ({
           myStatus: "ACTIVE"
         }));
       } else {
-        toast.error("Failed to unregister.");
         set({ isUnregistering: false });
       }
-    } catch (err) {
-      console.error("Error unregistering:", err);
-      toast.error(err.response?.data?.error || "Failed to unregister");
+    } catch (error) {
+      console.error(`[useParticipantStore] unregister [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Failed to unregister");
       set({ isUnregistering: false, error: "Unregistration failed" });
     }
   },
@@ -108,12 +107,10 @@ export const useParticipantStore = create((set, get) => ({
       if (res.data.ok) {
         toast.info("Contest finished successfully.");
         set({ myStatus: "FINISHED" });
-      } else {
-        toast.error("Failed to finish contest.");
       }
-    } catch (err) {
-      console.error("Error finishing contest:", err);
-      toast.error(err.response?.data?.error || "Failed to finish contest");
+    } catch (error) {
+      console.error(`[useParticipantStore] finishContest [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Failed to finish contest");
     }
   },
 }));

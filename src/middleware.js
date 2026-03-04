@@ -23,7 +23,7 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // 1. DEFINITION: Protected Paths (Require Login)
-  // We REMOVED: /contest, /problem, /Each-problem, /Leaderboard (Now Public)
+  // We REMOVED: /contest, /problem, /Each-problem, /leaderboard (Now Public)
   const protectedPaths = [
      '/profile',
     '/contest-problem-view',
@@ -36,7 +36,27 @@ export async function middleware(request) {
   const adminPaths = ['/admin']; // /problems/create-problem is already in protectedPaths but admin check handles role
   const authPaths = ['/login', '/signup', '/forget-user', '/reset-password', '/verify-email'];
 
-  // ... (previous checks)
+  // 2. CHECK: Protected Paths
+  const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
+  if (isProtectedPath && !token) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 3. CHECK: Admin Paths
+  const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
+  if (isAdminPath) {
+    if (!token) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    const user = await verifyToken(token);
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   // 4. CHECK: Auth Pages (Login/Signup/etc.) - Guest Only
   const isAccessingAuthPath = authPaths.some((path) => pathname.startsWith(path));

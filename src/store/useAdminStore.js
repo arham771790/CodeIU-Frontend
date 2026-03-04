@@ -20,76 +20,59 @@ export const useAdminStore = create((set) =>
                 const res = await axiosInstanceAuthService.get("/admin/getallusers", { withCredentials: true });
                 console.log("All users response:", res.data);
                 if (res?.status === 200) {
-                    
                     set({ allUsers: res.data?.users });
-                    toast.success(res?.data?.message || "Users fetched successfully");
                     return true;
                 }
-
             } catch (error) {
-                console.log(error);
-
+                console.error(`[useAdminStore] fetchAllUsers [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+                toast.error(error.normalizedMessage || "Error fetching users");
+            } finally {
+                set({ isLoadingUsers: false })
             }
-
         },
 
     UpdateUser: async (userId, data) => {
-  console.log(userId, data);
-
   try {
     set({ isUpdatingRole: true });
-
     const res = await axiosInstanceAuthService.put(
       "/admin/updateuser",
       { userId, data },
       { withCredentials: true }
     );
 
-    console.log("Update role response:", res);
-
     if (res?.status === 200 ) {
       set((state) => ({
         allUsers: state.allUsers.map((user) =>
-         {console.log(user.id,userId);
-         
-            return user.id === userId ? { ...user, role: data.role, username: data.username } : user}
+           user.id === userId ? { ...user, role: data.role, username: data.username } : user
         ),
       }));
-
-      toast.success(res?.data?.message || "User role updated successfully");
+      toast.success(res?.data?.message || "User updated successfully");
       return true;
     }
-
   } catch (error) {
-    console.log(error);
-    toast.error("Error updating user role");
+    console.error(`[useAdminStore] UpdateUser [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+    toast.error(error.normalizedMessage || "Error updating user");
   } finally {
     set({ isUpdatingRole: false });
   }
 },
 
         DeleteUser:async(userid)=>{
-        console.log(userid);
-        
             try {
                 set({isDeletingUser:true})
-                     const res=await axiosInstanceAuthService.delete(`/admin/deleteuser/${userid}`,{withCredentials:true});
+                const res=await axiosInstanceAuthService.delete(`/admin/deleteuser/${userid}`,{withCredentials:true});
 
-
-                        console.log("Delete user response:",res);
-
-                        if(res?.status===200 && res?.data?.status===true){
-
-                            set((state)=>({
-                                allUsers: state.allUsers.filter(u => u.id !== userid)
-                            }))
-                      toast.success(res?.data?.message || "User Deleted successfully");
-                        return true;    
-
-                        }
+                if(res?.status===200 && res?.data?.status===true){
+                    set((state)=>({
+                        allUsers: state.allUsers.filter(u => u.id !== userid)
+                    }))
+                    toast.success(res?.data?.message || "User deleted successfully");
+                    return true;    
+                }
             } catch (error) {
-                 console.log(error)
-                toast.error("Error While deleting user ");
+                console.error(`[useAdminStore] DeleteUser [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+                toast.error(error.normalizedMessage || "Error deleting user");
+            } finally {
                 set({isDeletingUser:false})
             }
         }

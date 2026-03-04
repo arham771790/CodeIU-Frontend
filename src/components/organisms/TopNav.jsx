@@ -58,7 +58,7 @@ const TopNav = ({ problem, problems }) => {
     <nav className="bg-base-200 text-base-content px-4 py-2 flex items-center justify-between border-b border-base-content/10">
       <div className="flex items-center space-x-4">
         <Link href="/">
-          <span className="text-xl font-bold text-blue-400 ml-3">
+          <span className="text-xl font-bold text-primary ml-3">
             🌊ode<span className="font-bold text-base-content">IU</span>
           </span>
         </Link>
@@ -124,10 +124,6 @@ const TopNav = ({ problem, problems }) => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="btn btn-ghost btn-sm text-primary hidden md:flex">
-              <Timer size={18} /> Timer
-            </button>
-            <div className="divider divider-horizontal mx-0"></div>
             <ThemeController />
           </div>
         </>
@@ -151,10 +147,6 @@ const TopNav = ({ problem, problems }) => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="btn btn-ghost btn-sm text-primary hidden md:flex">
-              <Timer size={18} /> Timer
-            </button>
-            <div className="divider divider-horizontal mx-0"></div>
             <ThemeController />
           </div>
         </>

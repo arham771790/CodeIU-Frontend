@@ -15,8 +15,8 @@ export default async function sitemap() {
   const staticRoutes = [
     { url: "", changeFrequency: "daily", priority: 1 },
     { url: "/problems", changeFrequency: "daily", priority: 0.9 },
-    { url: "/Explore", changeFrequency: "weekly", priority: 0.8 },
-    { url: "/Leaderboard", changeFrequency: "daily", priority: 0.8 },
+    { url: "/explore", changeFrequency: "weekly", priority: 0.8 },
+    { url: "/leaderboard", changeFrequency: "daily", priority: 0.8 },
   ].map((route) => ({
     url: `${BASE_URL}${route.url}`,
     lastModified: new Date(),

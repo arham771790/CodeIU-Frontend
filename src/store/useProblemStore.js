@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import { axiosInstanceProblemService } from '../lib/axios';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 const FETCH_TTL_MS = 60_000; // 60 seconds
 

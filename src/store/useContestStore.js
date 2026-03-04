@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { axiosInstanceContestService } from "@/lib/axios";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-toastify"; 
 
 export const useContestStore = create((set, get) => ({
   contests: [],
@@ -21,9 +21,9 @@ export const useContestStore = create((set, get) => ({
       if (res?.data?.ok) {
         set({ contests: res.data.contests || [] });
       }
-    } catch (err) {
-      console.error("Fetch Contests Error:", err);
-      toast.error("Failed to fetch contests");
+    } catch (error) {
+      console.error(`[useContestStore] fetchContests [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Failed to fetch contests");
     } finally {
       set({ isLoading: false });
     }
@@ -55,12 +55,11 @@ export const useContestStore = create((set, get) => ({
         set({ contests: [res.data.contest, ...get().contests] });
         return true;
       }
-      toast.error(res?.data?.error || "Failed to create contest");
       return false;
-    } catch (err) {
-      console.error("[createContest error]", err);
-      toast.error("Error creating contest");
-      set({ error: err.message });
+    } catch (error) {
+      console.error(`[useContestStore] createContest [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error creating contest");
+      set({ error: error.normalizedMessage });
       return false;
     } finally {
       set({ isLoading: false });
@@ -78,14 +77,13 @@ export const useContestStore = create((set, get) => ({
         set({ contests: get().contests.filter((c) => c.id !== id) });
         return true;
       }
-      toast.error("Failed to delete");
       return false;
-    } catch (err) {
-        toast.error("Error deleting");
-        set({ isLoading: false });
-        return false;
+    } catch (error) {
+      console.error(`[useContestStore] deleteContest [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error deleting contest");
+      return false;
     } finally {
-        set({ isLoading: false });
+      set({ isLoading: false });
     }
   },
 

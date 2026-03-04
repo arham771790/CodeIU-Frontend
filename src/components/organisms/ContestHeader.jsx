@@ -3,6 +3,8 @@ import { useEffect, useMemo } from "react";
 import { useParticipantStore } from "@/store/useParticipantStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Calendar, UserPlus, UserMinus } from "lucide-react";
+import ConfirmDialog from "@/components/molecules/ConfirmDialog";
+import { useState } from "react";
 
 export default function ContestHeader({ contest }) {
   const { authUser } = useAuthStore();
@@ -14,6 +16,9 @@ export default function ContestHeader({ contest }) {
     unregister,
     checkRegistration,
   } = useParticipantStore();
+
+  const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
+  const [isUnregisterDialogOpen, setIsUnregisterDialogOpen] = useState(false);
 
   useEffect(() => {
     if (authUser?.id && contest?.id) {
@@ -30,13 +35,21 @@ export default function ContestHeader({ contest }) {
     });
   }, [contest?.startsAt]);
 
-  const onRegister = async () => {
+  const onRegister = () => {
     if (!authUser?.id) return;
+    setIsRegisterDialogOpen(true);
+  };
+
+  const onUnregister = () => {
+    if (!authUser?.id) return;
+    setIsUnregisterDialogOpen(true);
+  };
+
+  const confirmRegister = async () => {
     await register({ contestId: contest.id, userId: authUser.id, username: authUser.username });
   };
 
-  const onUnregister = async () => {
-    if (!authUser?.id) return;
+  const confirmUnregister = async () => {
     await unregister({ contestId: contest.id, userId: authUser.id });
   };
 
@@ -87,6 +100,26 @@ export default function ContestHeader({ contest }) {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isRegisterDialogOpen}
+        onClose={() => setIsRegisterDialogOpen(false)}
+        onConfirm={confirmRegister}
+        title="Join Contest?"
+        message="Are you ready to enter the arena? Your participation will be recorded."
+        confirmText="Register Now"
+        type="info"
+      />
+
+      <ConfirmDialog
+        isOpen={isUnregisterDialogOpen}
+        onClose={() => setIsUnregisterDialogOpen(false)}
+        onConfirm={confirmUnregister}
+        title="Leave Contest?"
+        message="Are you sure you want to withdraw from this contest? You can register again later if the window is still open."
+        confirmText="Withdraw"
+        type="danger"
+      />
     </div>
   );
 }

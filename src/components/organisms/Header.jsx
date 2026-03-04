@@ -22,7 +22,7 @@ export default function Header() {
         {/* Logo */}
         <div>
           <Link href="/" className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-blue-400 ml-3">
+            <h1 className="text-2xl font-bold text-primary ml-3">
               🌊ode<span className="font-bold text-base-content">IU</span>
             </h1>
           </Link>

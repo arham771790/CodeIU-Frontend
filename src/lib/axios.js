@@ -89,7 +89,8 @@ const addInterceptors = (instance) => {
 
           // Redirect to login (client-side)
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
           }
 
           return Promise.reject(refreshError);

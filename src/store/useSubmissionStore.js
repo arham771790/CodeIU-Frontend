@@ -110,6 +110,7 @@ export const useSubmissionStore = create((set, get) => {
         const newSocket = getSocket();
 
         newSocket.off("submission-update");
+        newSocket.off("tc:result");
 
         newSocket.on('connect', () => {
             if (userId) newSocket.emit('join-room', { userId });
@@ -136,6 +137,28 @@ export const useSubmissionStore = create((set, get) => {
             }
         });
 
+        newSocket.on("tc:result", (tcResult) => {
+            set((state) => ({
+                submissions: state.submissions.map(sub => {
+                    if (sub.id !== tcResult.submissionId) return sub;
+
+                    const existingTestcases = sub.testcases || [];
+                    const updatedTestcases = [...existingTestcases];
+
+                    const idx = updatedTestcases.findIndex(t => t.testCase === tcResult.testCase);
+                    if (idx >= 0) {
+                        updatedTestcases[idx] = tcResult;
+                    } else {
+                        updatedTestcases.push(tcResult);
+                    }
+
+                    updatedTestcases.sort((a, b) => a.testCase - b.testCase);
+
+                    return { ...sub, testcases: updatedTestcases };
+                })
+            }));
+        });
+
         set({ socket: newSocket });
     },
 
@@ -146,7 +169,7 @@ export const useSubmissionStore = create((set, get) => {
         }, 5000);
 
         try {
-            set({ isexecuting: true });
+            set({ isexecuting: true, RunReslts: [] });
             
             // If custom input is enabled, override the standard testcases
             const finalStdin = get().isCustomInputEnabled ? [get().customInput] : stdin;
@@ -185,7 +208,7 @@ export const useSubmissionStore = create((set, get) => {
         }, 5000);
 
         try {
-            set({ isSubmittingCode: true });
+            set({ isSubmittingCode: true, submissions: [] });
 
             const endpoint = contestId 
                 ? `/execute/submit-code/${contestId}` 

@@ -1,11 +1,13 @@
 "use client";
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { RefreshCw, Expand, Loader2, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { useSubmissionStore } from "@/store/useSubmissionStore";
-import { useAuthStore } from "@/store/useAuthStore";
-import SubmissionResult from "@/components/molecules/SubmissionResult";
 import PreviousSubmissions from "@/components/molecules/PreviousSubmissions";
+import ContestEditorHeader from "@/components/molecules/ContestEditorHeader";
+import TestCaseTab from "@/components/molecules/TestCaseTab";
+import TestResultTab from "@/components/molecules/TestResultTab";
+import SubmissionTab from "@/components/molecules/SubmissionTab";
 
 const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
   const [activeTab, setActiveTab] = useState("testcase");
@@ -13,11 +15,12 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
 
   //  State to track if the current pending submission has timed out
   const [isTimedOut, setIsTimedOut] = useState(false);
 
-  const { setUserCode, getCodeForProblem, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults } = useSubmissionStore();
+  const { setUserCode, getCodeForProblem, RunReslts, selectedLanguage, setSelectedLanguage, submissions, clearResults, isexecuting, isSubmittingCode } = useSubmissionStore();
 
   const latestSubmission = useMemo(() => submissions?.find(sub => sub.problemId === problemId), [submissions, problemId]);
   const isSolved = latestSubmission?.status === "Accepted";
@@ -75,15 +78,13 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
     <div ref={containerRef} className="flex flex-col h-full gap-3">
       {/* Editor Panel */}
       <div className="bg-base-200 border border-base-content/10 rounded-[2rem] flex flex-col overflow-hidden shadow-xl" style={{ height: `${topPanelHeight}%` }}>
-        <div className="px-4 py-2 border-b border-base-content/5 flex items-center justify-between bg-base-300/30">
-          <select className="bg-transparent text-xs font-bold uppercase tracking-widest text-primary focus:outline-none" value={selectedLanguage} onChange={(e) => { setSelectedLanguage(e.target.value); }}>
-            {Object.keys(codeSnippets || {}).map(lang => <option key={lang} value={lang} className="bg-base-200">{lang}</option>)}
-          </select>
-          <div className="flex gap-1">
-            <button onClick={() => setUserCode(codeSnippets[selectedLanguage], problemId, selectedLanguage)} className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><RefreshCw size={14} /></button>
-            <button className="p-2 hover:bg-base-content/10 rounded-xl opacity-40 transition-all hover:opacity-100"><Expand size={14} /></button>
-          </div>
-        </div>
+        <ContestEditorHeader
+          selectedLanguage={selectedLanguage}
+          setSelectedLanguage={setSelectedLanguage}
+          codeSnippets={codeSnippets}
+          setUserCode={setUserCode}
+          problemId={problemId}
+        />
         <div className="flex-1">
           <Editor height="100%" language={selectedLanguage.toLowerCase()} theme="vs-dark" value={getCodeForProblem(problemId, selectedLanguage)} onChange={(v) => setUserCode(v || "", problemId, selectedLanguage)} options={{ minimap: { enabled: false }, fontSize: 14, automaticLayout: true, padding: { top: 16 } }} />
         </div>
@@ -104,82 +105,31 @@ const Contest_Problem_CodeEditor = ({ codeSnippets, testcases, problemId }) => {
 
         <div className="p-6 overflow-auto custom-scrollbar flex-grow">
           {activeTab === "testcase" && (
-            <div className="space-y-6">
-              <div className="flex gap-2">
-                {testcases?.map((_, i) => (
-                  <button key={i} onClick={() => setSelectedCaseIndex(i)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCaseIndex === i ? "bg-primary text-primary-content" : "bg-base-300 opacity-40"}`}>Case {i + 1}</button>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><p className="text-[10px] font-black opacity-30 uppercase tracking-widest">Input</p><pre className="bg-base-300 p-4 rounded-2xl text-xs font-mono">{testcases?.[selectedCaseIndex]?.input}</pre></div>
-                <div className="space-y-2"><p className="text-[10px] font-black opacity-30 uppercase tracking-widest">Expected</p><pre className="bg-base-300 p-4 rounded-2xl text-xs font-mono">{testcases?.[selectedCaseIndex]?.output}</pre></div>
-              </div>
-            </div>
+            <TestCaseTab
+              testcases={testcases}
+              selectedCaseIndex={selectedCaseIndex}
+              setSelectedCaseIndex={setSelectedCaseIndex}
+              variant="contest"
+            />
           )}
 
           {activeTab === "testresult" && (
-            <div className="space-y-6">
-              {!RunReslts?.length ? <div className="text-center py-10 text-xs font-bold opacity-20 italic">No execution data found. Run code to begin.</div> : (
-                <>
-                  <SubmissionResult runResults={RunReslts} />
-                  <div className="flex gap-2 flex-wrap pt-4">
-                    {RunReslts.map((r, i) => (
-                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase border ${r.passed ? "bg-success/5 border-success/20 text-success" : "bg-error/5 border-error/20 text-error"}`}>
-                        {r.passed ? <CheckCircle2 size={12} /> : <XCircle size={12} />} Case {i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <TestResultTab
+              RunReslts={RunReslts}
+              isexecuting={isexecuting}
+              selectedResultIndex={selectedResultIndex}
+              setSelectedResultIndex={setSelectedResultIndex}
+              variant="contest"
+            />
           )}
 
           {activeTab === "submission" && (
-            <div className="space-y-6">
-              {!latestSubmission ? <div className="text-center py-10 text-xs font-bold opacity-20 italic">Waiting for problem submission...</div> : (
-                <div className="space-y-6">
-
-                  {/* UPDATED: Submission Status Header */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-4">
-                      <h2 className={`text-2xl font-black tracking-tighter uppercase 
-                        ${latestSubmission.status === "Accepted" ? "text-success"
-                          : (isTimedOut && latestSubmission.status === "Pending") ? "text-error"
-                            : "text-warning"}`}
-                      >
-                        {isTimedOut && latestSubmission.status === "Pending" ? "Execution Timeout" : latestSubmission.status}
-                      </h2>
-
-                      {/* Only show loader if it's pending AND hasn't timed out yet */}
-                      {latestSubmission.status === "Pending" && !isTimedOut && (
-                        <Loader2 className="animate-spin text-warning" size={24} />
-                      )}
-
-                      {/* Show an alert icon if it timed out */}
-                      {isTimedOut && latestSubmission.status === "Pending" && (
-                        <AlertTriangle className="text-error" size={24} />
-                      )}
-                    </div>
-
-                    {/* Show a helper message to the user if it timed out */}
-                    {isTimedOut && latestSubmission.status === "Pending" && (
-                      <p className="text-xs font-bold text-error/70 uppercase tracking-widest">
-                        Server took too long to respond. Please check your connection or try again.
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {latestSubmission.testcases?.map((tc, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-base-300 rounded-2xl border border-base-content/5">
-                        <span className="text-xs font-black opacity-40 uppercase tracking-widest">Case {tc.testCase}</span>
-                        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-lg ${tc.passed ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>{tc.passed ? "Accepted" : "Rejected"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <SubmissionTab
+              latestSubmission={latestSubmission}
+              isSubmittingCode={isSubmittingCode}
+              isTimedOut={isTimedOut}
+              variant="contest"
+            />
           )}
 
           {activeTab === "history" && (
