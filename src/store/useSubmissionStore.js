@@ -5,9 +5,20 @@ import { getLanguageId } from '../lib/lang';
 import { useProblemStore } from './useProblemStore';
 
 export const useSubmissionStore = create((set, get) => {
-    // Load defaults from localStorage if available
-    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('codeiu_lang') || 'JAVA' : 'JAVA';
-    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('codeiu_theme') || 'vs-dark' : 'vs-dark';
+    let savedCodes = {};
+    let savedLang = 'JAVA';
+    let savedTheme = 'vs-dark';
+
+    if (typeof window !== 'undefined') {
+        try {
+            savedCodes = JSON.parse(localStorage.getItem('codeiu_problem_codes') || '{}');
+            savedLang = localStorage.getItem('codeiu_lang') || 'JAVA';
+            savedTheme = localStorage.getItem('codeiu_theme') || 'vs-dark';
+        } catch (e) {
+            console.error("[SubmissionStore] Error parsing saved problem codes", e);
+            savedCodes = {};
+        }
+    }
 
     return {
     
@@ -20,7 +31,7 @@ export const useSubmissionStore = create((set, get) => {
     customInput: "",
     
     // Decoupled Code Management: { [problemId]: code }
-    problemCodes: {}, 
+    problemCodes: savedCodes, 
     
     // Cooldown Management: { [type]: expiryTimestamp }
     operationCooldowns: {
@@ -62,12 +73,16 @@ export const useSubmissionStore = create((set, get) => {
             console.warn("[SubmissionStore] setUserCode called without problemId");
             return;
         }
-        set((state) => ({
-            problemCodes: {
+        set((state) => {
+            const updatedCodes = {
                 ...state.problemCodes,
                 [`${problemId}_${language}`]: code
+            };
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('codeiu_problem_codes', JSON.stringify(updatedCodes));
             }
-        }));
+            return { problemCodes: updatedCodes };
+        });
     },
 
     // UI helper: Get code for a specific problem or fallback
