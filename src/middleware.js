@@ -25,12 +25,10 @@ export async function middleware(request) {
   // 1. DEFINITION: Protected Paths (Require Login)
   // We REMOVED: /contest, /problem, /Each-problem, /leaderboard (Now Public)
   const protectedPaths = [
-     '/profile',
-    '/contest-problem-view',
-    '/problems/create-problem' ,
-    '/leaderboard' ,
-    
-    // Add other sensitive user-specific routes here
+    '/profile',
+    '/problems/create-problem',
+    '/problems/edit-problem',
+    // Removed: /leaderboard, /contest-problem-view (Now Public)
   ];
 
   const adminPaths = ['/admin']; // /problems/create-problem is already in protectedPaths but admin check handles role

@@ -143,9 +143,18 @@ export const useAuthStore = create((set, get) => ({
       await axiosInstanceAuthService.post("/auth/logout", null, { withCredentials: true });
       set({ authUser: null, isAuthenticated: false });
       toast.success("Logout successful");
+      // Force a hard redirect, with a small delay to ensure browser cookie store drops them and toast is seen
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
       return true;
     } catch (e) {
-      toast.error(e?.response?.data?.message || "Error logging out");
+      // Even if API fails, clear frontend state locally to prevent zombie logins
+      set({ authUser: null, isAuthenticated: false });
+      toast.error(e?.response?.data?.message || "Error during server logout, but local session cleared.");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
       return false;
     } finally {
       set({ isLoggingOut: false });

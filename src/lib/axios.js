@@ -84,12 +84,21 @@ const addInterceptors = (instance) => {
           // Refresh token is also invalid/expired — full logout
           processQueue(refreshError);
           useAuthStore.setState({ authUser: null, isAuthenticated: false });
-          toast.error("Session expired. Please sign in again.");
 
-          // Redirect to login (client-side)
-          if (typeof window !== "undefined") {
-            const currentPath = window.location.pathname + window.location.search;
-            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+          // --- SENIOR FIX: Only redirect if we're NOT doing a background checkAuth ---
+          // and only show toast if it was a real session that expired.
+          const isBackgroundAuthCheck = originalRequest.url.includes('/auth/check-Auth') || originalRequest.url.includes('/auth/refresh');
+
+          if (!isBackgroundAuthCheck) {
+            toast.error("Session expired. Please sign in again.");
+
+            // Redirect to login (client-side), prevent infinite loops
+            if (typeof window !== "undefined") {
+              const currentPath = window.location.pathname + window.location.search;
+              if (!window.location.pathname.startsWith("/login")) {
+                window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+              }
+            }
           }
 
           return Promise.reject(refreshError);
