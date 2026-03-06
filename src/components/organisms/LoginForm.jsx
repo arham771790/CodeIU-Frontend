@@ -74,7 +74,9 @@ export default function LoginForm() {
         if (validateForm()) {
             const res = await login(formData);
             if (res) {
-                router.push("/problems");
+                const searchParams = new URLSearchParams(window.location.search);
+                const redirectTo = searchParams.get("redirect") || "/problems";
+                router.push(redirectTo);
             }
         }
     };

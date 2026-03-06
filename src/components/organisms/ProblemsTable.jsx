@@ -9,10 +9,10 @@ import { Youtube, CheckCircle, Circle, Loader2 } from "lucide-react";
 const DifficultyChip = ({ difficulty }) => {
   const styles =
     difficulty === "EASY"
-      ? "bg-green-500/10 text-green-600 dark:text-green-400"
+      ? "bg-success/10 text-success"
       : difficulty === "MEDIUM"
-        ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-        : "bg-red-500/10 text-red-600 dark:text-red-400";
+        ? "bg-warning/10 text-warning"
+        : "bg-error/10 text-error";
 
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${styles}`}>

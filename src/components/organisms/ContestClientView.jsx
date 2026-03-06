@@ -2,12 +2,13 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { getSocket } from "@/lib/socket";
+import { getContestSocket, joinContestRoom } from "@/lib/socket";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useContestStore } from "@/store/useContestStore";
 import { useBundleStore } from "@/store/useBundleStore";
 import { useContestTimer } from "@/hooks/useContestTimer";
 import { useParticipantStore } from "@/store/useParticipantStore"; // ✅ Import Participant Store
+import { useAntiCheat } from "@/hooks/useAntiCheat"; // ✅ Import Anti-Cheat Hook
 
 import ContestHeader from "@/components/organisms/ContestHeader";
 import ContestRules from "@/components/molecules/ContestRules";
@@ -24,11 +25,14 @@ export default function ContestClientView({ initialContest }) {
   // ✅ Get Warning Data
   const { checkRegistration, myWarnings, myStatus, isRegistered } = useParticipantStore();
 
-  const contestId = initialContest.id;
+  const contestId = initialContest?.id;
 
-  if (initialContest && !contest) { setContest(initialContest); }
-
-  useEffect(() => { if (initialContest) setContest(initialContest); }, [initialContest, setContest]);
+  // ✅ Fix: Move setContest to useEffect to avoid "update during render" error
+  useEffect(() => {
+    if (initialContest) {
+      setContest(initialContest);
+    }
+  }, [initialContest, setContest]);
 
   useEffect(() => {
     if (contestId && authUser?.id) {
@@ -38,9 +42,12 @@ export default function ContestClientView({ initialContest }) {
     }
   }, [contestId, authUser?.id, fetchBundle, checkRegistration]);
 
+  // ✅ Real-time Anti-Cheat & DQ tracking (even on overview)
+  useAntiCheat(contestId, authUser?.id, { isArena: false });
+
   useEffect(() => {
-    const socket = getSocket();
-    socket.emit("join:contest", { contestId });
+    const socket = getContestSocket();
+    joinContestRoom(contestId);
 
     const onUpdate = ({ contestId: changedId, newStatus }) => {
       if (changedId === contestId) fetchContestById(contestId);
@@ -120,7 +127,7 @@ export default function ContestClientView({ initialContest }) {
       return (
         <div className="flex flex-col items-center gap-4">
           <p className="text-xs font-black opacity-40 uppercase tracking-[0.2em]">Contest has Terminated</p>
-          <Link href={`/Leaderboard/${contestId}`}>
+          <Link href={`/leaderboard/${contestId}`}>
             <button className="btn btn-outline border-base-content/20 rounded-2xl px-12 h-14 text-lg font-black uppercase hover:bg-base-content hover:text-base-100 transition-all">
               View Final Standings
             </button>
@@ -153,7 +160,7 @@ export default function ContestClientView({ initialContest }) {
     if (myWarnings > 0) {
       return (
         <div className="flex flex-col items-center gap-4">
-          <Link href={`/Contest_ProblemPage/${contestId}`}>
+          <Link href={`/contest/problem-view/${contestId}`}>
             <button className="btn btn-primary rounded-2xl px-12 h-14 text-lg font-black uppercase shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
               Resume Arena
             </button>
@@ -168,7 +175,7 @@ export default function ContestClientView({ initialContest }) {
 
     // Active & Ready
     return (
-      <Link href={`/Contest_ProblemPage/${contestId}`}>
+      <Link href={`/contest/problem-view/${contestId}`}>
         <button className="btn btn-primary rounded-2xl px-12 h-14 text-lg font-black uppercase shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
           Enter Arena
         </button>
@@ -192,7 +199,7 @@ export default function ContestClientView({ initialContest }) {
             {isAdmin && (
               <AdminAttachProblemsDialog contestId={activeContest.id} />
             )}
-            <Link href={`/Leaderboard/${activeContest.id}`}>
+            <Link href={`/leaderboard/${activeContest.id}`}>
               {/* ADDED: flex items-center gap-2 whitespace-nowrap */}
               <button className="btn btn-ghost border-base-content/10 bg-base-200/50 hover:bg-primary hover:text-white rounded-2xl px-6 flex items-center gap-2 whitespace-nowrap">
                 <span>🏆</span>

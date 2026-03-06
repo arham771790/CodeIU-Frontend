@@ -2,7 +2,7 @@ import daisyui from "daisyui"
 
 /** @type {import('tailwindcss').Config} */
 
-export default {
+const config = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
@@ -13,8 +13,10 @@ export default {
       },
     },
   },
- plugins: [daisyui],
+  plugins: [daisyui],
   daisyui: {
     themes: ["light", "dark", "retro", "nord", "dracula", "forest","black" ,"synthwave","abyss"],
   },
 }
+
+export default config;

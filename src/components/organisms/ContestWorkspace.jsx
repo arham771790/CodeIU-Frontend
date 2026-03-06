@@ -44,25 +44,41 @@ export default function ContestWorkspace({ contest }) {
     return () => { closeSocketConnection(); };
   }, [authUser?.id, contest?.id, intializeSocket, closeSocketConnection]);
 
-  // 3. ACTIVATE ANTI-CHEAT
-  useAntiCheat(contest?.id, authUser?.id);
+  // 3. ACTIVATE ANTI-CHEAT (Arena Mode)
+  useAntiCheat(contest?.id, authUser?.id, { isArena: true });
 
   // 4. CHECK END OR DISQUALIFICATION
   const { phase } = useContestTimer(contest);
+  const isLockedOut = myStatus === "DISQUALIFIED" || myWarnings > 3 || myStatus === "FINISHED";
+  const isEnded = phase === "ended";
 
   useEffect(() => {
-    // Determine reason for lockout
-    const isEnded = phase === "ended";
-    const isLockedOut = myStatus === "DISQUALIFIED" || myWarnings > 3 || myStatus === "FINISHED";
-
     if (isEnded || isLockedOut) {
       if (isEnded) toast.info("Contest has ended!", { id: "contest-ended" });
       else if (myStatus === "FINISHED") toast.info("You already finished this contest.", { id: "contest-finished" });
       else toast.error("You have been disqualified.", { id: "contest-dq" });
 
-      window.location.href = `/Leaderboard/${contest?.id}`;
+      const timer = setTimeout(() => {
+        window.location.href = `/leaderboard/${contest?.id}`;
+      }, 1500);
+      return () => clearTimeout(timer);
     }
-  }, [phase, myStatus, myWarnings, contest?.id]);
+  }, [phase, myStatus, myWarnings, contest?.id, isEnded, isLockedOut]);
+
+  if (isLockedOut) {
+    return (
+      <div className="min-h-screen bg-base-100 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-error/10 text-error rounded-full flex items-center justify-center mb-6 animate-pulse">
+          <AlertCircle size={40} />
+        </div>
+        <h1 className="text-4xl font-black uppercase tracking-tighter mb-2">Arena Access Revoked</h1>
+        <p className="text-error font-bold uppercase tracking-widest text-xs opacity-70">
+          {myStatus === "DISQUALIFIED" ? "Integrity Breach Detected: User Disqualified" : "Session Concluded"}
+        </p>
+        <p className="mt-8 text-xs opacity-40 italic">Redirecting to standings...</p>
+      </div>
+    );
+  }
 
   if (isLoading || !bundle) {
     return (

@@ -9,13 +9,11 @@ import { usePathname } from 'next/navigation'
 const Structure = ({ children }) => {
   const pathname = usePathname();
 
-  // Standard routes where we hide the layout completely
   const hideLayoutOn = [
     '/login',
     '/register',
-    '/Each-problem', // Kept this just in case you still have old links
     '/admin',
-    '/contest-problem-view'
+    '/contest/problem-view'
   ];
 
   // 1. Check if it matches the standard "startsWith" routes

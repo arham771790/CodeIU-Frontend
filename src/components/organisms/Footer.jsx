@@ -14,7 +14,7 @@ export default function Footer() {
     {
       title: "Arena", // Better than "Learn more" for a coding site
       links: [
-        { name: "Explore", href: "/Explore" },
+        { name: "Explore", href: "/explore" },
         { name: "Problems", href: "/problems" },
         { name: "Contests", href: "/contest" },
       ],
@@ -24,17 +24,17 @@ export default function Footer() {
   return (
     <footer className="bg-neutral text-neutral-content w-full py-10 mt-auto border-t border-base-content/10 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-5 flex flex-col md:flex-row justify-between items-start gap-8">
-        
+
         {/* Brand Section */}
         <div>
-           <h3 className="text-xl font-bold text-blue-400 mb-2">
-              🌊ode<span className="font-bold text-base-content">IU</span>
-            </h3>
+          <h3 className="text-xl font-bold text-blue-400 mb-2">
+            🌊ode<span className="font-bold text-base-content">IU</span>
+          </h3>
           <p className="opacity-70 text-sm leading-relaxed">
             Your gateway to the future of web development.<br />
             Building tomorrow's applications with cutting-edge technology.
           </p>
-          
+
           <div className="flex mt-6 space-x-5">
             <a href="#" className="hover:text-primary transition-all hover:-translate-y-1">
               <Instagram className="w-5 h-5" />
@@ -79,7 +79,7 @@ export default function Footer() {
           </h4>
           <div className="text-sm opacity-70 space-y-2">
             <div className="hover:text-primary cursor-pointer transition-colors">
-             codeiu8@gmail.com
+              codeiu8@gmail.com
             </div>
           </div>
         </div>

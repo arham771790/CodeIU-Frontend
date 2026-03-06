@@ -1,23 +1,42 @@
 import React from "react";
 
 function determineFinalStatus(runResults, isCustom) {
-  const compileError = runResults.find(r => r.compileOutput);
-  if (compileError) return { finalStatus: "Compile Error", error: compileError.compileOutput };
-
-  const runtimeError = runResults.find(r => r.status?.includes("Runtime Error"));
-  if (runtimeError) return { finalStatus: "Runtime Error", error: runtimeError.stderr };
-
-  if (isCustom) {
-    return { finalStatus: "Finished", isCustom: true };
-  }
-
-  const wrongAnswer = runResults.find(r => !r.passed);
-  if (wrongAnswer) return { finalStatus: "Wrong Answer", error: "Output did not match expected." };
-
   const maxStats = runResults.reduce((acc, curr) => ({
     maxMemory: Math.max(acc.maxMemory, parseFloat(curr.memory) || 0),
     maxTime: Math.max(acc.maxTime, parseFloat(curr.time) || 0)
   }), { maxMemory: 0, maxTime: 0 });
+
+  // 1. Check for specific system/exec errors first
+  const criticalError = runResults.find(r =>
+    r.status === "Compilation Error" ||
+    r.status === "Time Limit Exceeded" ||
+    r.status === "Memory Limit Exceeded" ||
+    r.status?.includes("Runtime Error")
+  );
+
+  if (criticalError) {
+    return {
+      finalStatus: criticalError.status,
+      error: criticalError.compileOutput || criticalError.stderr || criticalError.status,
+      Memory: maxStats.maxMemory,
+      Time: maxStats.maxTime
+    };
+  }
+
+  if (isCustom) {
+    return { finalStatus: "Finished", isCustom: true, Memory: maxStats.maxMemory, Time: maxStats.maxTime };
+  }
+
+  // 2. Check for logic errors
+  const failedCase = runResults.find(r => !r.passed);
+  if (failedCase) {
+    return {
+      finalStatus: failedCase.status === "Accepted" ? "Wrong Answer" : failedCase.status,
+      error: failedCase.status === "Wrong Answer" ? "Output did not match expected." : failedCase.status,
+      Memory: maxStats.maxMemory,
+      Time: maxStats.maxTime
+    };
+  }
 
   return { finalStatus: "Accepted", Memory: maxStats.maxMemory, Time: maxStats.maxTime };
 }
