@@ -11,7 +11,6 @@ const Profile = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate.push("/");
   }
 
   const LogoutButton = () => {
