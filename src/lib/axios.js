@@ -55,10 +55,9 @@ const addInterceptors = (instance) => {
       if (status === 401 && !originalRequest._retry) {
         const { isCheckingAuth } = useAuthStore.getState();
 
-        // Skip refresh during initial auth check on app load
-        if (isCheckingAuth) {
-          return Promise.reject(error);
-        }
+        // We used to skip refresh during isCheckingAuth, but that prevented 
+        // refreshing an expired session on page load.
+        // Now we allow it, as the refresh logic itself handles failures.
 
         // If we're already refreshing, queue this request instead of firing another refresh
         if (isRefreshing) {
