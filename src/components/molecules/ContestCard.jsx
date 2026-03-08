@@ -96,10 +96,17 @@ export default function ContestCard({ contest }) {
         <h3 className="text-lg font-bold text-base-content group-hover:text-primary transition-colors line-clamp-1">
           {contest.title}
         </h3>
-        <div className="mt-3 flex items-center justify-between">
-          <p className="text-xs text-base-content/50 font-medium">
-            {new Date(contest.startsAt).toLocaleDateString()} • {new Date(contest.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </p>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-primary opacity-80">
+              {new Date(contest.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            </p>
+            <p className="text-[11px] text-base-content/60 font-mono font-bold">
+              {new Date(contest.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <span className="mx-1.5 opacity-30">—</span>
+              {new Date(contest.endsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
           <div className="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-content transition-all">
             <LayoutGrid size={14} />
           </div>

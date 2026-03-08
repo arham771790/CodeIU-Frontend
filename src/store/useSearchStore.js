@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { axiosInstanceProblemService } from "@/lib/axios";
+import { toast } from "react-toastify";
 
 export const useSearchStore = create((set, get) => ({
   searchTerm: "",
@@ -29,6 +30,7 @@ export const useSearchStore = create((set, get) => ({
       set({ results: res.data.problems });
     } catch (error) {
       console.error("Error fetching search results:", error);
+      toast.error("Failed to fetch search results");
       // Set error state and clear results
       set({
         error: "Failed to fetch search results. Please try again..",

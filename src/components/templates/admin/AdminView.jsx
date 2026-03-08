@@ -7,13 +7,23 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { axiosInstanceSubmissionService } from '@/lib/axios';
 import { useAdminStore } from '@/store/useAdminStore';
 import { useContestStore } from '@/store/useContestStore';
+import SidebarLink from '@/components/atoms/SidebarLink';
 
 // Atomic Components
-import SidebarLink from '@/components/atoms/SidebarLink';
-import AdminDashboardView from '@/components/organisms/AdminDashboardView';
-import AdminUsersView from '@/components/organisms/AdminUsersView';
-import AdminProblemsView from '@/components/organisms/AdminProblemsView';
-import AdminContestView from '@/components/organisms/AdminContestView';
+import dynamic from 'next/dynamic';
+
+const AdminDashboardView = dynamic(() => import('@/components/organisms/AdminDashboardView'), {
+    loading: () => <div className="h-64 bg-base-200 animate-pulse rounded-2xl" />
+});
+const AdminUsersView = dynamic(() => import('@/components/organisms/AdminUsersView'), {
+    loading: () => <div className="h-96 bg-base-200 animate-pulse rounded-2xl" />
+});
+const AdminProblemsView = dynamic(() => import('@/components/organisms/AdminProblemsView'), {
+    loading: () => <div className="h-96 bg-base-200 animate-pulse rounded-2xl" />
+});
+const AdminContestView = dynamic(() => import('@/components/organisms/AdminContestView'), {
+    loading: () => <div className="h-96 bg-base-200 animate-pulse rounded-2xl" />
+});
 
 // Stat Config for Dashboard
 const STAT_CONFIG = {

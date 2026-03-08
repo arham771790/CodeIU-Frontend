@@ -4,6 +4,8 @@ import { useProblemStore } from "@/store/useProblemStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AdminCrudView from "./AdminCrudView";
+import AdminAddToPlaylistDialog from "./AdminAddToPlaylistDialog";
+import { Layers } from "lucide-react";
 
 const AdminProblemsView = () => {
     const navigate = useRouter();
@@ -12,6 +14,8 @@ const AdminProblemsView = () => {
     const [isEditing, setisEditing] = useState(false);
     const [isDeleting, setisDeleting] = useState(false)
     const [deletedid, setdeletedid] = useState(null)
+    const [isAddToPlaylistOpen, setIsAddToPlaylistOpen] = useState(false);
+    const [selectedProblem, setSelectedProblem] = useState(null);
 
     useEffect(() => {
         getAllProblems();
@@ -57,21 +61,45 @@ const AdminProblemsView = () => {
         navigate.push('/problems/create-problem')
     }
 
+    const handleAddToPlaylist = (problem) => {
+        setSelectedProblem(problem);
+        setIsAddToPlaylistOpen(true);
+    };
+
+    const renderExtraActions = (item) => (
+        <button
+            onClick={() => handleAddToPlaylist(item)}
+            className="btn btn-square btn-ghost btn-sm rounded-xl text-secondary hover:bg-secondary/10"
+            title="Add to Playlist"
+        >
+            <Layers className="w-4 h-4" />
+        </button>
+    );
+
     return (
-        <AdminCrudView
-            title="Problem Bank"
-            data={problems}
-            columns={columns}
-            handleEdit={handleEditProblem}
-            handledelete={deleteproblem}
-            onAddItem={AddProblem}
-            isDeleting={isDeleting}
-            setisDeleting={setisDeleting}
-            isEditing={isEditing}
-            setisEditing={setisEditing}
-            deletedid={deletedid}
-            onDeleteConfirm={deleteProblem}
-        />
+        <>
+            <AdminCrudView
+                title="Problem Bank"
+                data={problems}
+                columns={columns}
+                handleEdit={handleEditProblem}
+                handledelete={deleteproblem}
+                onAddItem={AddProblem}
+                isDeleting={isDeleting}
+                setisDeleting={setisDeleting}
+                isEditing={isEditing}
+                setisEditing={setisEditing}
+                deletedid={deletedid}
+                onDeleteConfirm={deleteProblem}
+                renderExtraActions={renderExtraActions}
+            />
+
+            <AdminAddToPlaylistDialog
+                isOpen={isAddToPlaylistOpen}
+                onClose={() => setIsAddToPlaylistOpen(false)}
+                problem={selectedProblem}
+            />
+        </>
     )
 }
 

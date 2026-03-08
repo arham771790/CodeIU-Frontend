@@ -1,7 +1,19 @@
 "use client";
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { CheckCircle2 } from "lucide-react";
-import Editor from "@monaco-editor/react";
+
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full flex items-center justify-center bg-base-300/50">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Loading Editor</span>
+      </div>
+    </div>
+  ),
+});
 import { useSubmissionStore } from "@/store/useSubmissionStore";
 import PreviousSubmissions from "@/components/molecules/PreviousSubmissions";
 import ContestEditorHeader from "@/components/molecules/ContestEditorHeader";

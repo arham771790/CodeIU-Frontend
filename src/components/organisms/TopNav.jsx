@@ -80,7 +80,7 @@ const TopNav = ({ problem, problems }) => {
                   onClick={() => setIsProblemListOpen(false)}
                   className="block px-4 py-3 text-sm hover:bg-primary hover:text-primary-content transition-colors border-b border-base-content/5 last:border-0 font-medium"
                 >
-                  {index + 1}. {p.title}
+                  {p.problemNo ?? index + 1}. {p.title}
                 </Link>
               ))}
             </div>

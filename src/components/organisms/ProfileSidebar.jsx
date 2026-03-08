@@ -11,7 +11,7 @@ const StatRow = ({ icon: Icon, label, value }) => (
   </li>
 );
 
-const ProfileSidebar = ({ user }) => {
+const ProfileSidebar = ({ user, stats }) => {
   return (
     <div className="space-y-6">
       <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[2.5rem] p-8 text-center relative overflow-hidden group">
@@ -42,7 +42,7 @@ const ProfileSidebar = ({ user }) => {
         <h2 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Community Matrix</h2>
         <ul className="space-y-1">
           <StatRow icon={Eye} label="Views" value="0" />
-          <StatRow icon={CheckSquare} label="Solutions" value="0" />
+          <StatRow icon={CheckSquare} label="Solutions" value={stats?.totalSubmissions || 0} />
           <StatRow icon={MessageSquare} label="Discuss" value="0" />
           <StatRow icon={Star} label="Reputation" value="0" />
         </ul>

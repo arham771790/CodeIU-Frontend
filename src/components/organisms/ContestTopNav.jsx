@@ -143,14 +143,18 @@ const Contest_Problem_TopNav = ({ problems = [], activeIndex = 0, onProblemChang
             <span className="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Submit</span>
           </button>
 
-          {/* Timer — icon only on mobile */}
-          <div className={`hidden xs:flex items-center gap-1 sm:gap-3 px-2 sm:px-4 py-1 rounded-xl border border-base-content/10 ${phase === "running" ? "bg-success/5 text-success border-success/20" : "bg-base-300"}`}>
-            <Timer size={16} className={phase === "running" ? "animate-pulse" : ""} />
-            <div className="hidden sm:flex flex-col">
-              <span className="text-[8px] font-black uppercase opacity-60 leading-none">{label}</span>
-              <span className="text-sm font-mono font-bold leading-none">{value}</span>
+          {/* Timer — always visible, compact on mobile */}
+          <div className={`flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 rounded-xl border font-mono transition-all ${phase === "running"
+              ? "bg-success/10 text-success border-success/30 shadow-[0_0_12px_rgba(0,200,100,0.15)]"
+              : phase === "upcoming"
+                ? "bg-warning/10 text-warning border-warning/30"
+                : "bg-base-300 border-base-content/10"
+            }`}>
+            <Timer size={14} className={`flex-shrink-0 ${phase === "running" ? "animate-pulse" : ""}`} />
+            <div className="flex flex-col leading-none">
+              <span className="text-[7px] sm:text-[8px] font-black uppercase opacity-60 tracking-widest">{label}</span>
+              <span className="text-xs sm:text-sm font-bold tabular-nums">{value}</span>
             </div>
-            <span className="sm:hidden text-xs font-mono font-bold">{value}</span>
           </div>
 
           <button onClick={handleFinishContest} className="btn btn-error btn-sm btn-outline rounded-xl px-2 sm:px-4 flex items-center gap-1 sm:gap-2 border-error/30 hover:bg-error hover:text-white hover:border-error">

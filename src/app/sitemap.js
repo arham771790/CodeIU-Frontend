@@ -1,4 +1,5 @@
-import { getProblems } from "@/lib/services/problemService";
+import { getProblems, getPlaylists } from "@/lib/services/problemService";
+import { getContests } from "@/lib/services/contestService";
 
 /**
  * @typedef {Object} SitemapEntry
@@ -16,7 +17,6 @@ export default async function sitemap() {
     { url: "", changeFrequency: "daily", priority: 1 },
     { url: "/problems", changeFrequency: "daily", priority: 0.9 },
     { url: "/explore", changeFrequency: "weekly", priority: 0.8 },
-    { url: "/leaderboard", changeFrequency: "daily", priority: 0.8 },
   ].map((route) => ({
     url: `${BASE_URL}${route.url}`,
     lastModified: new Date(),
@@ -27,30 +27,50 @@ export default async function sitemap() {
   // 2. Dynamic Problem Routes
   let problemRoutes = [];
   try {
-    // getProblems uses next: { revalidate: 3600 } internally
     const problems = await getProblems();
     problemRoutes = problems.map((problem) => ({
-      url: `${BASE_URL}/Each-problem/${problem._id}`,
+      url: `${BASE_URL}/problems/${problem.slug || problem.id}`,
       lastModified: new Date(problem.updatedAt || new Date()),
       changeFrequency: "weekly",
       priority: 0.7,
     }));
   } catch (error) {
-    console.error("Sitemap dynamic fetch error (Problems):", error);
+    console.error("Sitemap error (Problems):", error);
   }
 
-  // 3. Future Modules (Placeholders)
-  // To extend: fetch data from respective services and map to SitemapEntry
-  const contestRoutes = []; // TODO: fetchContests()
-  const userRoutes = [];    // TODO: fetchActiveUsers()
-  const blogRoutes = [];    // TODO: fetchBlogs()
+  // 3. Dynamic Contest Routes
+  let contestRoutes = [];
+  try {
+    const contests = await getContests();
+    contestRoutes = contests.map((contest) => ({
+      url: `${BASE_URL}/contest/${contest.slug || contest.id}`,
+      lastModified: new Date(contest.updatedAt || new Date()),
+      changeFrequency: "daily",
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error("Sitemap error (Contests):", error);
+  }
+
+  // 4. Dynamic Playlist Routes
+  let playlistRoutes = [];
+  try {
+    const playlists = await getPlaylists();
+    playlistRoutes = playlists.map((playlist) => ({
+      url: `${BASE_URL}/explore/${playlist.slug || playlist.id}`,
+      lastModified: new Date(playlist.updatedAt || new Date()),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+  } catch (error) {
+    console.error("Sitemap error (Playlists):", error);
+  }
 
   return [
     ...staticRoutes,
     ...problemRoutes,
     ...contestRoutes,
-    ...userRoutes,
-    ...blogRoutes,
+    ...playlistRoutes,
   ];
 }
 

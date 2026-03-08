@@ -1,10 +1,10 @@
 import React from 'react'
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
-import { useForm , useFieldArray, Controller  } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useState } from 'react';
-import {useNavigate} from "react-router-dom"
-import toast from "react-hot-toast"
+import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import Editor from '@monaco-editor/react'
 import {
   Plus,
@@ -16,27 +16,29 @@ import {
   CheckCircle2,
   Download,
 } from "lucide-react";
-import {useProblemStore} from "@/store/useProblemStore" ;
+import { useProblemStore } from "@/store/useProblemStore";
 import { useRouter } from "next/navigation";
 
 const ProblemSchema = z.object({
 
-  title:z.string().min(3 , "title must be at least of 3 charecter"),
-  description:z.string().min(10 , "description must be at least of 10 charecter"),
-  difficulty:z.enum(["EASY" , "MEDIUM" , "HARD"]),
-  tags:z.array(z.string().min(1 , "tags must be at least of 1 charecter")),
-  constraints:z.string().min(1 , "constraints is required"),
-  hints:z.string().optional(),
-  editorial:z.string().optional(),
+  title: z.string().min(3, "title must be at least of 3 charecter"),
+  description: z.string().min(10, "description must be at least of 10 charecter"),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+  tags: z.array(z.string().min(1, "tags must be at least of 1 charecter")),
+  constraints: z.string().min(1, "constraints is required"),
+  hints: z.string().optional(),
+  editorial: z.string().optional(),
+  timeLimit: z.coerce.number().min(0.1, "Min time limit is 0.1s").max(10, "Max time limit is 10s"),
+  memoryLimit: z.coerce.number().min(1000, "Min memory is 1MB").max(512000, "Max memory is 512MB"),
 
-  testcases:z.array(z.object({
-    input:z.string().min(1 , "input is required"),
-    output:z.string().min(1 , "output is required"),
-  })).min(1 , "at least one testcase is required"),
+  testcases: z.array(z.object({
+    input: z.string().min(1, "input is required"),
+    output: z.string().min(1, "output is required"),
+  })).min(1, "at least one testcase is required"),
 
-  examples:z.object({
+  examples: z.object({
 
-     JAVASCRIPT: z.object({
+    JAVASCRIPT: z.object({
       input: z.string().min(1, "Input is required"),
       output: z.string().min(1, "Output is required"),
       explanation: z.string().optional(),
@@ -315,6 +317,8 @@ class Main {
   }
 }`,
   },
+  timeLimit: 2.0,
+  memoryLimit: 128000,
 };
 
 // Sample problem data for another type of question
@@ -516,20 +520,47 @@ public class Main {
 }
 `,
   },
+  timeLimit: 2.0,
+  memoryLimit: 128000,
 };
 
 
 
 const CreateProblemForm = () => {
 
-  const {createProblem , isCreatingProblem} = useProblemStore();
+  const { createProblem, isCreatingProblem, UpdateProblem, isUpdatingProblem } = useProblemStore();
+  const { id } = useParams();
+  const [problemDetail, setproblemDetail] = useState({});
+  const { getProblemById } = useProblemStore();
+
+  useEffect(() => {
+    const fetchProblem = async () => {
+      if (id) {
+        const res = await getProblemById(id);
+        setproblemDetail(res);
+      }
+    };
+    fetchProblem();
+  }, [id]);
+
+  useEffect(() => {
+    if (problemDetail && id) {
+      reset({
+        ...problemDetail,
+        hints: problemDetail.hints || "",
+        editorial: problemDetail.editorial || "",
+        timeLimit: problemDetail.timeLimit || 2.0,
+        memoryLimit: problemDetail.memoryLimit || 128000,
+      });
+    }
+  }, [problemDetail, id, reset]);
   const router = useRouter();
 
-  const [sampleType , setSampleType] = useState("DP");
+  const [sampleType, setSampleType] = useState("DP");
   const navigation = useNavigate();
-  const {register , control , handleSubmit , reset , formState:{errors}} = useForm({
-    resolver:zodResolver(ProblemSchema),
-    defaultValues : {
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+    resolver: zodResolver(ProblemSchema),
+    defaultValues: {
       testcases: [{ input: "", output: "" }],
       tags: [""],
       examples: {
@@ -547,54 +578,60 @@ const CreateProblemForm = () => {
         PYTHON: "# Add your reference solution here",
         JAVA: "// Add your reference solution here",
       },
-            
+      timeLimit: 2.0,
+      memoryLimit: 128000,
+
     }
   })
 
-   const {
-      fields: testCaseFields,
-      append: appendTestCase,
-      remove: removeTestCase,
-      replace: replacetestcases,
-    } = useFieldArray({
-       control,
-       name: "testcases",
-    });
+  const {
+    fields: testCaseFields,
+    append: appendTestCase,
+    remove: removeTestCase,
+    replace: replacetestcases,
+  } = useFieldArray({
+    control,
+    name: "testcases",
+  });
 
-    const {
-      fields: tagFields,
-      append: appendTag,
-      remove: removeTag,
-      replace: replaceTags,
-    } = useFieldArray({
-      control,
-      name: "tags",
-    });
+  const {
+    fields: tagFields,
+    append: appendTag,
+    remove: removeTag,
+    replace: replaceTags,
+  } = useFieldArray({
+    control,
+    name: "tags",
+  });
 
 
-    const onSubmit = async (value) => {
-      try {
+  const onSubmit = async (value) => {
+    try {
+      if (id) {
+        await UpdateProblem(id, value);
+      } else {
         await createProblem(value);
-        router.push("/problem");
-      } catch (error) {
-         console.log(error);
-         toast.error("Error creating problem")
       }
+      router.push("/problem");
+    } catch (error) {
+      console.log(error);
+      toast.error(id ? "Error updating problem" : "Error creating problem");
     }
+  };
 
-    const loadSampleData=()=>{
-      const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem
-    
-      replaceTags(sampleData.tags.map((tag) => tag));
-      replacetestcases(sampleData.testcases.map((tc) => tc));
+  const loadSampleData = () => {
+    const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem
 
-     // Reset the form with sample data
-      reset(sampleData);
-    }
+    replaceTags(sampleData.tags.map((tag) => tag));
+    replacetestcases(sampleData.testcases.map((tc) => tc));
+
+    // Reset the form with sample data
+    reset(sampleData);
+  }
 
   return (
-     <div className='container mx-auto py-8 px-4 max-w-7xl'>
-  <div className="card bg-base-100 shadow-xl">
+    <div className='container mx-auto py-8 px-4 max-w-7xl'>
+      <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-6 md:p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
@@ -606,18 +643,16 @@ const CreateProblemForm = () => {
               <div className="join">
                 <button
                   type="button"
-                  className={`btn join-item ${
-                    sampleType === "DP" ? "btn-active" : ""
-                  }`}
+                  className={`btn join-item ${sampleType === "DP" ? "btn-active" : ""
+                    }`}
                   onClick={() => setSampleType("array")}
                 >
                   DP Problem
                 </button>
                 <button
                   type="button"
-                  className={`btn join-item ${
-                    sampleType === "string" ? "btn-active" : ""
-                  }`}
+                  className={`btn join-item ${sampleType === "string" ? "btn-active" : ""
+                    }`}
                   onClick={() => setSampleType("string")}
                 >
                   String Problem
@@ -696,6 +731,49 @@ const CreateProblemForm = () => {
                   <label className="label">
                     <span className="label-text-alt text-error">
                       {errors.difficulty.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-base md:text-lg font-semibold">
+                    Time Limit (seconds)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="input input-bordered w-full text-base md:text-lg"
+                  {...register("timeLimit")}
+                  placeholder="e.g. 2.0"
+                />
+                {errors.timeLimit && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.timeLimit.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-base md:text-lg font-semibold">
+                    Memory Limit (KB)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full text-base md:text-lg"
+                  {...register("memoryLimit")}
+                  placeholder="e.g. 128000"
+                />
+                {errors.memoryLimit && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.memoryLimit.message}
                     </span>
                   </label>
                 )}

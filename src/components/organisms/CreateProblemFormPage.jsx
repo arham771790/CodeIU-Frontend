@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import Editor from "@monaco-editor/react";
 import {
   Plus,
@@ -32,6 +32,8 @@ const ProblemSchema = z.object({
   constraints: z.string().min(1, "constraints is required"),
   hints: z.string().optional(),
   editorial: z.string().optional(),
+  timeLimit: z.coerce.number().min(0.1, "Min time limit is 0.1s").max(10, "Max time limit is 10s"),
+  memoryLimit: z.coerce.number().min(1000, "Min memory is 1MB").max(512000, "Max memory is 512MB"),
 
   testcases: z
     .array(
@@ -317,6 +319,8 @@ class Main {
   }
 }`,
   },
+  timeLimit: 2.0,
+  memoryLimit: 128000,
 };
 
 // Sample problem data for another type of question
@@ -518,49 +522,54 @@ public class Main {
 }
 `,
   },
+  timeLimit: 2.0,
+  memoryLimit: 128000,
 };
 
 export const CreateProblemForm = () => {
-  const { createProblem, isCreatingProblem } = useProblemStore();
-   const { id } = useParams();
-  const [problemDetail,setproblemDetail]=useState({})
-const {getProblemById}=useProblemStore();
+  const { createProblem, isCreatingProblem, UpdateProblem, isUpdatingProblem } = useProblemStore();
+  const { id } = useParams();
+  const [problemDetail, setproblemDetail] = useState({})
+  const { getProblemById } = useProblemStore();
 
-   useEffect(()=>{
-const Q=async()=>{
-  if(id){
-    const res= await getProblemById(id)
-   setproblemDetail(res);
+  useEffect(() => {
+    const Q = async () => {
+      if (id) {
+        const res = await getProblemById(id)
+        setproblemDetail(res);
+      }
     }
-  }
     Q();
 
-   },[id])
-   
-    const form =useForm({
-      resolver: zodResolver(ProblemSchema),
-      defaultValues: {
-        testcases: [{ input: "", output: "" }],
-        tags: [""],
-        examples: {
-          JAVASCRIPT: { input: "", output: "", explanation: "" },
-          PYTHON: { input: "", output: "", explanation: "" },
-          JAVA: { input: "", output: "", explanation: "" },
-        },
-        codeSnippets: {
-          JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
-          PYTHON: "def solution():\n    # Write your code here\n    pass",
-          JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
-        },
-        referenceSolutions: {
-          JAVASCRIPT: "// Add your reference solution here",
-          PYTHON: "# Add your reference solution here",
-          JAVA: "// Add your reference solution here",
-        },
-      },
-    })
+  }, [id])
 
-      const {
+  const form = useForm({
+    resolver: zodResolver(ProblemSchema),
+    defaultValues: {
+      testcases: [{ input: "", output: "" }],
+      tags: [""],
+      examples: {
+        JAVASCRIPT: { input: "", output: "", explanation: "" },
+        PYTHON: { input: "", output: "", explanation: "" },
+        JAVA: { input: "", output: "", explanation: "" },
+      },
+      codeSnippets: {
+        JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
+        PYTHON: "def solution():\n    # Write your code here\n    pass",
+        JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
+      },
+      referenceSolutions: {
+        JAVASCRIPT: "// Add your reference solution here",
+        PYTHON: "# Add your reference solution here",
+        JAVA: "// Add your reference solution here",
+      },
+      constraints: "",
+      timeLimit: 2.0,
+      memoryLimit: 128000,
+    },
+  })
+
+  const {
     register,
     control,
     handleSubmit,
@@ -568,20 +577,26 @@ const Q=async()=>{
     formState: { errors },
   } = form;
 
-  
-   useEffect(() => {
-  if (problemDetail) {
-    form?.reset({
-      title: problemDetail.title,
-      description: problemDetail.description,
-      difficulty: problemDetail.difficulty,
-      testCases: problemDetail.testCases,
-      codeSnippets: problemDetail.codeSnippets,
-      referenceSolutions: problemDetail.referenceSolutions,
-      examples: problemDetail.examples,
-    });
-  }},[problemDetail]
-)
+
+  useEffect(() => {
+    if (problemDetail) {
+      form?.reset({
+        title: problemDetail.title,
+        description: problemDetail.description,
+        difficulty: problemDetail.difficulty,
+        tags: problemDetail.tags || [],
+        testcases: problemDetail.testcases || problemDetail.testCases || [],
+        codeSnippets: problemDetail.codeSnippets,
+        referenceSolutions: problemDetail.referenceSolutions,
+        examples: problemDetail.examples,
+        hints: problemDetail.hints || "",
+        editorial: problemDetail.editorial || "",
+        timeLimit: problemDetail.timeLimit || 2.0,
+        memoryLimit: problemDetail.memoryLimit || 128000,
+      });
+    }
+  }, [problemDetail]
+  )
 
   const router = useRouter();
 
@@ -611,11 +626,19 @@ const Q=async()=>{
 
   const onSubmit = async (value) => {
     try {
-      await createProblem(value);
-      router.push("/problem");
+      if (id) {
+        await UpdateProblem(id, value);
+        toast.success("Problem updated successfully!");
+      } else {
+        await createProblem(value);
+        toast.success("Problem created successfully!");
+      }
+      setTimeout(() => {
+        router.push("/problem");
+      }, 1000);
     } catch (error) {
       console.log(error);
-      toast.error("Error creating problem");
+      toast.error(id ? "Error updating problem" : "Error creating problem");
     }
   };
 
@@ -636,31 +659,29 @@ const Q=async()=>{
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
               <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              {!id?<span>Create Problem</span>
-              :<span>Edit Problem</span>}
+              {!id ? <span>Create Problem</span>
+                : <span>Edit Problem</span>}
             </h2>
 
             <div className="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
-              
-                <button
-                  type="button"
-                  className={`border border-primary  font-semibold  hover:bg-yellow-600 hover:text-white rounded-md px-4 py-2 gap-2 ${
-                    sampleType === "DP" ? "btn-active" : ""
+
+              <button
+                type="button"
+                className={`border border-primary  font-semibold  hover:bg-yellow-600 hover:text-white rounded-md px-4 py-2 gap-2 ${sampleType === "DP" ? "btn-active" : ""
                   }`}
-                  onClick={() => setSampleType("array")}
-                >
-                  DP Problem
-                </button>
-                <button
-                  type="button"
-                  className={`border border-primary font-semibold  hover:bg-yellow-600 hover:text-white rounded-md px-4 py-2 gap-2 ${
-                    sampleType === "string" ? "btn-active" : ""
+                onClick={() => setSampleType("array")}
+              >
+                DP Problem
+              </button>
+              <button
+                type="button"
+                className={`border border-primary font-semibold  hover:bg-yellow-600 hover:text-white rounded-md px-4 py-2 gap-2 ${sampleType === "string" ? "btn-active" : ""
                   }`}
-                  onClick={() => setSampleType("string")}
-                >
-                  String Problem
-                </button>
-        
+                onClick={() => setSampleType("string")}
+              >
+                String Problem
+              </button>
+
               <button
                 type="button"
                 className="border border-primary font-semibold  hover:bg-green-600 hover:text-white rounded-md px-4 py-2 gap-2"
@@ -733,6 +754,49 @@ const Q=async()=>{
                   <label className="label">
                     <span className="label-text-alt text-error">
                       {errors.difficulty.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              <div className="form-control border border-white/10 rounded-md p-6">
+                <label className="label">
+                  <span className="label-text text-base md:text-lg font-semibold">
+                    Time Limit (seconds)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="input input-bordered w-full text-base md:text-lg"
+                  {...register("timeLimit")}
+                  placeholder="e.g. 2.0"
+                />
+                {errors.timeLimit && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.timeLimit.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              <div className="form-control border border-white/10 rounded-md p-6">
+                <label className="label">
+                  <span className="label-text text-base md:text-lg font-semibold">
+                    Memory Limit (KB)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full text-base md:text-lg"
+                  {...register("memoryLimit")}
+                  placeholder="e.g. 128000"
+                />
+                {errors.memoryLimit && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.memoryLimit.message}
                     </span>
                   </label>
                 )}
@@ -870,7 +934,7 @@ const Q=async()=>{
 
             {/* Code Editor Sections */}
             <div className="space-y-8 border border-white/10 rounded-md p-6 ">
-              {["JAVASCRIPT", "PYTHON", "JAVA" , "C++"].map((language) => (
+              {["JAVASCRIPT", "PYTHON", "JAVA", "C++"].map((language) => (
                 <div
                   key={language}
                   className="card bg-base-200 p-4 md:p-6 shadow-md border border-white/10 rounded-md p-6"
@@ -1078,12 +1142,12 @@ const Q=async()=>{
 
             <div className="flex itesm-center justify-center card-actions pt-4 border-t border-white/20 ">
               <button type="submit" className=" flex items-center justify-center btn btn-primary btn-lg gap-2 border border-white hover:bg-[#4085F1] hover:text-white rounded-md px-4 py-2 cursor-pointer">
-                {isCreatingProblem ? (
+                {(isCreatingProblem || isUpdatingProblem) ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
                   <>
                     <CheckCircle2 className="w-6 h-6" />
-                    Upload Problem
+                    {id ? "Update Problem" : "Upload Problem"}
                   </>
                 )}
               </button>
