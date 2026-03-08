@@ -78,11 +78,17 @@ export const useProblemStore = create((set, get) => ({
     }
   },
 
-  UpdateProblem: async () => {
+  UpdateProblem: async (problemId, data) => {
     try {
+      set({ isUpdatingProblem: true });
+      await axiosInstanceProblemService.put(`/problem/updateProblem/${problemId}`, data);
       set({ lastFetched: null }); // Invalidate cache on mutation
+      toast.success("Problem updated successfully");
     } catch (error) {
       console.error(`[useProblemStore] UpdateProblem [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+      toast.error(error.normalizedMessage || "Error updating problem");
+    } finally {
+      set({ isUpdatingProblem: false });
     }
   },
 

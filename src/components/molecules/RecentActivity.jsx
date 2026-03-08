@@ -7,9 +7,7 @@ const FilterBtn = ({ icon: Icon, label }) => (
   </button>
 );
 
-const RecentActivity = () => {
-  // ✅ Empty array
-  const activities = [];
+const RecentActivity = ({ activities = [] }) => {
 
   return (
     <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group h-full">
@@ -30,7 +28,7 @@ const RecentActivity = () => {
       <div className="space-y-1">
         {activities.length > 0 ? (
           activities.map((item) => (
-            <div key={item.title} className="flex justify-between items-center p-3 hover:bg-gray-800/30 rounded-lg transition-colors cursor-pointer group">
+            <div key={item.id} className="flex justify-between items-center p-3 hover:bg-gray-800/30 rounded-lg transition-colors cursor-pointer group">
               <p className="font-semibold text-gray-300 group-hover:text-white transition-colors text-sm">{item.title}</p>
               <div className="flex items-center gap-3">
                 <span className={`text-xs font-bold px-2 py-0.5 rounded ${item.status === 'AC' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>

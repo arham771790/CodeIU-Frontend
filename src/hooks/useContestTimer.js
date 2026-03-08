@@ -13,31 +13,41 @@ function formatHMS(totalSec) {
   return `${pad2(h)}:${pad2(m)}:${pad2(r)}`;
 }
 
+function computeTimerState(contest, serverOffset) {
+  const now = Date.now() + serverOffset;
+  const start = new Date(contest.startsAt).getTime();
+  const end = new Date(contest.endsAt).getTime();
+
+  if (now < start) {
+    return { label: "Starts in", value: formatHMS((start - now) / 1000), phase: "upcoming" };
+  } else if (now >= start && now < end) {
+    return { label: "Ends in", value: formatHMS((end - now) / 1000), phase: "running" };
+  } else {
+    return { label: "Ended", value: "00:00:00", phase: "ended" };
+  }
+}
+
 export function useContestTimer(contest) {
   const [serverOffset, setServerOffset] = useState(0);
   const [timerState, setTimerState] = useState({
     label: "Loading...",
     value: "--:--:--",
-    phase: "unknown", // upcoming | running | ended | unknown
+    phase: "unknown",
   });
 
-  const requestRef = useRef();
+  const intervalRef = useRef();
 
+  // Sync server time via socket
   useEffect(() => {
     const socket = getContestSocket();
 
-    // 1. Listen for sync response
     const onSync = ({ serverTime }) => {
       if (serverTime) {
-        const offset = serverTime - Date.now();
-        setServerOffset(offset);
-        // console.log("[useContestTimer] Synced. Offset:", offset, "ms");
+        setServerOffset(serverTime - Date.now());
       }
     };
 
     socket.on("timer:sync", onSync);
-
-    // 2. Request time
     socket.emit("get:time");
 
     return () => {
@@ -45,45 +55,25 @@ export function useContestTimer(contest) {
     };
   }, []);
 
-  // 3. Animation Loop
+  // 1-second interval instead of requestAnimationFrame (60fps → 1fps = 98% less CPU)
   useEffect(() => {
     if (!contest) return;
 
-    const animate = () => {
-      const now = Date.now() + serverOffset;
-      const start = new Date(contest.startsAt).getTime();
-      const end = new Date(contest.endsAt).getTime();
+    // Compute immediately for first render
+    setTimerState(computeTimerState(contest, serverOffset));
 
-      let newState = { label: "Timer", value: "00:00:00", phase: "unknown" };
-
-      if (now < start) {
-        newState = {
-          label: "Starts in",
-          value: formatHMS((start - now) / 1000),
-          phase: "upcoming",
-        };
-      } else if (now >= start && now < end) {
-        newState = {
-          label: "Ends in",
-          value: formatHMS((end - now) / 1000),
-          phase: "running",
-        };
-      } else {
-        newState = {
-          label: "Ended",
-          value: "00:00:00",
-          phase: "ended",
-        };
-      }
-
+    intervalRef.current = setInterval(() => {
+      const newState = computeTimerState(contest, serverOffset);
       setTimerState(newState);
-      requestRef.current = requestAnimationFrame(animate);
-    };
 
-    requestRef.current = requestAnimationFrame(animate);
+      // Auto-clear interval if contest ended
+      if (newState.phase === "ended" && intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }, 1000);
 
     return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [contest, serverOffset]);
 

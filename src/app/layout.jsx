@@ -54,6 +54,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* DNS Preconnect — parallel DNS lookups for critical external origins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://api.codeiu.in" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-base-100 text-base-content flex flex-col transition-colors duration-300`}
       >
@@ -65,18 +72,21 @@ export default function RootLayout({ children }) {
           </ErrorBoundary>
         </ThemeProvider>
 
-        {/* Google Analytics */}
+        {/* Google Analytics — lazyOnload to not block critical rendering */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VZBZVYC9Q7"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-VZBZVYC9Q7');
+            gtag('config', 'G-VZBZVYC9Q7', {
+              page_path: window.location.pathname,
+              send_page_view: true
+            });
           `}
         </Script>
       </body>

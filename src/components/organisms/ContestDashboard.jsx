@@ -2,12 +2,19 @@
 import { useEffect, useState, useMemo } from "react";
 import { useContestStore } from "@/store/useContestStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import CreateContestDialog from "@/components/organisms/CreateContestDialog";
-import ManageContestsButton from "@/components/molecules/ManageContestButton";
-import ContestGrid from "@/components/molecules/ContestGrid";
-import { getSocket, joinContestRoom } from "@/lib/socket";
-import { Trophy, Calendar, Zap, LayoutGrid, Plus, Swords } from "lucide-react";
+import { Trophy, Calendar, Zap, LayoutGrid, Plus, Swords, Loader2 } from "lucide-react";
 import GridHighlights from "@/components/atoms/GridHighlights";
+import dynamic from "next/dynamic";
+
+const ContestGrid = dynamic(() => import("@/components/molecules/ContestGrid"), {
+  loading: () => <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-20 animate-pulse">
+    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-44 bg-base-300 rounded-2xl" />)}
+  </div>
+});
+
+const CreateContestDialog = dynamic(() => import("@/components/organisms/CreateContestDialog"), {
+  ssr: false
+});
 
 // Ensure keys match the logic exactly
 const tabs = [
@@ -80,7 +87,7 @@ export default function ContestDashboard({ initialContests }) {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* 2. Header with "Developer Page Style" Glow */}
         <header className="relative z-10 py-12 md:py-24 text-center">
           {/* RESPONSIVE FIX: Scaled down the aura on mobile */}
@@ -114,7 +121,7 @@ export default function ContestDashboard({ initialContests }) {
 
         {/* 3. Controls Section (Tabs + Admin Buttons) */}
         <div className="mb-10 relative z-20 flex flex-col md:flex-row items-center justify-between gap-6 w-full">
-          
+
           {/* RESPONSIVE FIX: Added overflow-x-auto so tabs can scroll horizontally on mobile without breaking the layout */}
           <div className="w-full md:w-auto overflow-x-auto pb-2 md:pb-0 custom-scrollbar">
             <div className="flex p-1 bg-base-200/80 backdrop-blur-md rounded-2xl md:rounded-full border border-base-content/10 shadow-lg min-w-max mx-auto md:mx-0">
@@ -126,11 +133,10 @@ export default function ContestDashboard({ initialContests }) {
                     key={t.key}
                     onClick={() => setActiveTab(t.key)}
                     // RESPONSIVE FIX: flex-shrink-0 to prevent text squishing, adjusted padding
-                    className={`flex-shrink-0 flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-                      isActive
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${isActive
                         ? "bg-primary text-primary-content shadow-[0_0_20px_rgba(var(--p),0.4)]"
                         : "text-base-content/40 hover:text-base-content hover:bg-base-content/5"
-                    }`}
+                      }`}
                   >
                     <Icon size={14} className={isActive ? "animate-pulse" : ""} />
                     {t.label}
@@ -151,9 +157,9 @@ export default function ContestDashboard({ initialContests }) {
                 <Plus className="w-5 h-5" />
               </button>
               {openCreate && <CreateContestDialog setOpen={setOpenCreate} />}
-              
+
               <div className="scale-90 origin-center md:origin-right">
-                 <ManageContestsButton />
+                <ManageContestsButton />
               </div>
             </div>
           )}
@@ -162,14 +168,14 @@ export default function ContestDashboard({ initialContests }) {
         {/* 4. Contest Grid Section (Glassmorphism Container) */}
         {/* RESPONSIVE FIX: Changed p-8 to p-4 md:p-8 to give mobile screens more breathing room */}
         <div className="bg-base-200/50 backdrop-blur-md border border-base-content/10 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl mb-24 p-4 md:p-8 min-h-[400px]">
-          
+
           {/* Grid Header / Status Line */}
           <div className="flex items-center gap-2 md:gap-4 mb-8 opacity-40">
-             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
-             <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-center">
-               Displaying {filteredContests.length} {activeTab.toLowerCase()} Events
-             </span>
-             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
+            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-center">
+              Displaying {filteredContests.length} {activeTab.toLowerCase()} Events
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-content/20 to-transparent" />
           </div>
 
           {/* The Actual Grid */}

@@ -2,7 +2,13 @@ import { getProblems } from "@/lib/services/problemService";
 import ProblemFilters from "@/components/molecules/ProblemFilters";
 import GridHighlights from "@/components/atoms/GridHighlights";
 import { Terminal } from "lucide-react";
-import ProblemsTable from "@/components/organisms/ProblemsTable";
+import dynamic from "next/dynamic";
+
+const ProblemsTable = dynamic(() => import("@/components/organisms/ProblemsTable"), {
+  loading: () => <div className="space-y-4 animate-pulse">
+    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <div key={i} className="h-16 bg-base-200 rounded-xl" />)}
+  </div>
+});
 
 export default async function ProblemsPage({ searchParams }) {
   const params = await searchParams;

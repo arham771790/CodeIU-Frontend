@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useProblemStore } from "@/store/useProblemStore";
-import { Youtube, CheckCircle, Circle, Loader2 } from "lucide-react";
+import { BookOpen, CheckCircle, Circle, Loader2 } from "lucide-react";
 
 const DifficultyChip = ({ difficulty }) => {
   const styles =
@@ -19,6 +19,15 @@ const DifficultyChip = ({ difficulty }) => {
       {difficulty}
     </span>
   );
+};
+
+const cleanTitle = (title, problemNo) => {
+  if (!title) return "";
+  const prefix = `${problemNo}. `;
+  if (title.startsWith(prefix)) {
+    return title.slice(prefix.length);
+  }
+  return title;
 };
 
 export default function ProblemsTable({ problems }) {
@@ -87,10 +96,10 @@ export default function ProblemsTable({ problems }) {
                 <div className="flex-1 min-w-0 md:col-span-5 relative z-10 pointer-events-none">
                   <div className="flex items-center gap-2 md:gap-5">
                     <span className="hidden md:inline text-xs font-mono opacity-20 font-black group-hover:text-primary group-hover:opacity-100 transition-all">
-                      {String(idx + 1).padStart(2, "0")}
+                      {String(problem.problemNo ?? idx + 1).padStart(2, "0")}
                     </span>
                     <p className="text-base-content font-semibold group-hover:text-primary transition-colors tracking-tight text-sm md:text-lg truncate">
-                      {problem.title}
+                      {cleanTitle(problem.title, problem.problemNo)}
                     </p>
                   </div>
                   {/* Difficulty shown inline on mobile only */}
@@ -107,14 +116,9 @@ export default function ProblemsTable({ problems }) {
                 {/* Editorial — desktop only */}
                 <div className="hidden md:flex col-span-2 justify-center items-center relative z-20">
                   {problem.editorial ? (
-                    <a
-                      href={problem.editorial}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 text-red-500 hover:text-red-600 hover:scale-110 transition-all duration-300 drop-shadow-lg cursor-pointer"
-                    >
-                      <Youtube className="w-6 h-6" />
-                    </a>
+                    <div className="p-2 text-primary opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
                   ) : (
                     <span className="p-2 text-base-content/20 font-mono font-bold">-</span>
                   )}

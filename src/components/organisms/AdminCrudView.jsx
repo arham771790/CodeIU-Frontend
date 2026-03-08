@@ -48,7 +48,7 @@ const ModalDlt = ({ isDeleting, setisDeleting, id, onDelete }) => {
     );
 };
 
-const AdminCrudView = ({ title, data, columns, onAddItem, handleEdit, handledelete, onDeleteConfirm, isEditing, isDeleting, setisDeleting, setisEditing, deletedid }) => {
+const AdminCrudView = ({ title, data, columns, onAddItem, handleEdit, handledelete, onDeleteConfirm, isEditing, isDeleting, setisDeleting, setisEditing, deletedid, renderExtraActions }) => {
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
@@ -88,6 +88,7 @@ const AdminCrudView = ({ title, data, columns, onAddItem, handleEdit, handledele
                                     ))}
                                     <td className="p-6">
                                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {renderExtraActions && renderExtraActions(item)}
                                             <button
                                                 onClick={() => handleEdit(item)}
                                                 className="btn btn-square btn-ghost btn-sm rounded-xl text-primary hover:bg-primary/10"

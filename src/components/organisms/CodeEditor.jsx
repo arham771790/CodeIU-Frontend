@@ -1,7 +1,19 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import Editor from "@monaco-editor/react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
+
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full flex items-center justify-center bg-base-300/50">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Loading Editor</span>
+      </div>
+    </div>
+  ),
+});
 import { useSubmissionStore } from "@/store/useSubmissionStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import EditorHeader from "@/components/molecules/EditorHeader";
@@ -9,12 +21,15 @@ import TestCaseTab from "@/components/molecules/TestCaseTab";
 import TestResultTab from "@/components/molecules/TestResultTab";
 import SubmissionTab from "@/components/molecules/SubmissionTab";
 
+import { Group, Panel, Separator } from "react-resizable-panels";
+import { motion, Reorder, AnimatePresence } from "framer-motion";
+import { GripHorizontal, GripVertical } from "lucide-react";
+
 const CodeEditor = ({ problemId, codeSnippets, testcases }) => {
   const { resolvedTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("testcase");
-  const [topPanelHeight, setTopPanelHeight] = useState(60);
-  const [isDragging, setIsDragging] = useState(false);
-  const containerRef = useRef(null);
+  const [tabOrder, setTabOrder] = useState(["testcase", "custom", "testresult", "submission"]);
+  const [panelLayout, setPanelLayout] = useState([60, 40]);
   const editorRef = useRef(null);
 
   const {
@@ -45,6 +60,35 @@ const CodeEditor = ({ problemId, codeSnippets, testcases }) => {
   const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
   const [selectedResultIndex, setSelectedResultIndex] = useState(0);
 
+  // Load layout from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(`editor-layout-${problemId}`);
+    if (saved) {
+      try {
+        const { layout, order } = JSON.parse(saved);
+        if (layout) setPanelLayout(layout);
+        if (order) setTabOrder(order);
+      } catch (e) { }
+    }
+  }, [problemId]);
+
+  const saveEditorLayout = useCallback((layout, order) => {
+    localStorage.setItem(`editor-layout-${problemId}`, JSON.stringify({
+      layout: layout || panelLayout,
+      order: order || tabOrder
+    }));
+  }, [problemId, panelLayout, tabOrder]);
+
+  const onLayoutChange = useCallback((sizes) => {
+    setPanelLayout(sizes);
+    saveEditorLayout(sizes);
+  }, [saveEditorLayout]);
+
+  const onTabReorder = (newOrder) => {
+    setTabOrder(newOrder);
+    saveEditorLayout(undefined, newOrder);
+  };
+
   // Reactive tick to unlock buttons when cooldown expires
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -54,33 +98,25 @@ const CodeEditor = ({ problemId, codeSnippets, testcases }) => {
     return () => clearInterval(interval);
   }, [operationCooldowns]);
 
-  // Deriving Lock State (now re-evaluated live every 500ms during cooldown)
   const now = Date.now();
   const isRunLocked = operationCooldowns.run > now || isexecuting;
   const isSubmitLocked = operationCooldowns.submit > now || isSubmittingCode;
 
-  // Initialize Socket Connection
   useEffect(() => {
     if (authUser?.id) intializeSocket(authUser.id);
   }, [authUser, intializeSocket]);
 
-  // Reset result state when changing problem
   useEffect(() => {
     resetProblemState();
   }, [problemId, resetProblemState]);
 
-  // Handle Code Initialization (Snippet loading)
   useEffect(() => {
-    // 1. Try to get saved code for this problem AND language
     const savedCode = getCodeForProblem(problemId, selectedLanguage);
-
-    // 2. If no saved code, use the snippet for the current language
     if (!savedCode && codeSnippets) {
       setUserCode(codeSnippets[selectedLanguage] || "", problemId, selectedLanguage);
     }
   }, [problemId, getCodeForProblem, codeSnippets, selectedLanguage, setUserCode]);
 
-  // Auto-switch tabs based on state
   useEffect(() => {
     if (submissions?.length > 0) setActiveTab("submission");
   }, [submissions]);
@@ -99,152 +135,132 @@ const CodeEditor = ({ problemId, codeSnippets, testcases }) => {
     }
   };
 
-  // Resizing Logic
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const newHeight = ((e.clientY - rect.top) / rect.height) * 100;
-    if (newHeight > 20 && newHeight < 85) setTopPanelHeight(newHeight);
-  };
-
-  useEffect(() => {
-    const up = () => setIsDragging(false);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", up);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", up);
-    };
-  }, [isDragging]);
-
-  const handleRun = () => {
-    const code = getCodeForProblem(problemId, selectedLanguage);
-    const stdin = testcases[selectedCaseIndex]?.input || "";
-    const expected = testcases[selectedCaseIndex]?.output || "";
-    runCode(code, stdin, useSubmissionStore.getState().languageId, expected);
-  };
-
-  const handleSubmit = () => {
-    const code = getCodeForProblem(problemId, selectedLanguage);
-    submitCode(code, useSubmissionStore.getState().languageId, problemId);
-  };
-
   return (
-    <div ref={containerRef} className="flex flex-col h-full gap-2">
-      {/* Top Panel: Monaco Editor */}
-      <div
-        className="bg-base-200 rounded-xl flex flex-col overflow-hidden border border-base-content/10 min-h-[280px]"
-        style={{ height: `${topPanelHeight}%` }}
-      >
-        <EditorHeader
-          codeSnippets={codeSnippets}
-          selectedLanguage={selectedLanguage}
-          setSelectedLanguage={setSelectedLanguage}
-          formatCode={formatCode}
-          userTheme={userTheme}
-          setTheme={setTheme}
-        />
-        <div className="flex-1">
-          <Editor
-            height="100%"
-            language={selectedLanguage.toLowerCase()}
-            theme={userTheme || (['dark', 'black', 'abyss', 'forest'].includes(resolvedTheme) ? 'vs-dark' : 'light')}
-            value={getCodeForProblem(problemId, selectedLanguage)}
-            onMount={handleEditorDidMount}
-            onChange={(v) => setUserCode(v || "", problemId, selectedLanguage)}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              automaticLayout: true,
-              scrollBeyondLastLine: false,
-              padding: { top: 10 },
-              formatOnPaste: true,
-              formatOnType: true,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Resize Handle */}
-      <div
-        className="h-1.5 w-full cursor-row-resize hover:bg-primary/20 transition-colors"
-        onMouseDown={() => setIsDragging(true)}
-      ></div>
-
-      {/* Bottom Panel: Testcases / Results / Submissions */}
-      <div className="bg-base-200 rounded-xl flex-grow flex flex-col overflow-hidden border border-base-content/10">
-        <div className="tabs tabs-bordered bg-base-300/30 px-2">
-          {["testcase", "custom", "testresult", "submission"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`tab tab-sm h-10 transition-all ${activeTab === tab
-                ? "tab-active font-bold border-primary text-primary"
-                : "opacity-50"
-                }`}
-            >
-              {tab.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
-        <div className="p-4 overflow-auto flex-1">
-          {/* Tab 1: Testcases */}
-          {activeTab === "testcase" && (
-            <TestCaseTab
-              testcases={testcases}
-              selectedCaseIndex={selectedCaseIndex}
-              setSelectedCaseIndex={setSelectedCaseIndex}
+    <div className="h-full flex flex-col gap-0 overflow-hidden">
+      <Group orientation="vertical" onLayoutChange={onLayoutChange}>
+        {/* Top: Editor */}
+        <Panel defaultSize={panelLayout[0]} minSize={20}>
+          <div className="h-full bg-base-200 rounded-xl flex flex-col overflow-hidden border border-base-content/10">
+            <EditorHeader
+              codeSnippets={codeSnippets}
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
+              formatCode={formatCode}
+              userTheme={userTheme}
+              setTheme={setTheme}
             />
-          )}
-
-          {activeTab === "custom" && (
-            <div className="p-6 space-y-4 h-full flex flex-col">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-primary toggle-sm"
-                    checked={isCustomInputEnabled}
-                    onChange={(e) => setIsCustomInputEnabled(e.target.checked)}
-                  />
-                  <span className="text-xs font-bold opacity-60">Use Custom Testcase</span>
-                </div>
-              </div>
-              <div className="flex-1 bg-base-300/50 rounded-2xl border border-base-content/5 p-4 flex flex-col transition-all focus-within:border-primary/30">
-                <p className="text-[10px] font-black uppercase opacity-30 tracking-widest mb-2">Standard Stdin</p>
-                <textarea
-                  className="flex-1 bg-transparent outline-none font-mono text-sm resize-none"
-                  placeholder="Type your input here..."
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                />
-              </div>
-              <div className="text-[10px] opacity-20 italic">
-                Note: Enabling this will ignore the default testcases when you click 'Run'.
-              </div>
+            <div className="flex-1 overflow-hidden">
+              <Editor
+                height="100%"
+                language={selectedLanguage.toLowerCase()}
+                theme={userTheme || (['dark', 'black', 'abyss', 'forest'].includes(resolvedTheme) ? 'vs-dark' : 'light')}
+                value={getCodeForProblem(problemId, selectedLanguage)}
+                onMount={handleEditorDidMount}
+                onChange={(v) => setUserCode(v || "", problemId, selectedLanguage)}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  automaticLayout: true,
+                  scrollBeyondLastLine: false,
+                  padding: { top: 10 },
+                  formatOnPaste: true,
+                  formatOnType: true,
+                }}
+              />
             </div>
-          )}
+          </div>
+        </Panel>
 
-          {/* Tab 2: Test Results (From 'Run' button) */}
-          {activeTab === "testresult" && (
-            <TestResultTab
-              RunReslts={RunReslts}
-              isexecuting={isexecuting}
-              isCustomInputEnabled={isCustomInputEnabled}
-              selectedResultIndex={selectedResultIndex}
-              setSelectedResultIndex={setSelectedResultIndex}
-            />
-          )}
-          {/* Tab 3: Submission Status */}
-          {activeTab === "submission" && (
-            <SubmissionTab
-              submissions={submissions}
-              isSubmittingCode={isSubmittingCode}
-            />
-          )}
-        </div>
-      </div>
+        <Separator className="relative h-2 w-full group/vhandle flex items-center justify-center cursor-row-resize">
+          <div className="absolute w-full h-[2px] bg-base-content/5 group-hover/vhandle:bg-primary transition-colors" />
+          <div className="z-10 w-8 h-1 bg-base-content/20 rounded-full group-hover/vhandle:bg-primary group-hover/vhandle:w-16 transition-all" />
+        </Separator>
+
+        {/* Bottom: Results */}
+        <Panel defaultSize={panelLayout[1]} minSize={20}>
+          <div className="h-full bg-base-200 rounded-xl flex flex-col overflow-hidden border border-base-content/10">
+            <div className="bg-base-300/30 border-b border-base-content/5 px-2 py-0.5">
+              <Reorder.Group axis="x" values={tabOrder} onReorder={onTabReorder} className="flex gap-1">
+                {tabOrder.map((tab) => (
+                  <Reorder.Item
+                    key={tab}
+                    value={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`
+                                    cursor-pointer px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg
+                                    ${activeTab === tab ? "bg-base-100 text-primary shadow-sm" : "text-base-content/40 hover:text-base-content hover:bg-base-content/5"}
+                                `}
+                  >
+                    {tab}
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+            </div>
+
+            <div className="p-4 overflow-auto flex-1 custom-scrollbar">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full"
+                >
+                  {activeTab === "testcase" && (
+                    <TestCaseTab
+                      testcases={testcases}
+                      selectedCaseIndex={selectedCaseIndex}
+                      setSelectedCaseIndex={setSelectedCaseIndex}
+                    />
+                  )}
+
+                  {activeTab === "custom" && (
+                    <div className="p-6 space-y-4 h-full flex flex-col">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            className="toggle toggle-primary toggle-sm"
+                            checked={isCustomInputEnabled}
+                            onChange={(e) => setIsCustomInputEnabled(e.target.checked)}
+                          />
+                          <span className="text-xs font-bold opacity-60">Use Custom Testcase</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 bg-base-300/50 rounded-2xl border border-base-content/5 p-4 flex flex-col transition-all focus-within:border-primary/30">
+                        <p className="text-[10px] font-black uppercase opacity-30 tracking-widest mb-2">Standard Stdin</p>
+                        <textarea
+                          className="flex-1 bg-transparent outline-none font-mono text-sm resize-none"
+                          placeholder="Type your input here..."
+                          value={customInput}
+                          onChange={(e) => setCustomInput(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "testresult" && (
+                    <TestResultTab
+                      RunReslts={RunReslts}
+                      isexecuting={isexecuting}
+                      isCustomInputEnabled={isCustomInputEnabled}
+                      selectedResultIndex={selectedResultIndex}
+                      setSelectedResultIndex={setSelectedResultIndex}
+                    />
+                  )}
+                  {activeTab === "submission" && (
+                    <SubmissionTab
+                      submissions={submissions}
+                      isSubmittingCode={isSubmittingCode}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </Panel>
+      </Group>
     </div>
   );
 };

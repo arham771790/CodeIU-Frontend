@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { 
-  X, Plus, Search, ChevronUp, ChevronDown, 
-  Trash2, Database, ListChecks, Hash, Settings2 
+import {
+  X, Plus, Search, ChevronUp, ChevronDown,
+  Trash2, Database, ListChecks, Hash, Settings2
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBundleStore } from "@/store/useBundleStore";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 // Server Actions
 import { fetchAllProblemsAction, fetchProblemDetailsAction } from "@/actions/problemBridge";
 
@@ -18,9 +18,9 @@ const tcRow = (row) => {
     const [i, o] = row.split("|");
     return { input: i?.trim() ?? "1", output: o?.trim() ?? "1" };
   }
-  return { 
-    input: String(row.input ?? row.in ?? row.stdin ?? "1").trim(), 
-    output: String(row.output ?? row.out ?? row.stdout ?? "1").trim() 
+  return {
+    input: String(row.input ?? row.in ?? row.stdin ?? "1").trim(),
+    output: String(row.output ?? row.out ?? row.stdout ?? "1").trim()
   };
 };
 
@@ -55,9 +55,9 @@ const toInlineSnapshot = (p) => {
     },
     codeSnippets: norm.codeSnippets || {},
     referenceSolutions: norm.referenceSolutions || {},
-    judge: { 
-      timeLimitMs: norm.judge?.timeLimitMs ?? 2000, 
-      memoryLimitMb: norm.judge?.memoryLimitMb ?? 256 
+    judge: {
+      timeLimitMs: norm.judge?.timeLimitMs ?? 2000,
+      memoryLimitMb: norm.judge?.memoryLimitMb ?? 256
     },
     source: { kind: "INLINE", sourceProblemId: p?.id },
   };
@@ -88,9 +88,9 @@ export default function AdminAttachProblemsDialog({ contestId }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return problems;
-    return problems.filter(p => 
-      p.title?.toLowerCase().includes(q) || 
-      p.slug?.toLowerCase().includes(q) || 
+    return problems.filter(p =>
+      p.title?.toLowerCase().includes(q) ||
+      p.slug?.toLowerCase().includes(q) ||
       p.tags?.some(t => t.toLowerCase().includes(q))
     );
   }, [problems, query]);
@@ -107,9 +107,19 @@ export default function AdminAttachProblemsDialog({ contestId }) {
         ...prev,
         { id: fullProblem.id, title: fullProblem.title, points: pointsDefault, order: prev.length, fullProblem },
       ]);
-      toast.success("Problem added to queue", { id: toastId });
+      toast.update(toastId, {
+        render: "Problem added to queue",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000
+      });
     } catch (error) {
-      toast.error("Error fetching details", { id: toastId });
+      toast.update(toastId, {
+        render: "Error fetching details",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000
+      });
     }
   };
 
@@ -154,8 +164,8 @@ export default function AdminAttachProblemsDialog({ contestId }) {
 
   return (
     <>
-      <button 
-        onClick={() => setOpen(true)} 
+      <button
+        onClick={() => setOpen(true)}
         className="btn btn-outline border-base-content/20 hover:bg-primary hover:text-white hover:border-primary rounded-2xl px-6 gap-2 transition-all font-black text-xs uppercase tracking-widest"
       >
         <Plus className="w-4 h-4" /> Attach Problems
@@ -164,9 +174,9 @@ export default function AdminAttachProblemsDialog({ contestId }) {
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-base-100/80 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          
+
           <div className="relative w-full max-w-6xl bg-base-200 border border-base-content/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-            
+
             {/* Header */}
             <div className="px-8 py-6 border-b border-base-content/5 flex items-center justify-between bg-base-300/30">
               <div className="flex items-center gap-3">
@@ -184,27 +194,27 @@ export default function AdminAttachProblemsDialog({ contestId }) {
             </div>
 
             <form onSubmit={onSubmit} className="p-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
-              
+
               {/* Left Column: Problem Library */}
               <div className="lg:col-span-3 space-y-6">
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1 relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
-                    <input 
-                      placeholder="Search problem library..." 
-                      value={query} 
-                      onChange={(e) => setQuery(e.target.value)} 
-                      className="w-full bg-base-300/50 border border-base-content/10 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" 
+                    <input
+                      placeholder="Search problem library..."
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="w-full bg-base-300/50 border border-base-content/10 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
                     />
                   </div>
                   <div className="flex items-center gap-3 bg-base-300/50 border border-base-content/10 rounded-xl px-4 py-2">
                     <label className="text-[10px] font-black uppercase opacity-40 tracking-widest">Default Pts</label>
-                    <input 
-                      type="number" 
-                      min={1} 
-                      value={pointsDefault} 
-                      onChange={(e) => setPointsDefault(Math.max(1, Number(e.target.value) || 1))} 
-                      className="w-16 bg-transparent text-sm font-bold text-primary outline-none" 
+                    <input
+                      type="number"
+                      min={1}
+                      value={pointsDefault}
+                      onChange={(e) => setPointsDefault(Math.max(1, Number(e.target.value) || 1))}
+                      className="w-16 bg-transparent text-sm font-bold text-primary outline-none"
                     />
                   </div>
                 </div>
@@ -227,10 +237,10 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                               {p.difficulty} <span className="w-1 h-1 rounded-full bg-current opacity-50" /> {p.slug || "no-slug"}
                             </div>
                           </div>
-                          <button 
-                            type="button" 
-                            disabled={alreadySelected.has(p.id)} 
-                            onClick={() => addProblem(p)} 
+                          <button
+                            type="button"
+                            disabled={alreadySelected.has(p.id)}
+                            onClick={() => addProblem(p)}
                             className={`btn btn-sm rounded-lg px-4 ${alreadySelected.has(p.id) ? 'btn-disabled opacity-30' : 'btn-primary shadow-lg shadow-primary/20'}`}
                           >
                             {alreadySelected.has(p.id) ? "Added" : "Add"}
@@ -272,13 +282,13 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                             </div>
                           </div>
                           <div className="flex items-center gap-3 pl-9">
-                            <label className="text-[10px] font-black uppercase opacity-40 tracking-widest"><Hash size={10} className="inline mr-1"/> Points</label>
-                            <input 
-                              type="number" 
-                              min={1} 
-                              value={s.points} 
-                              onChange={(e) => setPoints(s.id, e.target.value)} 
-                              className="w-20 bg-base-300/50 border border-base-content/10 rounded-lg px-2 py-1 text-xs font-bold outline-none text-primary" 
+                            <label className="text-[10px] font-black uppercase opacity-40 tracking-widest"><Hash size={10} className="inline mr-1" /> Points</label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={s.points}
+                              onChange={(e) => setPoints(s.id, e.target.value)}
+                              className="w-20 bg-base-300/50 border border-base-content/10 rounded-lg px-2 py-1 text-xs font-bold outline-none text-primary"
                             />
                           </div>
                         </div>
@@ -290,9 +300,9 @@ export default function AdminAttachProblemsDialog({ contestId }) {
                 {/* Bottom Actions */}
                 <div className="flex justify-end gap-3 pt-4 border-t border-base-content/5">
                   <button type="button" onClick={() => setOpen(false)} className="px-6 py-2.5 rounded-xl text-sm font-bold opacity-50 hover:opacity-100 hover:bg-base-content/5 transition-all">Cancel</button>
-                  <button 
-                    type="submit" 
-                    disabled={isBundleLoading || selected.length === 0} 
+                  <button
+                    type="submit"
+                    disabled={isBundleLoading || selected.length === 0}
                     className="btn btn-primary rounded-xl px-8 h-12 shadow-xl shadow-primary/20 text-white font-black uppercase tracking-widest disabled:opacity-50"
                   >
                     {isBundleLoading ? "Updating..." : "Attach Problems"}

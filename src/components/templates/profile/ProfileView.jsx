@@ -1,38 +1,45 @@
 "use client";
 import React from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
-import ProfileSidebar from '@/components/organisms/ProfileSidebar';
-import SubmissionHeatmap from '@/components/molecules/SubmissionHeatmap';
-import RecentActivity from '@/components/molecules/RecentActivity';
-import BadgesSection from '@/components/molecules/BadgesSection';
-import SubmissionStats from '@/components/molecules/SubmissionStats';
 import GridHighlights from '@/components/atoms/GridHighlights';
+import Skeleton from '@/components/atoms/Skeleton';
 import { axiosInstanceSubmissionService, axiosInstanceProblemService } from '@/lib/axios';
+
+const ProfileSidebar = React.lazy(() => import('@/components/organisms/ProfileSidebar'));
+const SubmissionHeatmap = React.lazy(() => import('@/components/molecules/SubmissionHeatmap'));
+const RecentActivity = React.lazy(() => import('@/components/molecules/RecentActivity'));
+const BadgesSection = React.lazy(() => import('@/components/molecules/BadgesSection'));
+const SubmissionStats = React.lazy(() => import('@/components/molecules/SubmissionStats'));
 
 const ProfileView = () => {
     const { authUser } = useAuthStore();
     const [stats, setStats] = React.useState({
         solved: { total: 0, easy: 0, medium: 0, hard: 0 },
         totalQuestions: { total: 0, easy: 0, medium: 0, hard: 0 },
+        totalSubmissions: 0,
         percentage: 0
     });
     const [activityData, setActivityData] = React.useState(Array.from({ length: 365 }, () => 0));
+    const [activities, setActivities] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const [statsRes, heatmapRes, totalQuestionsRes] = await Promise.all([
+                const [statsRes, heatmapRes, totalQuestionsRes, activitiesRes] = await Promise.all([
                     axiosInstanceSubmissionService.get('/submission/profile/stats'),
                     axiosInstanceSubmissionService.get('/submission/profile/heatmap'),
-                    axiosInstanceProblemService.get('/problem/stats')
+                    axiosInstanceProblemService.get('/problem/stats'),
+                    axiosInstanceSubmissionService.get('/submission/all')
                 ]);
 
                 let solved = { total: 0, easy: 0, medium: 0, hard: 0 };
                 let totalQuestions = { total: 0, easy: 0, medium: 0, hard: 0 };
+                let totalSubmissions = 0;
 
                 if (statsRes.data.success) {
                     solved = statsRes.data.stats.solved;
+                    totalSubmissions = statsRes.data.stats.totalSubmissions;
                 }
 
                 if (totalQuestionsRes.data.success) {
@@ -42,6 +49,7 @@ const ProfileView = () => {
                 setStats({
                     solved,
                     totalQuestions,
+                    totalSubmissions,
                     percentage: totalQuestions.total > 0
                         ? ((solved.total / totalQuestions.total) * 100).toFixed(1)
                         : 0
@@ -57,6 +65,16 @@ const ProfileView = () => {
                         return heatmap[dateString] || 0;
                     });
                     setActivityData(dataArr);
+                }
+
+                if (activitiesRes.data.success) {
+                    const mappedActivities = (activitiesRes.data.submissions || []).slice(0, 10).map(s => ({
+                        id: s.id,
+                        title: s.problemTitle || `Problem ${s.problemId}`,
+                        status: s.status === 'Accepted' ? 'AC' : 'WA',
+                        time: new Date(s.createdAt).toLocaleDateString()
+                    }));
+                    setActivities(mappedActivities);
                 }
             } catch (error) {
                 console.error("Failed to fetch profile data:", error);
@@ -79,16 +97,28 @@ const ProfileView = () => {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <aside className="lg:col-span-1">
-                        <ProfileSidebar user={authUser} />
+                        <React.Suspense fallback={<Skeleton className="h-[600px] w-full" />}>
+                            {loading ? <Skeleton className="h-[600px] w-full" /> : <ProfileSidebar user={authUser} stats={stats} />}
+                        </React.Suspense>
                     </aside>
 
                     <main className="lg:col-span-3 space-y-8">
-                        <SubmissionStats stats={stats} />
+                        <React.Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            {loading ? <Skeleton className="h-40 w-full" /> : <SubmissionStats stats={stats} />}
+                        </React.Suspense>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <BadgesSection />
-                            <RecentActivity />
+                            <React.Suspense fallback={<Skeleton className="h-80 w-full" />}>
+                                {loading ? <Skeleton className="h-80 w-full" /> : <BadgesSection />}
+                            </React.Suspense>
+                            <React.Suspense fallback={<Skeleton className="h-80 w-full" />}>
+                                {loading ? <Skeleton className="h-80 w-full" /> : <RecentActivity activities={activities} />}
+                            </React.Suspense>
                         </div>
-                        <SubmissionHeatmap data={activityData} />
+
+                        <React.Suspense fallback={<Skeleton className="h-64 w-full" />}>
+                            {loading ? <Skeleton className="h-64 w-full" /> : <SubmissionHeatmap data={activityData} />}
+                        </React.Suspense>
                     </main>
                 </div>
             </div>
