@@ -5,6 +5,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Trophy, Calendar, Zap, LayoutGrid, Plus, Swords, Loader2 } from "lucide-react";
 import GridHighlights from "@/components/atoms/GridHighlights";
 import dynamic from "next/dynamic";
+import { getContestSocket, joinContestRoom } from "@/lib/socket";
+import ManageContestsButton from "@/components/molecules/ManageContestButton";
 
 const ContestGrid = dynamic(() => import("@/components/molecules/ContestGrid"), {
   loading: () => <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-20 animate-pulse">
@@ -39,7 +41,7 @@ export default function ContestDashboard({ initialContests }) {
 
   // 2. Socket Logic (UNCHANGED)
   useEffect(() => {
-    const socket = getSocket();
+    const socket = getContestSocket();
     contests.forEach((c) => joinContestRoom(c.id));
 
     const onStatus = ({ contestId, newStatus }) => {
@@ -134,8 +136,8 @@ export default function ContestDashboard({ initialContests }) {
                     onClick={() => setActiveTab(t.key)}
                     // RESPONSIVE FIX: flex-shrink-0 to prevent text squishing, adjusted padding
                     className={`flex-shrink-0 flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${isActive
-                        ? "bg-primary text-primary-content shadow-[0_0_20px_rgba(var(--p),0.4)]"
-                        : "text-base-content/40 hover:text-base-content hover:bg-base-content/5"
+                      ? "bg-primary text-primary-content shadow-[0_0_20px_rgba(var(--p),0.4)]"
+                      : "text-base-content/40 hover:text-base-content hover:bg-base-content/5"
                       }`}
                   >
                     <Icon size={14} className={isActive ? "animate-pulse" : ""} />
