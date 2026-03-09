@@ -17,6 +17,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "react-toastify";
 import { Pencil, Save, X as CloseIcon } from "lucide-react";
 import { motion, Reorder, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const VideoEmbed = ({ url }) => {
   const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
@@ -98,9 +99,11 @@ const ProblemDescription = ({
   const [tabOrder, setTabOrder] = useState(["description", "submissions", "leaderboard", "editorial"]);
   const { solvedProblemsIds, UpdateProblem, isUpdatingProblem } = useProblemStore();
   const { authUser } = useAuthStore();
+  const router = useRouter();
 
   const [isEditingEditorial, setIsEditingEditorial] = useState(false);
   const [editedEditorial, setEditedEditorial] = useState(editorial || "");
+  const [displayEditorial, setDisplayEditorial] = useState(editorial || "");
 
   const isAdmin = authUser?.role === "ADMIN";
   const isSolved = solvedProblemsIds.includes(problemId);
@@ -123,7 +126,9 @@ const ProblemDescription = ({
   const handleSaveEditorial = async () => {
     try {
       await UpdateProblem(problemId, { editorial: editedEditorial });
+      setDisplayEditorial(editedEditorial);
       setIsEditingEditorial(false);
+      router.refresh();
     } catch (error) {
       // Error toast handled by store
     }
@@ -283,7 +288,7 @@ const ProblemDescription = ({
                     placeholder="Enter editorial markdown here..."
                   />
                 ) : (
-                  <EditorialContent editorial={editorial} />
+                  <EditorialContent editorial={displayEditorial} />
                 )}
               </div>
             )}
