@@ -2,7 +2,7 @@
 
 CodeIU is a modern competitive programming platform designed for speed, scalability, and real-time interaction.
 It provides a seamless environment for solving coding problems, participating in contests, and tracking progress with an intuitive and responsive interface.
-
+🌐 Live Website: https://codeiu.in
 ---
 
 ## 🧠 What is CodeIU?
