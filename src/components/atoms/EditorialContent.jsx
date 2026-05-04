@@ -13,7 +13,7 @@ import "katex/dist/katex.min.css"; // Global math styling
 /**
  * EditorialContent — Renders editorial markdown with a language-tabbed code switcher.
  *
- * The editorial is a single markdown string. Code blocks fenced with ```language
+ * The editorial is a single markdown string. Code blocks fenced with ````language
  * are extracted and grouped by language for a tabbed view. Non-code markdown
  * (explanations, images, complexity analysis) is rendered between the code sections.
  */
