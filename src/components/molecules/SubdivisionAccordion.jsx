@@ -1,16 +1,26 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown, CheckCircle, Circle, Trash2, Edit } from "lucide-react";
+import { ChevronDown, CheckCircle, Circle, Trash2, Edit, FileText, Video, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
 import AdminPlaylistAttachProblemDialog from "@/components/organisms/AdminPlaylistAttachProblemDialog";
+import AdminPlaylistAttachResourceDialog from "@/components/organisms/AdminPlaylistAttachResourceDialog";
 import CreateSubdivisionDialog from "@/components/organisms/CreateSubdivisionDialog";
 
 const DIFFICULTY_COLORS = {
     EASY: "text-success",
     MEDIUM: "text-warning",
     HARD: "text-error",
+};
+
+const getResourceIcon = (type) => {
+    switch (type) {
+        case 'VIDEO': return <Video size={16} className="text-primary" />;
+        case 'LINK': return <LinkIcon size={16} className="text-secondary" />;
+        case 'IMAGE': return <ImageIcon size={16} className="text-accent" />;
+        default: return <FileText size={16} className="text-info" />;
+    }
 };
 
 const cleanTitle = (title, problemNo) => {
@@ -25,7 +35,7 @@ const cleanTitle = (title, problemNo) => {
 const SubdivisionAccordion = ({ playlistId, subdivision, solvedIds = [] }) => {
     const { authUser } = useAuthStore();
     const isAdmin = authUser?.role === "ADMIN";
-    const { deleteSubdivision, removeProblemFromSubdivision } = usePlaylistStore();
+    const { deleteSubdivision, removeProblemFromSubdivision, removeResourceFromSubdivision } = usePlaylistStore();
 
     const [isOpen, setIsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -100,11 +110,47 @@ const SubdivisionAccordion = ({ playlistId, subdivision, solvedIds = [] }) => {
                     }`}
             >
                 {isAdmin && (
-                    <div className="px-6 py-2 border-b border-base-content/5 bg-base-200/30 flex justify-end">
+                    <div className="px-6 py-2 border-b border-base-content/5 bg-base-200/30 flex justify-end gap-2">
+                        <AdminPlaylistAttachResourceDialog playlistId={playlistId} subdivisionId={subdivision.id} />
                         <AdminPlaylistAttachProblemDialog playlistId={playlistId} subdivisionId={subdivision.id} />
                     </div>
                 )}
                 <div className="divide-y divide-base-content/5">
+                    {/* Render Resources first */}
+                    {(subdivision.resources || []).map((resource) => (
+                        <div key={resource.id} className="flex items-center hover:bg-base-content/5 transition-colors group relative bg-base-300/30">
+                            <Link
+                                href={`/resource/${resource.id}`}
+                                className="flex items-center gap-3 px-6 py-3.5 flex-1"
+                            >
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-base-100 flex-shrink-0 border border-base-content/10 shadow-sm">
+                                    {getResourceIcon(resource.type)}
+                                </div>
+                                <span className="text-sm font-semibold group-hover:text-secondary transition-colors truncate">
+                                    {resource.title}
+                                </span>
+                                <span className="ml-auto text-[10px] uppercase font-bold opacity-30 px-2 py-0.5 rounded-full bg-base-content/10">
+                                    {resource.type}
+                                </span>
+                            </Link>
+                            {isAdmin && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        if (confirm("Remove resource?")) {
+                                            removeResourceFromSubdivision(playlistId, subdivision.id, resource.id);
+                                        }
+                                    }}
+                                    className="absolute right-4 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-error/10 hover:text-error rounded-lg z-10"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+
+                    {/* Render Problems */}
                     {subdivision.problems.map((pp) => {
                         const isSolved = solvedSet.has(pp.problemId);
                         const problem = pp.problem;

@@ -167,6 +167,37 @@ export const usePlaylistStore = create((set, get) => ({
   },
 
   // ═══════════════════════════════════════
+  //  ADMIN — RESOURCES IN SUBDIVISIONS
+  // ═══════════════════════════════════════
+
+  addResourceToSubdivision: async (playlistId, subdivisionId, data, noToast = false) => {
+    try {
+      const res = await axiosInstanceProblemService.post(
+        `/playlist/subdivisions/${subdivisionId}/resources`,
+        data
+      );
+      if (!noToast) toast.success("Resource added successfully");
+      get().fetchPlaylistDetail(playlistId);
+      return res.data.resource;
+    } catch (error) {
+      toast.error(error.normalizedMessage || "Failed to add resource");
+      throw error;
+    }
+  },
+
+  removeResourceFromSubdivision: async (playlistId, subdivisionId, resourceId, noToast = false) => {
+    try {
+      await axiosInstanceProblemService.delete(
+        `/playlist/subdivisions/${subdivisionId}/resources/${resourceId}`
+      );
+      if (!noToast) toast.success("Resource removed successfully");
+      get().fetchPlaylistDetail(playlistId);
+    } catch (error) {
+      toast.error(error.normalizedMessage || "Failed to remove resource");
+      throw error;
+    }
+  },
+  // ═══════════════════════════════════════
   //  PROGRESS
   // ═══════════════════════════════════════
 
