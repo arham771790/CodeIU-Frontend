@@ -100,9 +100,6 @@ The platform is designed with a **modern, scalable architecture**:
 
 ---
 
-## 📸 Screenshots
-
-> *(Add UI screenshots here — this will significantly boost impact)*
 
 ---
 
