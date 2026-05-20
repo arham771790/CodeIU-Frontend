@@ -31,7 +31,7 @@ export default function ContestDashboard({ initialContests }) {
   const { authUser } = useAuthStore();
   const isAdmin = authUser?.role === "ADMIN";
 
-  const [activeTab, setActiveTab] = useState("UPCOMING");
+  const [activeTab, setActiveTab] = useState("ALL");
   const [openCreate, setOpenCreate] = useState(false);
 
   // 1. Hydrate Store once
