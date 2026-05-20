@@ -1,85 +1,179 @@
-const DIRECT_ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
-const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
+const DIRECT_ALB_URL =
+  process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+const isLocal =
+  !process.env.NEXT_PUBLIC_DIRECT_ALB_URL ||
+  process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
 
-// Helper to get Base URL
+const DEFAULT_REVALIDATE_SECONDS = 60;
+
 const getBaseUrl = () => {
-  return isLocal ? "http://localhost:8000/problem/api/v1" : `${DIRECT_ALB_URL}/problem/api/v1`;
+  return isLocal
+    ? "http://localhost:8000/problem/api/v1"
+    : `${DIRECT_ALB_URL}/problem/api/v1`;
 };
 
-// 1. Fetch ALL Problems (Fully Cached, No Cookies)
-export async function getProblems(searchQuery = '', difficulty = '') {
+async function safeJson(response) {
   try {
-    const BASE_URL = getBaseUrl();
-
-    const res = await fetch(`${BASE_URL}/problem/getAllProblem`, {
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 3600, tags: ['problems-list'] }
-    });
-
-    if (!res.ok) return [];
-    
-    const data = await res.json();
-    let problems = data.problems || [];
-
-    // Simple Server-Side Filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      problems = problems.filter(p => 
-        p.title.toLowerCase().includes(q) || 
-        p.slug?.toLowerCase().includes(q) ||
-        String(p.problemNo).includes(q)
-      );
-    }
-    if (difficulty) problems = problems.filter(p => p.difficulty === difficulty.toUpperCase());
-
-    // Sort by problemNo ascending
-    problems.sort((a, b) => (a.problemNo || 0) - (b.problemNo || 0));
-
-    return problems;
-  } catch (error) {
-    console.error("Server Fetch Error:~", error.message);
-    return [];
-  }
-}
-
-// 2. Fetch SINGLE Problem
-export async function getProblemById(id) {
-  try {
-    const BASE_URL = getBaseUrl();
-
-    // Note: If single problems are public, you shouldn't need cookies here either
-    const res = await fetch(`${BASE_URL}/problem/getProblem/${id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 3600, tags: [`problem-${id}`] }
-    });
-
-    if (!res.ok) {
-      console.error(`Backend Error ${res.status}: ${res.statusText}`);
-      return null;
-    }
-    
-    const data = await res.json();
-    return data.problem || null;
-
-  } catch (error) {
-    console.error("Server Fetch Error (Single Problem):", error.message);
+    return await response.json();
+  } catch {
     return null;
   }
 }
 
-// 3. Fetch ALL Playlists (For SEO/Sitemap)
-export async function getPlaylists() {
+function normalizeError(response, payload, fallbackMessage) {
+  const backendError = payload?.error;
+  return {
+    status: response.status,
+    code: backendError?.code || "SRV_001",
+    message: backendError?.message || fallbackMessage,
+  };
+}
+
+function applyProblemFilters(problems, searchQuery = "", difficulty = "") {
+  let filteredProblems = Array.isArray(problems) ? [...problems] : [];
+
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filteredProblems = filteredProblems.filter(
+      (problem) =>
+        problem.title?.toLowerCase().includes(query) ||
+        problem.slug?.toLowerCase().includes(query) ||
+        String(problem.problemNo).includes(query),
+    );
+  }
+
+  if (difficulty) {
+    filteredProblems = filteredProblems.filter(
+      (problem) => problem.difficulty === difficulty.toUpperCase(),
+    );
+  }
+
+  filteredProblems.sort((left, right) => (left.problemNo || 0) - (right.problemNo || 0));
+  return filteredProblems;
+}
+
+async function fetchProblemsResource(searchQuery = "", difficulty = "") {
   try {
-    const BASE_URL = getBaseUrl();
-    const res = await fetch(`${BASE_URL}/playlist`, {
+    const response = await fetch(`${getBaseUrl()}/problem/getAllProblem`, {
+      headers: { "Content-Type": "application/json" },
+      next: {
+        revalidate: DEFAULT_REVALIDATE_SECONDS,
+        tags: ["problems-list"],
+      },
+    });
+
+    const payload = await safeJson(response);
+
+    if (!response.ok) {
+      return {
+        problems: [],
+        meta: payload?.meta || null,
+        error: normalizeError(
+          response,
+          payload,
+          "Problem catalog is temporarily unavailable",
+        ),
+      };
+    }
+
+    return {
+      problems: applyProblemFilters(payload?.problems || [], searchQuery, difficulty),
+      meta: payload?.meta || null,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Server Fetch Error (Problems):", error.message);
+    return {
+      problems: [],
+      meta: null,
+      error: {
+        status: 0,
+        code: "SRV_001",
+        message: "Problem catalog is temporarily unavailable",
+      },
+    };
+  }
+}
+
+async function fetchProblemResource(id) {
+  try {
+    const response = await fetch(`${getBaseUrl()}/problem/getProblem/${id}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      next: { revalidate: 3600, tags: ['playlists-list'] }
+      next: {
+        revalidate: DEFAULT_REVALIDATE_SECONDS,
+        tags: [`problem-${id}`],
+      },
     });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.playlists || [];
+
+    const payload = await safeJson(response);
+
+    if (!response.ok) {
+      return {
+        problem: null,
+        meta: payload?.meta || null,
+        error: normalizeError(
+          response,
+          payload,
+          response.status === 404
+            ? "Problem not found"
+            : "Problem detail is temporarily unavailable",
+        ),
+      };
+    }
+
+    return {
+      problem: payload?.problem || null,
+      meta: payload?.meta || null,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Server Fetch Error (Single Problem):", error.message);
+    return {
+      problem: null,
+      meta: null,
+      error: {
+        status: 0,
+        code: "SRV_001",
+        message: "Problem detail is temporarily unavailable",
+      },
+    };
+  }
+}
+
+export async function getProblems(searchQuery = "", difficulty = "") {
+  const { problems } = await fetchProblemsResource(searchQuery, difficulty);
+  return problems;
+}
+
+export async function getProblemsPageData(searchQuery = "", difficulty = "") {
+  return fetchProblemsResource(searchQuery, difficulty);
+}
+
+export async function getProblemById(id) {
+  const { problem } = await fetchProblemResource(id);
+  return problem;
+}
+
+export async function getProblemPageData(id) {
+  return fetchProblemResource(id);
+}
+
+export async function getPlaylists() {
+  try {
+    const response = await fetch(`${getBaseUrl()}/playlist`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      next: {
+        revalidate: DEFAULT_REVALIDATE_SECONDS,
+        tags: ["playlists-list"],
+      },
+    });
+
+    if (!response.ok) return [];
+
+    const payload = await response.json();
+    return payload.playlists || [];
   } catch (error) {
     console.error("Server Fetch Error (Playlists):", error.message);
     return [];

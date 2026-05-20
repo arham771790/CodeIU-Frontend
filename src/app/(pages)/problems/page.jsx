@@ -1,7 +1,7 @@
-import { getProblems } from "@/lib/services/problemService";
+import { getProblemsPageData } from "@/lib/services/problemService";
 import ProblemFilters from "@/components/molecules/ProblemFilters";
 import GridHighlights from "@/components/atoms/GridHighlights";
-import { Terminal } from "lucide-react";
+import { AlertTriangle, Terminal } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProblemsTable = dynamic(() => import("@/components/organisms/ProblemsTable"), {
@@ -15,8 +15,7 @@ export default async function ProblemsPage({ searchParams }) {
   const query = params?.q || "";
   const difficulty = params?.difficulty || "";
 
-  // 🚀 This is now 100% statically cached across all users!
-  const problems = await getProblems(query, difficulty);
+  const { problems, error } = await getProblemsPageData(query, difficulty);
 
   return (
     <div className="bg-base-300 text-base-content font-sans min-h-screen overflow-hidden relative">
@@ -62,7 +61,22 @@ export default async function ProblemsPage({ searchParams }) {
           <ProblemFilters />
         </div>
 
-        {/* 🚀 Pass the cached problems down to the Client Component */}
+        {error ? (
+          <div className="mb-6 rounded-[2rem] border border-warning/20 bg-warning/10 px-5 py-4 text-sm text-warning-content/80 backdrop-blur-md">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 text-warning" />
+              <div>
+                <p className="font-black uppercase tracking-[0.2em] text-[11px] text-warning">
+                  Problem Service Delayed
+                </p>
+                <p className="mt-1 text-base-content/70">
+                  {error.message}. Public problems will reappear automatically once the service wakes up.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <ProblemsTable problems={problems} />
 
       </div>
