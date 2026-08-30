@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
 
-const SUBMISSION_BASE = isLocal ? "http://localhost:8080" : ALB_URL;
+const SUBMISSION_BASE = isLocal ? "http://localhost:8085" : ALB_URL;
 const CONTEST_BASE = isLocal ? "http://localhost:8090" : ALB_URL;
 
 let submissionSocket;
@@ -16,7 +16,7 @@ export const getSocket = () => {
     // Connect to SUBMISSION_BASE, path includes service prefix for ALB routing
     submissionSocket = io(SUBMISSION_BASE, {
       path: "/submission/realtime",
-      transports: ["polling", "websocket"],
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
@@ -25,7 +25,7 @@ export const getSocket = () => {
     });
 
     submissionSocket.on("connect_error", (err) => {
-      console.error("❌ Submission Socket error:", err.message);
+      console.warn("⚠️ Submission Socket connection attempt error:", err.message);
     });
   }
   return submissionSocket;
@@ -37,7 +37,7 @@ export const getContestSocket = () => {
     // Connect to CONTEST_BASE, path includes service prefix for ALB routing
     contestSocket = io(CONTEST_BASE, {
       path: "/contest/realtime",
-      transports: ["polling", "websocket"],
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
@@ -46,7 +46,7 @@ export const getContestSocket = () => {
     });
 
     contestSocket.on("connect_error", (err) => {
-      console.error("❌ Contest Socket error:", err.message);
+      console.warn("⚠️ Contest Socket connection attempt error:", err.message);
     });
   }
   return contestSocket;

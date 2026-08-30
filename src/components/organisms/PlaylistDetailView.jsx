@@ -1,4 +1,5 @@
 "use client";
+import ConfirmDialog from "@/components/molecules/ConfirmDialog";
 import { useEffect } from "react";
 import { ArrowLeft, Layers, Target, Trophy } from "lucide-react";
 import Link from "next/link";
@@ -23,6 +24,7 @@ const PlaylistDetailView = ({ slug }) => {
 
     const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
     const [isAddSubdivisionOpen, setIsAddSubdivisionOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
     useEffect(() => {
         if (slug) {
@@ -50,8 +52,7 @@ const PlaylistDetailView = ({ slug }) => {
         0,
     ) || 0;
 
-    const handleDeletePlaylist = async () => {
-        if (!confirm("Are you sure you want to delete this playlist?")) return;
+    const confirmDeletePlaylist = async () => {
         await deletePlaylist(playlist.id);
         router.push("/explore");
     };
@@ -106,7 +107,7 @@ const PlaylistDetailView = ({ slug }) => {
                                     <Edit size={16} /> Edit
                                 </button>
                                 <button
-                                    onClick={handleDeletePlaylist}
+                                    onClick={() => setIsDeleteOpen(true)}
                                     className="btn btn-sm btn-ghost text-error hover:bg-error/10 rounded-xl"
                                 >
                                     <Trash2 size={16} /> Delete
@@ -186,6 +187,15 @@ const PlaylistDetailView = ({ slug }) => {
                         isOpen={isAddSubdivisionOpen}
                         onClose={() => setIsAddSubdivisionOpen(false)}
                         playlistId={playlist.id}
+                    />
+                    <ConfirmDialog
+                        isOpen={isDeleteOpen}
+                        onClose={() => setIsDeleteOpen(false)}
+                        onConfirm={confirmDeletePlaylist}
+                        title="Delete Playlist?"
+                        message="Are you sure you want to delete this playlist? This action cannot be undone."
+                        confirmText="Delete"
+                        type="danger"
                     />
                 </>
             )}

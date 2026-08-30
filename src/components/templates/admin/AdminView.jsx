@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Puzzle, Trophy, Search, Bell, Mail, Users, Home } from 'lucide-react';
+import { LayoutDashboard, Puzzle, Trophy, Search, Bell, Mail, Users, Home, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
 import { axiosInstanceSubmissionService } from '@/lib/axios';
@@ -33,13 +33,16 @@ const STAT_CONFIG = {
     accepted: { name: 'Accepted Submissions', icon: Puzzle, color: 'from-emerald-500 to-teal-500' },
 };
 
+const showCdnReset =
+    process.env.NODE_ENV !== "production" ||
+    process.env.NEXT_PUBLIC_ENABLE_CDN_RESET === "true";
+
 const AdminView = () => {
     const [activeView, setActiveView] = useState('Dashboard');
     const { authUser } = useAuthStore();
-    const { allUsers, fetchAllUsers } = useAdminStore();
+    const { allUsers, fetchAllUsers, resetCdnCache, isResettingCdn } = useAdminStore();
     const { contests, fetchContests } = useContestStore();
     const [overviewData, setOverviewData] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -62,8 +65,6 @@ const AdminView = () => {
                 }
             } catch (error) {
                 console.error("Failed to fetch admin stats:", error);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -135,6 +136,17 @@ const AdminView = () => {
                         />
                     </div>
                     <div className="flex items-center gap-6 mr-4">
+                        {showCdnReset && (
+                            <button
+                                type="button"
+                                onClick={() => void resetCdnCache()}
+                                disabled={isResettingCdn}
+                                className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-primary transition hover:bg-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <RotateCcw className={`w-4 h-4 ${isResettingCdn ? 'animate-spin' : ''}`} />
+                                {isResettingCdn ? 'Resetting CDN' : 'Reset CDN'}
+                            </button>
+                        )}
                         <button className="text-base-content/40 hover:text-base-content transition-colors">
                             <Mail className="w-5 h-5" />
                         </button>

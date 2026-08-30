@@ -1,7 +1,8 @@
 import { useAdminStore } from "@/store/useAdminStore";
 import { useEffect, useState } from "react";
 import AdminCrudView from "./AdminCrudView";
-import SkeletonUI from "@/components/atoms/Loader"
+import SkeletonUI from "@/components/atoms/Loader";
+import { toast } from "react-toastify";
 
 const AdminUsersView = () => {
     const { allUsers, fetchAllUsers, DeleteUser } = useAdminStore();
@@ -52,7 +53,7 @@ const AdminUsersView = () => {
             title="User Management"
             data={allUsers}
             columns={columns}
-            onAddItem={() => alert('Add User functionality coming soon')}
+            onAddItem={() => toast.info('Add User functionality coming soon')}
             handleEdit={handleEdit}
             handledelete={handledelete}
             isDeleting={isDeleting}

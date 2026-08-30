@@ -101,7 +101,7 @@ export default function AdminAttachProblemsDialog({ contestId }) {
     if (alreadySelected.has(p.id)) return;
     const toastId = toast.loading("Fetching problem details...");
     try {
-      const fullProblem = await fetchProblemDetailsAction(p.id);
+      const fullProblem = await fetchProblemDetailsAction(p.slug || p.id);
       if (!fullProblem) throw new Error("Not found");
       setSelected((prev) => [
         ...prev,

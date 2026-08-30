@@ -1,4 +1,12 @@
 const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
+
+const isTruthy = (value) =>
+  ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
+
+const CDN_CACHE_DISABLED =
+  isTruthy(process.env.DISABLE_CDN_CACHE) ||
+  process.env.NODE_ENV !== "production";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -9,7 +17,7 @@ const nextConfig = {
       { protocol: "https", hostname: "codeiu.in" },
     ],
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400, // 24h browser cache for optimized images
+    minimumCacheTTL: CDN_CACHE_DISABLED ? 0 : 86400, // 24h browser cache for optimized images
   },
 
   // Compress output
@@ -49,6 +57,14 @@ const nextConfig = {
       { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
     ];
 
+    const cacheHeaders = CDN_CACHE_DISABLED ? [
+      { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+      { key: 'Pragma', value: 'no-cache' },
+      { key: 'Expires', value: '0' },
+    ] : [
+      { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+    ];
+
     return [
       // All pages: security headers
       {
@@ -58,23 +74,33 @@ const nextConfig = {
       // Static assets: aggressive long-term caching
       {
         source: '/_next/static/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
+        headers: CDN_CACHE_DISABLED
+          ? [
+              { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+              { key: 'Pragma', value: 'no-cache' },
+              { key: 'Expires', value: '0' },
+            ]
+          : [
+              { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+            ],
       },
       // Public folder static assets
       {
         source: '/(.*)\\.(ico|png|jpg|jpeg|svg|webp|avif|woff2|woff|css|js)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
-        ],
+        headers: cacheHeaders,
       },
       // Fonts: very long cache
       {
         source: '/_next/static/media/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
+        headers: CDN_CACHE_DISABLED
+          ? [
+              { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+              { key: 'Pragma', value: 'no-cache' },
+              { key: 'Expires', value: '0' },
+            ]
+          : [
+              { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+            ],
       },
     ];
   },
@@ -97,11 +123,11 @@ const nextConfig = {
         },
         {
           source: "/api/v1/submission/:path*",
-          destination: "http://localhost:8080/submission/api/v1/submission/:path*",
+          destination: "http://localhost:8085/submission/api/v1/submission/:path*",
         },
         {
           source: "/api/v1/execute/:path*",
-          destination: "http://localhost:8080/submission/api/v1/execute/:path*",
+          destination: "http://localhost:8085/submission/api/v1/execute/:path*",
         },
         {
           source: "/api/v1/contest/:path*",
@@ -113,15 +139,15 @@ const nextConfig = {
         },
         {
           source: "/api/v1/playlist/:path*",
-          destination: "http://localhost:8000/problem/api/v1/playlist/:path*",
+          destination: "http://localhost:8005/problem/api/v1/playlist/:path*",
         },
         {
           source: "/api/v1/playlist",
-          destination: "http://localhost:8000/problem/api/v1/playlist",
+          destination: "http://localhost:8005/problem/api/v1/playlist",
         },
         {
           source: "/api/v1/:service/:path*",
-          destination: "http://localhost:8000/:service/api/v1/:service/:path*", 
+          destination: "http://localhost:8005/:service/api/v1/:service/:path*", 
         },
       ];
     } else {

@@ -35,7 +35,6 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigninUp: true });
     try {
       const res = await axiosInstanceAuthService.post("/auth/register", payload, { withCredentials: true });
-      console.log("signup response:", res);
       if (res?.status === 200) {
         set({ authUser: res.data.user, isAuthenticated: true });
         toast.success(res?.data?.message || "Signup successful! Please check your email (including spam folder) for the verification link.");
@@ -120,7 +119,6 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstanceAuthService.post("/auth/login", payload, { withCredentials: true });
-      console.log("login response:", res);
       const userPayload = res?.data?.data;
       if (res?.status === 200 && userPayload) {
         set({ authUser: userPayload, isAuthenticated: true });
@@ -172,8 +170,6 @@ export const useAuthStore = create((set, get) => ({
       toast.error(res?.data?.message || "Email verification failed");
       return false;
     } catch (e) {
-      console.log(e);
-      
       toast.error(e?.response?.data?.message || "Error verifying email");
       return false;
     }

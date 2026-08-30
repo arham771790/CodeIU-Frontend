@@ -5,7 +5,10 @@ const isLocal = !ALB_URL || ALB_URL.includes("localhost");
 const PROD_BASE = INTERNAL_API_URL || ALB_URL;
 
 export const AUTH_SERVICE_URL = isLocal ? "http://localhost:8020" : `${PROD_BASE}/auth`;
-export const PROBLEM_SERVICE_URL = isLocal ? "http://localhost:8000" : `${PROD_BASE}/problem`;
-export const SUBMISSION_SERVICE_URL = isLocal ? "http://localhost:8080" : `${PROD_BASE}/submission`;
+export const PROBLEM_SERVICE_URL = isLocal ? "http://localhost:8005" : `${PROD_BASE}/problem`;
+export const PROBLEM_API_URL = isLocal
+  ? "http://localhost:8005/problem/api/v1"
+  : `${PROD_BASE}/problem/api/v1`;
+export const SUBMISSION_SERVICE_URL = isLocal ? "http://localhost:8085" : `${PROD_BASE}/submission`;
 export const CONTEST_SERVICE_URL = isLocal ? "http://localhost:8090" : `${PROD_BASE}/contest`;
 export const NOTIFICATION_SERVICE_URL = isLocal ? "http://localhost:8030" : `${PROD_BASE}/notification`;

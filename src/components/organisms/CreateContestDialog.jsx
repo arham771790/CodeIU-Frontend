@@ -4,10 +4,9 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useContestStore } from "@/store/useContestStore";
+import { toast } from "react-toastify";
 
 export default function CreateContestDialog({ setOpen }) {
-  console.log("CreateContestDialog props:", { setOpen });
-
   const { authUser } = useAuthStore();
   const { createContest, isLoading } = useContestStore();
 
@@ -33,7 +32,7 @@ export default function CreateContestDialog({ setOpen }) {
     const endsISO = new Date(form.endsAt).toISOString();
 
     if (new Date(endsISO) <= new Date(startsISO)) {
-      alert("Ends At must be after Starts At");
+      toast.error("Ends At must be after Starts At");
       return;
     }
 

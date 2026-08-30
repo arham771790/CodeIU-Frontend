@@ -22,7 +22,6 @@ export const useSubmissionStore = create((set, get) => {
 
     return {
     
-    isCodeRunning: false, // Legacy, will use cooldowns for UI state
     isSubmittingCode: false,
     RunReslts: [],
     
@@ -58,8 +57,6 @@ export const useSubmissionStore = create((set, get) => {
         isSubmittingCode: false,
         submissions: [] 
     }),
-
-    clearRunResults: () => set({ RunReslts: [] }),
 
     addSubmission: (newSubmission) => set((state) => ({
         submissions: [newSubmission, ...state.submissions] 
@@ -178,10 +175,10 @@ export const useSubmissionStore = create((set, get) => {
     },
 
     runCode: async (sourceCode, stdin, languageId, expected_output) => {
-        // Auto-reset after 5s in case of hang
+        // Auto-reset after 30s in case of hang
         const autoResetTimer = setTimeout(() => {
             set({ isexecuting: false });
-        }, 5000);
+        }, 30000);
 
         try {
             set({ isexecuting: true, RunReslts: [] });

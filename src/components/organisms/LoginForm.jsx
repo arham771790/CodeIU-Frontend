@@ -113,6 +113,7 @@ export default function LoginForm() {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="Enter your email"
+                            autoComplete="email"
                             className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-black`}
                         />
                         {errors.email && (
@@ -132,6 +133,7 @@ export default function LoginForm() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 placeholder="Enter your Password"
+                                autoComplete="current-password"
                                 className={`w-full px-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-black`}
                             />
                             <EyeIcon

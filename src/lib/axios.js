@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
+import { PROBLEM_API_URL } from "@/lib/urls";
 import { toast } from "react-toastify";
 
 const BASE_URL = "/api/v1";

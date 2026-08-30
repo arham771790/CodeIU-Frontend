@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { axiosInstanceAuthService } from "@/lib/axios";
+import { axiosInstanceAuthService, axiosInstanceProblemService } from "@/lib/axios";
 import { toast } from "react-toastify";
 
 
@@ -13,12 +13,12 @@ export const useAdminStore = create((set) =>
         isLoadingUsers: false,
         isUpdatingRole:false,
         isDeletingUser:false,
+        isResettingCdn:false,
 
         fetchAllUsers: async () => {
             try {
                 set({ isLoadingUsers: true })
                 const res = await axiosInstanceAuthService.get("/admin/getallusers", { withCredentials: true });
-                console.log("All users response:", res.data);
                 if (res?.status === 200) {
                     set({ allUsers: res.data?.users });
                     return true;
@@ -74,6 +74,32 @@ export const useAdminStore = create((set) =>
                 toast.error(error.normalizedMessage || "Error deleting user");
             } finally {
                 set({isDeletingUser:false})
+            }
+        },
+
+        resetCdnCache: async () => {
+            try {
+                set({ isResettingCdn: true });
+                const res = await axiosInstanceProblemService.post(
+                    "/problem/admin/cache/purge",
+                    {},
+                    { withCredentials: true }
+                );
+
+                if (res?.status === 200) {
+                    const message = res?.data?.message || "CDN cache reset requested";
+                    if (res?.data?.result?.skipped) {
+                        toast.info(message);
+                    } else {
+                        toast.success(message);
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error(`[useAdminStore] resetCdnCache [${error.errorCode}] ${error.normalizedMessage}`, { traceId: error.traceId });
+                toast.error(error.normalizedMessage || "Error resetting CDN cache");
+            } finally {
+                set({ isResettingCdn: false });
             }
         }
     }

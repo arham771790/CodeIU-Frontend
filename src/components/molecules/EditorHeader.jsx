@@ -52,7 +52,15 @@ const EditorHeader = ({
             <div className="flex gap-2 sm:gap-4 text-base-content/50 flex-shrink-0">
                 <Expand
                     size={16}
+                    onClick={() => {
+                        if (!document.fullscreenElement) {
+                            document.documentElement.requestFullscreen().catch(() => {});
+                        } else {
+                            document.exitFullscreen().catch(() => {});
+                        }
+                    }}
                     className="cursor-pointer hover:text-primary transition-colors mt-1 hidden sm:block"
+                    title="Toggle Fullscreen"
                 />
             </div>
         </div>

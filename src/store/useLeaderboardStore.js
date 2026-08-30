@@ -47,8 +47,6 @@ export const useLeaderboardStore = create((set, get) => ({
     let debounceTimer;
     socket.on("leaderboard:update", (payload) => {
       if (payload?.contestId !== contestId) return;
-      
-      console.log("⚡ Leaderboard Update Signal Received");
 
       // Debounce to prevent spamming the server if 10 users submit at once
       clearTimeout(debounceTimer);

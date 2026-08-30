@@ -5,7 +5,7 @@ const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBL
 
 // Helper to get Base URL
 const getBaseUrl = () => {
-  return isLocal ? "http://localhost:8080/submission/api/v1" : `${DIRECT_ALB_URL}/submission/api/v1`;
+  return isLocal ? "http://localhost:8085/submission/api/v1" : `${DIRECT_ALB_URL}/submission/api/v1`;
 };
 
 export async function getSubmissionForProblem(problemId) {
@@ -23,6 +23,8 @@ export async function getSubmissionForProblem(problemId) {
         const data = await res.json();
         return data.submission || [];
     } catch (error) {
-        
+        if (error.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+        console.error("Error fetching submissions for problem:", error);
+        return [];
     }
 }

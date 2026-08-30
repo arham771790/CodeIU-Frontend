@@ -1,16 +1,8 @@
-const DIRECT_ALB_URL =
-  process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
-const isLocal =
-  !process.env.NEXT_PUBLIC_DIRECT_ALB_URL ||
-  process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
+import { PROBLEM_API_URL } from "@/lib/urls";
 
 const DEFAULT_REVALIDATE_SECONDS = 60;
 
-const getBaseUrl = () => {
-  return isLocal
-    ? "http://localhost:8000/problem/api/v1"
-    : `${DIRECT_ALB_URL}/problem/api/v1`;
-};
+const getBaseUrl = () => PROBLEM_API_URL;
 
 async function safeJson(response) {
   try {
@@ -95,14 +87,14 @@ async function fetchProblemsResource(searchQuery = "", difficulty = "") {
   }
 }
 
-async function fetchProblemResource(id) {
+async function fetchProblemResource(slug) {
   try {
-    const response = await fetch(`${getBaseUrl()}/problem/getProblem/${id}`, {
+    const response = await fetch(`${getBaseUrl()}/problem/getProblem/${slug}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       next: {
         revalidate: DEFAULT_REVALIDATE_SECONDS,
-        tags: [`problem-${id}`],
+        tags: [`problem-${slug}`],
       },
     });
 
@@ -150,13 +142,13 @@ export async function getProblemsPageData(searchQuery = "", difficulty = "") {
   return fetchProblemsResource(searchQuery, difficulty);
 }
 
-export async function getProblemById(id) {
-  const { problem } = await fetchProblemResource(id);
+export async function getProblemById(slug) {
+  const { problem } = await fetchProblemResource(slug);
   return problem;
 }
 
-export async function getProblemPageData(id) {
-  return fetchProblemResource(id);
+export async function getProblemPageData(slug) {
+  return fetchProblemResource(slug);
 }
 
 export async function getPlaylists() {

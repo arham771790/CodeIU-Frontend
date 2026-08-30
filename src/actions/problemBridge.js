@@ -2,16 +2,10 @@
 
 import { cookies } from "next/headers";
 
-const DIRECT_ALB_URL =
-  process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
-const isLocal =
-  !process.env.NEXT_PUBLIC_DIRECT_ALB_URL ||
-  process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
+import { PROBLEM_API_URL } from "@/lib/urls";
 
 function getProblemServiceBaseUrl() {
-  return isLocal
-    ? "http://localhost:8000/problem/api/v1"
-    : `${DIRECT_ALB_URL}/problem/api/v1`;
+  return PROBLEM_API_URL;
 }
 
 async function fetchWithSession(pathname) {
@@ -36,7 +30,7 @@ export async function fetchAllProblemsAction() {
   return payload.problems || [];
 }
 
-export async function fetchProblemDetailsAction(id) {
-  const payload = await fetchWithSession(`/problem/getProblem/${id}`);
+export async function fetchProblemDetailsAction(slugOrId) {
+  const payload = await fetchWithSession(`/problem/getProblem/${slugOrId}`);
   return payload.problem || null;
 }

@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const { authUser, logout, isLoggingOut } = useAuthStore();
-  const navigate = useRouter();
 
   const handleLogout = async () => {
     await logout();
@@ -45,10 +44,10 @@ const Profile = () => {
             </Link>
           </li>
           <li>
-            <div className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg cursor-pointer">
+            <Link href="/profile/edit" className="flex items-center gap-3 p-2 hover:bg-base-content/10 rounded-lg">
               <Settings className="h-4 w-4" />
               Settings
-            </div>
+            </Link>
           </li>
           {authUser?.role === "ADMIN" && (
             <li>

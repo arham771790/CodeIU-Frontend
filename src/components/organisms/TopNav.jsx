@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSubmissionStore } from "@/store/useSubmissionStore";
 import ThemeController from "@/components/atoms/ThemeController";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "react-toastify";
 
 const TopNav = ({ problem, problems }) => {
   const [isProblemListOpen, setIsProblemListOpen] = useState(false);
@@ -132,14 +133,14 @@ const TopNav = ({ problem, problems }) => {
           <div className="flex items-center space-x-3">
             <button
               className="btn btn-warning btn-sm h-9 px-4 rounded-lg font-bold hover:cursor-not-allowed"
-              onClick={handleRunCode}
+              onClick={() => toast.info("You must be logged in to run code")}
               title="You must be logged in to Run code"
             >
               <Lock size={16} /> Run
             </button>
             <button
               className="btn btn-success btn-sm h-9 px-4 rounded-lg font-bold hover:cursor-not-allowed "
-              onClick={handleSubmitCode}
+              onClick={() => toast.info("You must be logged in to submit code")}
               title="You must be logged in to submit code"
             >
               <Lock size={16} /> Submit

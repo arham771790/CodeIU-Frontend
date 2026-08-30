@@ -1,5 +1,5 @@
 "use client";
-
+import ConfirmDialog from "@/components/molecules/ConfirmDialog";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useContestStore } from "@/store/useContestStore";
@@ -14,6 +14,7 @@ export default function ContestManager({ initialContests }) {
   const { contests, setContests, deleteContest, isLoading } = useContestStore();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   // 1. HYDRATE STORE: Put server data into Zustand immediately
   useEffect(() => {
@@ -35,9 +36,11 @@ export default function ContestManager({ initialContests }) {
     );
   }, [search, contests]);
 
-  const onDelete = async (id) => {
-    if (!confirm("Delete this contest?")) return;
-    await deleteContest(id);
+  const confirmDelete = async () => {
+    if (deletingId) {
+      await deleteContest(deletingId);
+      setDeletingId(null);
+    }
   };
 
   // If role is loading or not admin, show nothing or skeleton
@@ -81,11 +84,10 @@ export default function ContestManager({ initialContests }) {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        c.status === "RUNNING"
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${c.status === "RUNNING"
                           ? "bg-success/10 text-success border border-success/20"
                           : "bg-base-300 text-base-content/50"
-                      }`}
+                        }`}
                     >
                       {c.status}
                     </span>
@@ -106,7 +108,7 @@ export default function ContestManager({ initialContests }) {
                         Edit
                       </button>
                       <button
-                        onClick={() => onDelete(c.id)}
+                        onClick={() => setDeletingId(c.id)}
                         className="btn btn-ghost btn-xs rounded-lg text-error hover:bg-error hover:text-error-content"
                       >
                         Delete
@@ -124,6 +126,17 @@ export default function ContestManager({ initialContests }) {
       {editing && (
         <EditContestDialog contest={editing} onClose={() => setEditing(null)} />
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingId)}
+        onClose={() => setDeletingId(null)}
+        onConfirm={confirmDelete}
+        title="Delete Contest?"
+        message="Are you sure you want to delete this contest? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 }
