@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 const ALB_URL = process.env.NEXT_PUBLIC_DIRECT_ALB_URL || "https://api.codeiu.in";
 const isLocal = !process.env.NEXT_PUBLIC_DIRECT_ALB_URL || process.env.NEXT_PUBLIC_DIRECT_ALB_URL.includes("localhost");
 
-const SUBMISSION_BASE = isLocal ? "http://localhost:8085" : ALB_URL;
+const SUBMISSION_BASE = isLocal ? "http://localhost:8080" : ALB_URL;
 const CONTEST_BASE = isLocal ? "http://localhost:8090" : ALB_URL;
 
 let submissionSocket;
