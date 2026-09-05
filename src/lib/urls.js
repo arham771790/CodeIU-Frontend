@@ -12,3 +12,17 @@ export const PROBLEM_API_URL = isLocal
 export const SUBMISSION_SERVICE_URL = isLocal ? "http://localhost:8080" : `${PROD_BASE}/submission`;
 export const CONTEST_SERVICE_URL = isLocal ? "http://localhost:8090" : `${PROD_BASE}/contest`;
 export const NOTIFICATION_SERVICE_URL = isLocal ? "http://localhost:8030" : `${PROD_BASE}/notification`;
+
+// Full service-mounted API base URLs (include the mounted /api/v1 paths used by backend routers)
+export const AUTH_API_URL = isLocal
+  ? "http://localhost:8020/auth/api/v1"
+  : `${PROD_BASE}/auth/api/v1`;
+export const SUBMISSION_API_URL = isLocal
+  ? "http://localhost:8080/submission/api/v1"
+  : `${PROD_BASE}/submission/api/v1`;
+export const CONTEST_API_URL = isLocal
+  ? "http://localhost:8090/contest/api/v1"
+  : `${PROD_BASE}/contest/api/v1`;
+export const NOTIFICATION_API_URL = isLocal
+  ? "http://localhost:8030/notification/api/v1"
+  : `${PROD_BASE}/notification/api/v1`;
