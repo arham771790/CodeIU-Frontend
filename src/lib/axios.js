@@ -1,9 +1,13 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
-import { PROBLEM_API_URL } from "@/lib/urls";
+import {
+  PROBLEM_API_URL,
+  SUBMISSION_API_URL,
+  AUTH_API_URL,
+  CONTEST_API_URL,
+  NOTIFICATION_API_URL,
+} from "@/lib/urls";
 import { toast } from "react-toastify";
-
-const BASE_URL = "/api/v1";
 
 // --- Refresh Token Queue ---
 // When an access token expires while multiple requests are in-flight,
@@ -74,7 +78,8 @@ const addInterceptors = (instance) => {
 
         try {
           // Attempt to get a new access token using the httpOnly refresh cookie
-          await axios.post(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+          // Use the auth service API base so the refresh call targets the correct backend mount
+          await axios.post(`${AUTH_API_URL}/auth/refresh`, {}, { withCredentials: true });
 
           // If refresh succeeded, replay all queued requests
           processQueue(null);
@@ -125,7 +130,7 @@ const addInterceptors = (instance) => {
  * =========================
  */
 export const axiosInstanceAuthService = addInterceptors(axios.create({
-  baseURL: BASE_URL,
+  baseURL: AUTH_API_URL,
   withCredentials: true,
 }));
 
@@ -135,7 +140,7 @@ export const axiosInstanceAuthService = addInterceptors(axios.create({
  * =========================
  */
 export const axiosInstanceProblemService = addInterceptors(axios.create({
-  baseURL: BASE_URL,
+  baseURL: PROBLEM_API_URL,
   withCredentials: true,
 }));
 
@@ -145,7 +150,7 @@ export const axiosInstanceProblemService = addInterceptors(axios.create({
  * =========================
  */
 export const axiosInstanceContestService = addInterceptors(axios.create({
-  baseURL: BASE_URL,
+  baseURL: CONTEST_API_URL,
   withCredentials: true,
 }));
 
@@ -155,6 +160,6 @@ export const axiosInstanceContestService = addInterceptors(axios.create({
  * =========================
  */
 export const axiosInstanceSubmissionService = addInterceptors(axios.create({
-  baseURL: BASE_URL,
+  baseURL: SUBMISSION_API_URL,
   withCredentials: true,
 }));
